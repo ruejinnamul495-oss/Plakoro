@@ -201,7 +201,7 @@ function renderExtraDieChoices(){const root=document.getElementById('extraDieCho
 function rollForTurn(n,isAI,modifier,baseCount=3){let indices=[];if(modifier<0){indices=Array.from({length:Math.max(0,baseCount+modifier)},(_,i)=>i)}else{indices=Array.from({length:baseCount},(_,i)=>i);for(let i=0;i<modifier;i++){let chosen;if(isAI){chosen=Math.floor(Math.random()*3)}else{const el=document.getElementById(`extraDie${i}`);chosen=el?Number(el.value):0}indices.push(chosen)}}return indices.map(dieIndex=>({dieIndex,face:rollFace(dieIndex,isAI?'2':'1')}))}
 function rollCounts(roll){const c={};roll.forEach(face=>face.forEach(t=>c[t]=(c[t]||0)+1));return c}
 function canPay(cost,counts){const available={...counts};let needColorless=cost['무색']||0;for(const [t,n] of Object.entries(cost)){if(t==='무색')continue;if((available[t]||0)<n)return false;available[t]-=n;}const leftover=Object.values(available).reduce((a,b)=>a+b,0);return leftover>=needColorless}
-function pose(){return ['정방향','왼쪽','오른쪽','뒤로','엎드림','물구나무'][Math.floor(Math.random()*6)]}
+function pose(){return ['정방향','왼쪽','오른쪽','뒤로','엎드림','물구나무','뒤집힘'][Math.floor(Math.random()*7)]}
 function attackType(m){return Object.keys(m.cost||{}).find(t=>t!=='무색')||null}
 function resolveMove(n,m,roll,posture,isAI=false){const opp=n==='1'?'2':'1',p=selectedPokemon(n),target=selectedPokemon(opp),counts=rollCounts(roll),effects=battle.effects[n]||{},targetEffects=battle.effects[opp]||{};let damage=m.damage,ignoreWeakness=m.name==='일렉러쉬',selfDamage=m.baseSelfDamage||0,heal=0,notes=[];
 if(m.baseReduceNext){battle.effects[n].reduce=(battle.effects[n].reduce||0)+m.baseReduceNext;notes.push(`다음 상대 턴 받는 피해 -${m.baseReduceNext}`)}
