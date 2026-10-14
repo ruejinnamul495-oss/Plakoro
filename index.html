@@ -54,6 +54,42 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{height:100vh;heig
 /* Home view fits the available viewport; longer battle panels scroll inside main. */.home-brand{font-size:clamp(30px,5vw,64px);font-weight:950;letter-spacing:-.04em;margin:0 0 8px}.home-subtitle{font-size:clamp(14px,1.6vw,18px);color:var(--muted);margin:0 0 30px}.home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.home-action{min-height:clamp(110px,17vh,180px);padding:clamp(18px,3vw,32px);border:1px solid var(--line);border-radius:22px;background:var(--panel);text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:18px;cursor:pointer;box-shadow:0 8px 30px #17213a0b}.home-action:hover{border-color:var(--accent)}.home-action.primary{background:linear-gradient(135deg,#24204c,#5147d9);color:#fff;border:0}.home-action .home-icon{font-size:clamp(26px,3vw,40px)}.home-action strong{font-size:clamp(18px,2vw,25px)}.home-action small{font-size:13px;opacity:.75;line-height:1.5}
 #preBattleModal{position:fixed;inset:0;z-index:1000;background:#101426b8;display:flex;align-items:center;justify-content:center;padding:16px}#preBattleModal.hidden{display:none!important}.prebattle-card{width:min(620px,100%);max-height:92vh;overflow:auto;background:var(--panel);border-radius:24px;padding:clamp(20px,4vw,36px);box-shadow:0 24px 90px #0004}.prebattle-card h2{font-size:clamp(23px,3vw,32px)}.prebattle-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.prebattle-actions>*{flex:1;min-width:140px}
 @media(min-width:900px){.home-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.home-action:first-child{grid-column:span 3;min-height:140px}}@media(max-width:600px){header h1{font-size:20px;margin:4px 0}header p{font-size:11px;margin:4px 0}.home-grid{grid-template-columns:1fr}.home-action{min-height:100px;flex-direction:row;align-items:center}.home-action:first-child{min-height:90px}.grid{grid-template-columns:1fr}.prebattle-actions{flex-direction:column}}
+
+/* PvP mirrors the VS AI battle arena layout */
+.pvp-shell{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.pvp-topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 2px}
+.pvp-topbar h2{font-size:23px;margin:2px 0 4px}.pvp-topbar .sub{margin:0}
+.pvp-settings,.pvp-room-card,.pvp-action-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:0 4px 16px #17213a08}
+.pvp-settings summary{cursor:pointer;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pvp-settings-body{padding-top:14px}.pvp-settings-body .sub{margin-top:0}.pvp-settings-body .grid{margin-top:10px}
+.pvp-room-card{background:linear-gradient(135deg,#fff,#f4f5ff);border-color:#d7d8f8}
+.pvp-card-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.pvp-card-heading h3{font-size:17px;margin:0}
+.pvp-room-card .row{margin-top:8px}.pvp-room-card #pvpRoomStatus{margin:10px 0 0}
+.pvp-player-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.pvp-arena{display:flex;flex-direction:column;gap:0}
+.pvp-fighter{border:1px solid;border-radius:18px;padding:16px 18px;box-shadow:0 8px 22px #17213a12}
+.pvp-enemy{background:linear-gradient(135deg,#fff 0%,#fff3f4 100%);border-color:#f0cfd3}
+.pvp-self{background:linear-gradient(135deg,#fff 0%,#f1f2ff 100%);border-color:#c9c9f8}
+.pvp-fighter-main{display:grid;grid-template-columns:68px minmax(0,1fr);gap:13px;align-items:center;margin-top:10px}
+.pvp-avatar{height:68px;width:68px;border-radius:17px;display:grid;place-items:center;font-size:30px;font-weight:900;border:1px solid}
+.enemy-avatar{background:linear-gradient(145deg,#ffe5e8,#ffcbd2);color:#a83245;border-color:#f0b9c2}
+.self-avatar{background:linear-gradient(145deg,#e5e5ff,#c9c9ff);color:#4b45bb;border-color:#b9b8fa}
+.pvp-fighter-info{min-width:0}.pvp-fighter-info h3{margin:0 0 5px;font-size:17px}.pvp-fighter-info small{font-size:11px;color:var(--muted)}
+.pvp-enemy-state,.pvp-self-state{font-size:12px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+.pvp-hp-track{height:9px;background:#e9edf5;border-radius:99px;overflow:hidden;margin:8px 0 4px}
+.pvp-hp-track span{display:block;width:0;height:100%;background:var(--green);transition:width .25s}
+.pvp-enemy .pvp-hp-track span{background:#d94b58}
+.pvp-versus{height:42px;display:flex;align-items:center;justify-content:center;position:relative}
+.pvp-versus:before{content:"";height:2px;position:absolute;left:0;right:0;background:linear-gradient(90deg,#f1b5bf,#c5c5f8)}
+.pvp-versus span{position:relative;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#242943;color:#fff;border:3px solid var(--bg);font-size:10px;font-weight:900;box-shadow:0 2px 8px #17213a30}
+.pvp-action-panel{background:#11182a;color:#eef1ff;border-color:#2c3551;box-shadow:0 10px 28px #121a3024;padding:16px}
+.pvp-action-panel h3{color:#fff}.pvp-action-panel .arena-label{color:#9ca8cf}.pvp-action-panel .sub{color:#b5bfdc}
+.pvp-action-panel input,.pvp-action-panel select{background:#f9faff;color:#182033}
+.pvp-action-panel .item{background:#1c263d;border-color:#3b4664;color:#f6f7ff}.pvp-action-panel .item small{color:#bdc7e6}
+.pvp-action-panel .tag{background:#283451;color:#d9e0ff}.pvp-state-list{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.pvp-log-panel{margin:0}.pvp-log-panel .log{max-height:240px}
+@media(max-width:640px){.pvp-topbar h2{font-size:20px}.pvp-fighter{padding:13px}.pvp-fighter-main{grid-template-columns:56px minmax(0,1fr);gap:10px}.pvp-avatar{width:56px;height:56px;border-radius:14px;font-size:26px}.pvp-action-panel{padding:13px 11px}.pvp-room-card{padding:13px}.pvp-room-card .row{flex-direction:row}.pvp-room-card .row>*{min-width:0;padding:10px 6px;font-size:12px}}
+
 </style><style>
 .home-return{position:fixed;top:12px;right:14px;z-index:900;border:1px solid #ffffff40;border-radius:999px;padding:9px 14px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002}
 </style></head>
@@ -73,77 +109,20 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{height:100vh;heig
 </div></section>
 <div id="preBattleModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="preBattleTitle"><div class="prebattle-card"><h2 id="preBattleTitle">배틀 준비</h2><p>방 만들기나 AI 배틀 전에 포켓몬을 선택해주세요. 커스텀한 에네코로로 배틀합니다.</p><div class="field"><label for="prePokemon1">내 포켓몬</label><select id="prePokemon1"></select></div><p id="preOpponentWrap" class="sub">상대 포켓몬은 배틀 시작 시 등록된 포켓몬 중 무작위로 선택돼.</p><p class="sub" id="preCustomStatus">저장된 에네코로 설정을 사용합니다.</p><div class="prebattle-actions"><button type="button" class="btn secondary" id="preCustomize">에네코로 커스텀</button><button type="button" class="btn" id="preContinue">선택 완료 · 진행</button><button type="button" class="btn secondary" id="preCancel">취소</button></div></div></div>
 
-<section id="pvp" class="view hidden"><div class="panel"><h2>온라인 PvP · 방 코드 대전</h2><p class="sub">Supabase Realtime으로 친구와 연결해. 기존 1인용 대전과 저장 데이터는 별도로 유지돼.</p><div class="notice">Supabase 프로젝트의 Project URL과 공개용 publishable/anon key가 필요해. service_role/secret key는 절대 입력하지 마.</div><div class="grid"><div class="field"><label for="pvpSupabaseUrl">Supabase Project URL</label><input id="pvpSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="pvpSupabaseKey">Publishable / anon key</label><input id="pvpSupabaseKey" placeholder="sb_publishable_... 또는 anon key"></div></div><div class="row"><button type="button" class="btn secondary" id="pvpSaveConfig">연결 설정 저장</button><span id="pvpConnectionStatus" class="sub">미연결</span></div></div><div class="panel"><h2>방 만들기 / 참가하기</h2><div class="field"><label for="pvpName">닉네임</label><input id="pvpName" maxlength="20" placeholder="플레이어 이름"></div><div class="row"><button type="button" class="btn" id="pvpCreateRoom">방 코드 생성</button><button type="button" class="btn secondary" id="pvpLeave" disabled>방 나가기</button></div><div class="field" style="margin-top:12px"><label for="pvpRoomCode">방 코드 (6자리)</label><input id="pvpRoomCode" maxlength="6" placeholder="6자리 코드"></div><button type="button" class="btn secondary" id="pvpJoinRoom">코드로 참가</button><p class="sub" id="pvpRoomStatus" aria-live="polite">먼저 연결 설정을 저장해.</p><div class="status" id="pvpPlayers"></div></div><div class="panel"><h2>턴제 대전</h2><p class="sub">프로토타입: 포켓몬/기술 선택, 준비 상태, 턴 순서, 기본 피해와 HP를 동기화해. 에네코로 에너지 판정과 캐릭코로 부가 효과는 다음 단계에서 연결해야 해.</p><div class="grid"><div class="field"><label for="pvpPokemon">내 포켓몬</label><select id="pvpPokemon"></select></div><div class="field"><label for="pvpMove">사용할 기술</label><select id="pvpMove"></select></div></div><div class="row"><button type="button" class="btn" id="pvpReady" disabled>포켓몬 확정</button><button type="button" class="btn" id="pvpAttack" disabled>기술 사용</button></div><div id="pvpBattleState" class="list" style="margin-top:12px"><div class="empty">방에 두 명이 참가하면 준비할 수 있어.</div></div><div id="pvpLog" class="log" style="margin-top:12px">대전 기록이 여기에 표시돼.</div></div></section>
-<section id="battle" class="view hidden">
-<div class="battle-layout">
-  <div class="fighter arena-fighter arena-opponent">
-    <div class="fighter-top"><div><div class="arena-label">OPPONENT</div><h3>상대 포켓몬</h3></div><span class="pill">AI</span></div>
-    <div class="field opponent-moves"><label>상대가 선택한 기술 4개 <span class="sub">· 대전 시작 시 공개</span></label><div id="opponentMoveReveal" class="move-reveal-grid"><p class="sub">대전 시작 시 공개돼.</p></div></div>
-    <div class="arena-identity"><div class="arena-mon-icon" aria-hidden="true">◈</div><div class="arena-mon-info"><div class="field"><label>포켓몬</label><select id="p2"></select></div><div class="sub" id="info2"></div><div class="hp" id="hp2">— / —</div><div class="hpbar"><span id="bar2" style="width:100%"></span></div><div id="status2" class="status opponent-private"></div></div></div>
-    <div class="field opponent-private"><div class="move-slots"><select id="p2s0"></select><select id="p2s1"></select><select id="p2s2"></select><select id="p2s3"></select></div><p class="sub" id="slotInfo2"></p></div><div class="field opponent-private"><select id="m2" disabled></select></div>
+<section id="pvp" class="view hidden">
+ <div class="pvp-shell">
+  <div class="pvp-topbar"><div><div class="arena-label">ONLINE BATTLE</div><h2>플레이어 대전</h2><p class="sub">방 코드를 공유해 친구와 에네코로 배틀을 시작해.</p></div><button type="button" class="btn secondary" id="pvpLeave" disabled>방 나가기</button></div>
+  <details class="pvp-settings"><summary>연결 설정 <span id="pvpConnectionStatus" class="pill">미연결</span></summary><div class="pvp-settings-body"><p class="sub">Supabase Project URL과 공개용 publishable/anon key가 필요해. service_role/secret key는 절대 입력하지 마.</p><div class="grid"><div class="field"><label for="pvpSupabaseUrl">Supabase Project URL</label><input id="pvpSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="pvpSupabaseKey">Publishable / anon key</label><input id="pvpSupabaseKey" placeholder="sb_publishable_... 또는 anon key"></div></div><button type="button" class="btn secondary" id="pvpSaveConfig">연결 설정 저장</button></div></details>
+  <div class="pvp-room-card"><div class="pvp-card-heading"><div><div class="arena-label">ROOM</div><h3>방 만들기 / 참가하기</h3></div><span class="pill">2 PLAYERS</span></div><div class="grid"><div class="field"><label for="pvpName">닉네임</label><input id="pvpName" maxlength="20" placeholder="플레이어 이름"></div><div class="field"><label for="pvpRoomCode">방 코드 (6자리)</label><input id="pvpRoomCode" maxlength="6" placeholder="6자리 코드"></div></div><div class="row"><button type="button" class="btn" id="pvpCreateRoom">방 코드 생성</button><button type="button" class="btn secondary" id="pvpJoinRoom">코드로 참가</button></div><p class="sub" id="pvpRoomStatus" aria-live="polite">먼저 연결 설정을 저장해.</p><div class="pvp-player-tags" id="pvpPlayers"></div></div>
+  <div class="pvp-arena">
+   <div class="pvp-fighter pvp-enemy"><div class="arena-label">OPPONENT</div><div class="pvp-fighter-main"><div class="pvp-avatar enemy-avatar">?</div><div class="pvp-fighter-info"><h3>상대 플레이어</h3><div class="pvp-enemy-state" id="pvpOpponentPreview">상대가 참가하면 정보가 표시돼.</div><div class="pvp-hp-track"><span id="pvpOpponentHpBar"></span></div><small id="pvpOpponentHp">HP — / —</small></div></div></div>
+   <div class="pvp-versus"><span>VS</span></div>
+   <div class="pvp-fighter pvp-self"><div class="arena-label">YOUR SIDE</div><div class="pvp-fighter-main"><div class="pvp-avatar self-avatar">✦</div><div class="pvp-fighter-info"><h3>내 포켓몬</h3><div class="pvp-self-state" id="pvpSelfPreview">포켓몬을 선택하고 확정해.</div><div class="pvp-hp-track"><span id="pvpSelfHpBar"></span></div><small id="pvpSelfHp">HP — / —</small></div></div></div>
   </div>
-
-  <div class="battle-middle">
-    <div class="battle-divider"><span>VS</span></div>
-    <div class="panel terminal-panel">
-      <div class="terminal-heading"><div><div class="arena-label">BATTLE TERMINAL</div><h2>전투 터미널</h2></div><span class="terminal-live"><i></i> 상태 모니터</span></div>
-      <select id="m1" aria-hidden="true" tabindex="-1" style="display:none"></select><span id="selectedMoveLabel" hidden></span>
-      <p class="sub" id="turnText">새 대전을 시작하면 선공이 무작위로 정해져.</p>
-      <div class="terminal-status" id="terminalStatus">대전 준비 완료 · 포켓몬과 기술 4개를 설정해.</div>
-      <div class="terminal-hp-board" aria-label="양쪽 포켓몬 체력">
-        <div class="terminal-hp-card terminal-hp-opponent"><div class="terminal-hp-top"><b id="terminalName2">상대 포켓몬</b><strong id="terminalHp2">— / —</strong></div><div class="terminal-hp-track"><span id="terminalBar2"></span></div><div class="terminal-hp-caption">상대 HP</div></div>
-        <div class="terminal-hp-vs">VS</div>
-        <div class="terminal-hp-card terminal-hp-player"><div class="terminal-hp-top"><b id="terminalName1">내 포켓몬</b><strong id="terminalHp1">— / —</strong></div><div class="terminal-hp-track"><span id="terminalBar1"></span></div><div class="terminal-hp-caption">내 HP</div></div>
-      </div>
-      <div class="dice-row dice-results-board" id="diceResults"><div class="dice-side-zone opponent-zone" id="diceZone2"><div class="dice-side-title"><span class="side-dot"></span>상대 에네코로</div><div class="dice-side-content"><div class="dice-row-inner" id="diceResults-2"><span class="sub">상대 차례에 위쪽에 표시돼.</span></div><div class="charikoro-column"><div class="charikoro-title">캐릭코로</div><div class="charikoro-board waiting" id="charikoro-2"><div class="charikoro-direction">🎲</div><div class="charikoro-label">방향 대기</div></div></div></div></div><div class="dice-side-zone player-zone" id="diceZone1"><div class="dice-side-title"><span class="side-dot"></span>내 에네코로</div><div class="dice-side-content"><div class="dice-row-inner" id="diceResults-1"><span class="sub">내 차례에 아래쪽에 표시돼.</span></div><div class="charikoro-column"><div class="charikoro-title">캐릭코로</div><div class="charikoro-board waiting" id="charikoro-1"><div class="charikoro-direction">🎲</div><div class="charikoro-label">방향 대기</div></div></div></div></div></div>
-      <div id="extraDieChoices" class="grid" style="margin-top:12px" hidden></div>
-      <div class="row wrap-mobile terminal-actions"><button class="btn" id="rollAttack">선택한 기술 사용 · 에네코로 굴리기</button></div>
-      <div class="row terminal-setup-actions"><button class="btn" id="start">새 대전 시작</button><button class="btn secondary" id="reset">대전 초기화</button></div>
-      <div class="log" id="log"><p>포켓몬과 기술 4개를 설정하고 새 대전을 시작해.</p></div>
-    </div>
-  </div>
-
-  <div class="fighter arena-fighter arena-player">
-    <div class="fighter-top"><div><div class="arena-label">YOUR POKÉMON</div><h3>내 포켓몬</h3></div><span class="pill">PLAYER</span></div>
-    <div class="arena-identity"><div class="arena-mon-icon player-icon" aria-hidden="true">✦</div><div class="arena-mon-info"><div class="field"><label>포켓몬</label><select id="p1"></select></div><div class="sub" id="info1"></div><div class="hp" id="hp1">— / —</div><div class="hpbar"><span id="bar1" style="width:100%"></span></div><div id="status1" class="status"></div></div></div>
-    <div class="field"><label>기술 선택 · 7개 중 정확히 4개 (클릭해서 선택)</label><div class="move-choice-grid" id="moveChoices1"></div><div class="move-slots hidden-slots" aria-hidden="true"><select id="p1s0"></select><select id="p1s1"></select><select id="p1s2"></select><select id="p1s3"></select></div><p class="sub" id="slotInfo1">기술 4개를 클릭해 선택해. 대전 시작 후에는 변경할 수 없어.</p></div>
-    
-  </div>
-</div>
- <div id="setupModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
-  <div class="move-picker-dialog"><div class="move-picker-heading"><h2 id="setupTitle">새 대전 설정</h2><button type="button" id="closeSetup" class="btn secondary">닫기</button></div>
-  <p class="sub">포켓몬을 고르고, 내 기술 4개를 선택한 뒤 대전을 시작해.</p>
-  <div class="field"><label for="setupP1">내 포켓몬</label><select id="setupP1"></select></div>
-  <div class="field"><label>상대 포켓몬</label><p class="sub">대전을 시작할 때 상대 포켓몬이 무작위로 결정돼.</p></div>
-  <div class="field"><label>내 기술 선택 · 7개 중 4개</label><div id="setupMoveChoices" class="move-choice-grid"></div><p id="setupSlotInfo" class="sub">기술을 정확히 4개 선택해.</p></div>
-  <button type="button" id="confirmSetup" class="btn">대전 시작</button></div>
+  <div class="pvp-action-panel"><div class="pvp-card-heading"><div><div class="arena-label">BATTLE COMMAND</div><h3>기술 선택</h3></div><span class="pill" id="pvpTurnPill">대기 중</span></div><div class="grid"><div class="field"><label for="pvpPokemon">내 포켓몬</label><select id="pvpPokemon"></select></div><div class="field"><label for="pvpMove">사용할 기술</label><select id="pvpMove"></select></div></div><div class="row"><button type="button" class="btn secondary" id="pvpReady" disabled>포켓몬 확정</button><button type="button" class="btn" id="pvpAttack" disabled>⚔ 기술 사용</button></div><div id="pvpBattleState" class="pvp-state-list"><div class="empty">방에 두 명이 참가하면 준비할 수 있어.</div></div></div>
+  <div class="terminal-panel pvp-log-panel"><div class="terminal-heading"><div><div class="arena-label">BATTLE LOG</div><h2>대전 기록</h2></div><span class="terminal-live"><i></i> REALTIME</span></div><div id="pvpLog" class="log">대전 기록이 여기에 표시돼.</div></div>
  </div>
- <div id="resultModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
-  <div class="move-picker-dialog result-dialog"><div class="move-picker-heading"><h2 id="resultTitle">대전 결과</h2></div><p id="resultMessage" class="sub"></p><button type="button" id="resultNewGame" class="btn">새 대전 시작</button><button type="button" id="resultClose" class="btn secondary">결과 확인</button></div>
- </div>
- <div id="movePickerModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="movePickerTitle">
-  <div class="move-picker-dialog"><div class="move-picker-heading"><h2 id="movePickerTitle">이번 턴 사용할 기술 선택</h2><button type="button" id="closeMovePicker" class="btn secondary">닫기</button></div><p id="movePickerHint" class="sub">선택한 기술 4개 중 하나를 눌러 줘.</p><div id="movePickerChoices" class="move-choice-grid"></div></div>
-</div>
-</section>
-<section id="tutorial" class="view hidden">
- <div class="panel tutorial-launch">
-  <h2>🎲 처음 하는 프라코로</h2>
-  <p class="sub">긴 설명 대신, 팝업 안내를 한 단계씩 따라가며 직접 주사위를 굴려 보자.</p>
-  <button type="button" class="btn" id="startTutorial">튜토리얼 시작하기</button>
-  <p class="sub">약 1~2분 · 주사위 연습은 실제 대전에 영향을 주지 않아.</p>
- </div>
-</section>
-<div id="tutorialModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="tutorialModalTitle">
- <div class="move-picker-dialog tutorial-dialog">
-  <div class="move-picker-heading"><span class="pill" id="tutorialStepLabel">STEP 1 / 5</span><button type="button" class="btn secondary" id="tutorialExit">나가기</button></div>
-  <h2 id="tutorialModalTitle">프라코로는 어떤 게임일까?</h2>
-  <div id="tutorialModalBody" class="tutorial-modal-body" aria-live="polite"></div>
-  <div class="tutorial-modal-footer"><button type="button" class="btn secondary" id="tutorialBack">이전</button><button type="button" class="btn" id="tutorialNext">다음</button></div>
- </div>
-</div>
-<section id="pokemon" class="view hidden"><div class="panel"><h2>등록된 포켓몬</h2><p class="sub">포켓몬을 누르면 해당 포켓몬의 기술 목록이 팝업으로 열려.</p><div id="pokemonList" class="list"></div></div><div class="panel" id="moveListPanel" hidden><h2>기술 데이터</h2><div class="field"><label>포켓몬 선택</label><select id="dataPokemon"></select></div><div id="moveList" class="list"></div></div></section>
-<div id="pokemonMovesModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="pokemonMovesTitle"><div class="move-picker-dialog"><div class="move-picker-heading"><h2 id="pokemonMovesTitle">포켓몬 기술</h2><button type="button" class="btn secondary" id="closePokemonMoves">닫기</button></div><p class="sub" id="pokemonMovesSummary"></p><div id="pokemonMovesContent" class="list"></div></div></div>
-<section id="ene" class="view hidden"><div class="panel"><h2>에네코로 타입별 일괄 적용</h2><p class="sub">주 타입 단일 3면과 보조 타입 단일 1면을 선택해 에네코로 1·2·3에 일괄 적용해. 나머지 2면은 주 타입 더블 에너지야. 무색은 기술 비용에서만 범용 조건으로 사용돼.</p><div class="field"><label for="enePrimaryType">주 타입 (단일 3면 + 더블 2면)</label><select id="enePrimaryType"></select></div><div class="field"><label for="eneSecondaryType">보조 타입 (단일 1면)</label><select id="eneSecondaryType"></select></div><button type="button" class="btn" id="applyEneBatch">에네코로 3개에 일괄 적용</button><div id="eneTypeButtons" class="hidden"><button type="button" class="move-choice" data-ene-type="풀"><b>풀</b><small>풀 단일 3면 · 무색 1면 · 풀+풀 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="불꽃"><b>불꽃</b><small>불꽃 단일 3면 · 무색 1면 · 불꽃+불꽃 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="물"><b>물</b><small>물 단일 3면 · 무색 1면 · 물+물 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="번개"><b>번개</b><small>번개 단일 3면 · 무색 1면 · 번개+번개 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="격투"><b>격투</b><small>격투 단일 3면 · 무색 1면 · 격투+격투 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="강철"><b>강철</b><small>강철 단일 3면 · 무색 1면 · 강철+강철 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="에스퍼"><b>에스퍼</b><small>에스퍼 단일 3면 · 무색 1면 · 에스퍼+에스퍼 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="악"><b>악</b><small>악 단일 3면 · 무색 1면 · 악+악 더블 2면</small></button></div><p class="sub" id="eneBatchStatus">타입을 선택해 일괄 적용해 줘.</p></div><div class="panel"><h2>AI 에네코로 자동 설정</h2><p class="sub">AI는 상대 포켓몬 타입에 맞춰 별도로 에네코로를 사용해. 이상해씨는 풀, 파이리는 불꽃, 꼬부기는 물, 피카츄는 번개 타입으로 자동 설정돼. 이 설정은 위의 내 에네코로 설정과 별개야.</p><div class="status"><span class="tag">이상해씨 · 풀</span><span class="tag">파이리 · 불꽃</span><span class="tag">꼬부기 · 물</span><span class="tag">피카츄 · 번개</span></div></div></section>
+ </section>
 <section id="rules" class="view hidden"><div class="panel"><h2>에네코로 3개 설정</h2><p class="sub">각 에네코로는 단일 타입 4면과 더블 타입 2면으로 구성돼. 1~4면은 단일 에너지, 5~6면은 더블 에너지로 지정해. 단일 타입 4면이 전부 같은 타입일 수는 없어. 아래 값은 임시 예시이며 실제 주사위 면에 맞게 수정한 뒤 저장해.</p><div id="diceFaceConfig" class="grid"></div><button class="btn" id="saveFaces">에네코로 3개 저장</button><p class="sub" id="faceSaved"></p></div><div class="panel"><h2>저장 데이터</h2><div class="row"><button class="btn secondary" id="export">JSON 내보내기</button><label class="btn secondary" for="importFile" style="text-align:center;cursor:pointer">JSON 가져오기</label><input id="importFile" type="file" accept="application/json" class="hidden"></div></div></section>
 </main>
 <script>
