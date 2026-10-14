@@ -66,7 +66,23 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{height:100vh;heig
 .pvp-card-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.pvp-card-heading h3{font-size:17px;margin:0}
 .pvp-room-card .row{margin-top:8px}.pvp-room-card #pvpRoomStatus{margin:10px 0 0}
 .pvp-player-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.pvp-arena{display:flex;flex-direction:column;gap:0}
+.pvp-arena{display:flex;flex-direction:column;gap:0;background:linear-gradient(145deg,#11182a,#202846);border:1px solid #303b5a;border-radius:22px;padding:14px;box-shadow:0 12px 30px #121a3024}
+.pvp-arena .pvp-fighter{box-shadow:none}
+.pvp-arena .pvp-versus{height:38px}
+.pvp-room-card{order:2}
+.pvp-action-panel{order:3}
+.pvp-log-panel{order:4}
+.pvp-room-card .pvp-card-heading .arena-label{color:#777bd0}
+.pvp-room-card h3{color:#222943}
+.pvp-room-card .grid{margin-top:8px}
+.pvp-action-panel .field:first-child{display:none!important}
+.pvp-action-panel .grid{grid-template-columns:minmax(0,1fr)}
+.pvp-action-panel .row{margin-top:12px}
+.pvp-action-panel #pvpReady,.pvp-action-panel #pvpAttack{flex:1;min-height:44px}
+.pvp-room-card #pvpRoomCode{font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.pvp-room-card #pvpCreateRoom,.pvp-room-card #pvpJoinRoom{flex:1;min-height:44px}
+@media(min-width:700px){.pvp-arena{display:grid;grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);align-items:stretch;gap:8px;padding:16px}.pvp-arena .pvp-fighter{min-width:0}.pvp-arena .pvp-fighter-main{grid-template-columns:56px minmax(0,1fr);gap:10px}.pvp-arena .pvp-avatar{width:56px;height:56px}.pvp-arena .pvp-versus{height:auto}.pvp-arena .pvp-versus:before{height:100%;width:2px;left:50%;right:auto;top:0;background:linear-gradient(#f1b5bf,#c5c5f8)}}
+.pvp-action-panel .grid{margin-top:6px}
 .pvp-fighter{border:1px solid;border-radius:18px;padding:16px 18px;box-shadow:0 8px 22px #17213a12}
 .pvp-enemy{background:linear-gradient(135deg,#fff 0%,#fff3f4 100%);border-color:#f0cfd3}
 .pvp-self{background:linear-gradient(135deg,#fff 0%,#f1f2ff 100%);border-color:#c9c9f8}
@@ -111,14 +127,15 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{height:100vh;heig
 
 <section id="pvp" class="view hidden">
  <div class="pvp-shell">
-  <div class="pvp-topbar"><div><div class="arena-label">ONLINE BATTLE</div><h2>플레이어 대전</h2><p class="sub">방 코드를 공유해 친구와 에네코로 배틀을 시작해.</p></div><button type="button" class="btn secondary" id="pvpLeave" disabled>방 나가기</button></div>
-  <details class="pvp-settings"><summary>연결 설정 <span id="pvpConnectionStatus" class="pill">미연결</span></summary><div class="pvp-settings-body"><p class="sub">Supabase Project URL과 공개용 publishable/anon key가 필요해. service_role/secret key는 절대 입력하지 마.</p><div class="grid"><div class="field"><label for="pvpSupabaseUrl">Supabase Project URL</label><input id="pvpSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="pvpSupabaseKey">Publishable / anon key</label><input id="pvpSupabaseKey" placeholder="sb_publishable_... 또는 anon key"></div></div><button type="button" class="btn secondary" id="pvpSaveConfig">연결 설정 저장</button></div></details>
-  <div class="pvp-room-card"><div class="pvp-card-heading"><div><div class="arena-label">ROOM</div><h3>방 만들기 / 참가하기</h3></div><span class="pill">2 PLAYERS</span></div><div class="grid"><div class="field"><label for="pvpName">닉네임</label><input id="pvpName" maxlength="20" placeholder="플레이어 이름"></div><div class="field"><label for="pvpRoomCode">방 코드 (6자리)</label><input id="pvpRoomCode" maxlength="6" placeholder="6자리 코드"></div></div><div class="row"><button type="button" class="btn" id="pvpCreateRoom">방 코드 생성</button><button type="button" class="btn secondary" id="pvpJoinRoom">코드로 참가</button></div><p class="sub" id="pvpRoomStatus" aria-live="polite">먼저 연결 설정을 저장해.</p><div class="pvp-player-tags" id="pvpPlayers"></div></div>
+  <div class="pvp-topbar"><div><div class="arena-label">PVP BATTLE</div><h2>플레이어 대전</h2><p class="sub">VS AI와 같은 배틀 화면에서 방을 만들고 친구와 대전해.</p></div><button type="button" class="btn secondary" id="pvpLeave" disabled>방 나가기</button></div>
   <div class="pvp-arena">
    <div class="pvp-fighter pvp-enemy"><div class="arena-label">OPPONENT</div><div class="pvp-fighter-main"><div class="pvp-avatar enemy-avatar">?</div><div class="pvp-fighter-info"><h3>상대 플레이어</h3><div class="pvp-enemy-state" id="pvpOpponentPreview">상대가 참가하면 정보가 표시돼.</div><div class="pvp-hp-track"><span id="pvpOpponentHpBar"></span></div><small id="pvpOpponentHp">HP — / —</small></div></div></div>
    <div class="pvp-versus"><span>VS</span></div>
    <div class="pvp-fighter pvp-self"><div class="arena-label">YOUR SIDE</div><div class="pvp-fighter-main"><div class="pvp-avatar self-avatar">✦</div><div class="pvp-fighter-info"><h3>내 포켓몬</h3><div class="pvp-self-state" id="pvpSelfPreview">포켓몬을 선택하고 확정해.</div><div class="pvp-hp-track"><span id="pvpSelfHpBar"></span></div><small id="pvpSelfHp">HP — / —</small></div></div></div>
   </div>
+  <div class="pvp-room-card"><div><div class="arena-label">ONLINE BATTLE</div><h2>플레이어 대전</h2><p class="sub">방 코드를 공유해 친구와 에네코로 배틀을 시작해.</p></div><button type="button" class="btn secondary" id="pvpLeave" disabled>방 나가기</button></div>
+  <details class="pvp-settings"><summary>연결 설정 <span id="pvpConnectionStatus" class="pill">미연결</span></summary><div class="pvp-settings-body"><p class="sub">Supabase Project URL과 공개용 publishable/anon key가 필요해. service_role/secret key는 절대 입력하지 마.</p><div class="grid"><div class="field"><label for="pvpSupabaseUrl">Supabase Project URL</label><input id="pvpSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="pvpSupabaseKey">Publishable / anon key</label><input id="pvpSupabaseKey" placeholder="sb_publishable_... 또는 anon key"></div></div><button type="button" class="btn secondary" id="pvpSaveConfig">연결 설정 저장</button></div></details>
+  <div class="pvp-room-card"><div class="pvp-card-heading"><div><div class="arena-label">ROOM</div><h3>방 만들기 / 참가하기</h3></div><span class="pill">2 PLAYERS</span></div><div class="grid"><div class="field"><label for="pvpName">닉네임</label><input id="pvpName" maxlength="20" placeholder="플레이어 이름"></div><div class="field"><label for="pvpRoomCode">방 코드 (6자리)</label><input id="pvpRoomCode" maxlength="6" placeholder="6자리 코드"></div></div><div class="row"><button type="button" class="btn" id="pvpCreateRoom">방 코드 생성</button><button type="button" class="btn secondary" id="pvpJoinRoom">코드로 참가</button></div><p class="sub" id="pvpRoomStatus" aria-live="polite">먼저 연결 설정을 저장해.</p><div class="pvp-player-tags" id="pvpPlayers"></div></div>
   <div class="pvp-action-panel"><div class="pvp-card-heading"><div><div class="arena-label">BATTLE COMMAND</div><h3>기술 선택</h3></div><span class="pill" id="pvpTurnPill">대기 중</span></div><div class="grid"><div class="field"><label for="pvpPokemon">내 포켓몬</label><select id="pvpPokemon"></select></div><div class="field"><label for="pvpMove">사용할 기술</label><select id="pvpMove"></select></div></div><div class="row"><button type="button" class="btn secondary" id="pvpReady" disabled>포켓몬 확정</button><button type="button" class="btn" id="pvpAttack" disabled>⚔ 기술 사용</button></div><div id="pvpBattleState" class="pvp-state-list"><div class="empty">방에 두 명이 참가하면 준비할 수 있어.</div></div></div>
   <div class="terminal-panel pvp-log-panel"><div class="terminal-heading"><div><div class="arena-label">BATTLE LOG</div><h2>대전 기록</h2></div><span class="terminal-live"><i></i> REALTIME</span></div><div id="pvpLog" class="log">대전 기록이 여기에 표시돼.</div></div>
  </div>
