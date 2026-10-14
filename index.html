@@ -140,6 +140,67 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{height:100vh;heig
   <div class="terminal-panel pvp-log-panel"><div class="terminal-heading"><div><div class="arena-label">BATTLE LOG</div><h2>대전 기록</h2></div><span class="terminal-live"><i></i> REALTIME</span></div><div id="pvpLog" class="log">대전 기록이 여기에 표시돼.</div></div>
  </div>
  </section>
+<section id="battle" class="view hidden">
+<div class="battle-layout">
+  <div class="fighter arena-fighter arena-opponent">
+    <div class="fighter-top"><div><div class="arena-label">OPPONENT</div><h3>상대 포켓몬</h3></div><span class="pill">AI</span></div>
+    <div class="field opponent-moves"><label>상대가 선택한 기술 4개 <span class="sub">· 대전 시작 시 공개</span></label><div id="opponentMoveReveal" class="move-reveal-grid"><p class="sub">대전 시작 시 공개돼.</p></div></div>
+    <div class="arena-identity"><div class="arena-mon-icon" aria-hidden="true">◈</div><div class="arena-mon-info"><div class="field"><label>포켓몬</label><select id="p2"></select></div><div class="sub" id="info2"></div><div class="hp" id="hp2">— / —</div><div class="hpbar"><span id="bar2" style="width:100%"></span></div><div id="status2" class="status opponent-private"></div></div></div>
+    <div class="field opponent-private"><div class="move-slots"><select id="p2s0"></select><select id="p2s1"></select><select id="p2s2"></select><select id="p2s3"></select></div><p class="sub" id="slotInfo2"></p></div><div class="field opponent-private"><select id="m2" disabled></select></div>
+  </div>
+
+  <div class="battle-middle">
+    <div class="battle-divider"><span>VS</span></div>
+    <div class="panel terminal-panel">
+      <div class="terminal-heading"><div><div class="arena-label">BATTLE TERMINAL</div><h2>전투 터미널</h2></div><span class="terminal-live"><i></i> 상태 모니터</span></div>
+      <select id="m1" aria-hidden="true" tabindex="-1" style="display:none"></select><span id="selectedMoveLabel" hidden></span>
+      <p class="sub" id="turnText">새 대전을 시작하면 선공이 무작위로 정해져.</p>
+      <div class="terminal-status" id="terminalStatus">대전 준비 완료 · 포켓몬과 기술 4개를 설정해.</div>
+      <div class="terminal-hp-board" aria-label="양쪽 포켓몬 체력">
+        <div class="terminal-hp-card terminal-hp-opponent"><div class="terminal-hp-top"><b id="terminalName2">상대 포켓몬</b><strong id="terminalHp2">— / —</strong></div><div class="terminal-hp-track"><span id="terminalBar2"></span></div><div class="terminal-hp-caption">상대 HP</div></div>
+        <div class="terminal-hp-vs">VS</div>
+        <div class="terminal-hp-card terminal-hp-player"><div class="terminal-hp-top"><b id="terminalName1">내 포켓몬</b><strong id="terminalHp1">— / —</strong></div><div class="terminal-hp-track"><span id="terminalBar1"></span></div><div class="terminal-hp-caption">내 HP</div></div>
+      </div>
+      <div class="dice-row dice-results-board" id="diceResults"><div class="dice-side-zone opponent-zone" id="diceZone2"><div class="dice-side-title"><span class="side-dot"></span>상대 에네코로</div><div class="dice-side-content"><div class="dice-row-inner" id="diceResults-2"><span class="sub">상대 차례에 위쪽에 표시돼.</span></div><div class="charikoro-column"><div class="charikoro-title">캐릭코로</div><div class="charikoro-board waiting" id="charikoro-2"><div class="charikoro-direction">🎲</div><div class="charikoro-label">방향 대기</div></div></div></div></div><div class="dice-side-zone player-zone" id="diceZone1"><div class="dice-side-title"><span class="side-dot"></span>내 에네코로</div><div class="dice-side-content"><div class="dice-row-inner" id="diceResults-1"><span class="sub">내 차례에 아래쪽에 표시돼.</span></div><div class="charikoro-column"><div class="charikoro-title">캐릭코로</div><div class="charikoro-board waiting" id="charikoro-1"><div class="charikoro-direction">🎲</div><div class="charikoro-label">방향 대기</div></div></div></div></div></div>
+      <div id="extraDieChoices" class="grid" style="margin-top:12px" hidden></div>
+      <div class="row wrap-mobile terminal-actions"><button class="btn" id="rollAttack">선택한 기술 사용 · 에네코로 굴리기</button></div>
+      <div class="row terminal-setup-actions"><button class="btn" id="start">새 대전 시작</button><button class="btn secondary" id="reset">대전 초기화</button></div>
+      <div class="log" id="log"><p>포켓몬과 기술 4개를 설정하고 새 대전을 시작해.</p></div>
+    </div>
+  </div>
+
+  <div class="fighter arena-fighter arena-player">
+    <div class="fighter-top"><div><div class="arena-label">YOUR POKÉMON</div><h3>내 포켓몬</h3></div><span class="pill">PLAYER</span></div>
+    <div class="arena-identity"><div class="arena-mon-icon player-icon" aria-hidden="true">✦</div><div class="arena-mon-info"><div class="field"><label>포켓몬</label><select id="p1"></select></div><div class="sub" id="info1"></div><div class="hp" id="hp1">— / —</div><div class="hpbar"><span id="bar1" style="width:100%"></span></div><div id="status1" class="status"></div></div></div>
+    <div class="field"><label>기술 선택 · 7개 중 정확히 4개 (클릭해서 선택)</label><div class="move-choice-grid" id="moveChoices1"></div><div class="move-slots hidden-slots" aria-hidden="true"><select id="p1s0"></select><select id="p1s1"></select><select id="p1s2"></select><select id="p1s3"></select></div><p class="sub" id="slotInfo1">기술 4개를 클릭해 선택해. 대전 시작 후에는 변경할 수 없어.</p></div>
+    
+  </div>
+</div>
+ <div id="setupModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+  <div class="move-picker-dialog"><div class="move-picker-heading"><h2 id="setupTitle">새 대전 설정</h2><button type="button" id="closeSetup" class="btn secondary">닫기</button></div>
+  <p class="sub">포켓몬을 고르고, 내 기술 4개를 선택한 뒤 대전을 시작해.</p>
+  <div class="field"><label for="setupP1">내 포켓몬</label><select id="setupP1"></select></div>
+  <div class="field"><label>상대 포켓몬</label><p class="sub">대전을 시작할 때 상대 포켓몬이 무작위로 결정돼.</p></div>
+  <div class="field"><label>내 기술 선택 · 7개 중 4개</label><div id="setupMoveChoices" class="move-choice-grid"></div><p id="setupSlotInfo" class="sub">기술을 정확히 4개 선택해.</p></div>
+  <button type="button" id="confirmSetup" class="btn">대전 시작</button></div>
+ </div>
+ <div id="resultModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+  <div class="move-picker-dialog result-dialog"><div class="move-picker-heading"><h2 id="resultTitle">대전 결과</h2></div><p id="resultMessage" class="sub"></p><button type="button" id="resultNewGame" class="btn">새 대전 시작</button><button type="button" id="resultClose" class="btn secondary">결과 확인</button></div>
+ </div>
+ <div id="movePickerModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="movePickerTitle">
+  <div class="move-picker-dialog"><div class="move-picker-heading"><h2 id="movePickerTitle">이번 턴 사용할 기술 선택</h2><button type="button" id="closeMovePicker" class="btn secondary">닫기</button></div><p id="movePickerHint" class="sub">선택한 기술 4개 중 하나를 눌러 줘.</p><div id="movePickerChoices" class="move-choice-grid"></div></div>
+</div>
+</section>
+<section id="tutorial" class="view hidden">
+ <div class="panel tutorial-launch">
+  <h2>🎲 처음 하는 프라코로</h2>
+  <p class="sub">긴 설명 대신, 팝업 안내를 한 단계씩 따라가며 직접 주사위를 굴려 보자.</p>
+  <button type="button" class="btn" id="startTutorial">튜토리얼 시작하기</button>
+  <p class="sub">약 1~2분 · 주사위 연습은 실제 대전에 영향을 주지 않아.</p>
+ </div>
+</section>
+<section id="pokemon" class="view hidden"><div class="panel"><h2>등록된 포켓몬</h2><p class="sub">포켓몬을 누르면 해당 포켓몬의 기술 목록이 팝업으로 열려.</p><div id="pokemonList" class="list"></div></div><div class="panel" id="moveListPanel" hidden><h2>기술 데이터</h2><div class="field"><label>포켓몬 선택</label><select id="dataPokemon"></select></div><div id="moveList" class="list"></div></div></section>
+<section id="ene" class="view hidden"><div class="panel"><h2>에네코로 타입별 일괄 적용</h2><p class="sub">주 타입 단일 3면과 보조 타입 단일 1면을 선택해 에네코로 1·2·3에 일괄 적용해. 나머지 2면은 주 타입 더블 에너지야. 무색은 기술 비용에서만 범용 조건으로 사용돼.</p><div class="field"><label for="enePrimaryType">주 타입 (단일 3면 + 더블 2면)</label><select id="enePrimaryType"></select></div><div class="field"><label for="eneSecondaryType">보조 타입 (단일 1면)</label><select id="eneSecondaryType"></select></div><button type="button" class="btn" id="applyEneBatch">에네코로 3개에 일괄 적용</button><div id="eneTypeButtons" class="hidden"><button type="button" class="move-choice" data-ene-type="풀"><b>풀</b><small>풀 단일 3면 · 무색 1면 · 풀+풀 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="불꽃"><b>불꽃</b><small>불꽃 단일 3면 · 무색 1면 · 불꽃+불꽃 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="물"><b>물</b><small>물 단일 3면 · 무색 1면 · 물+물 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="번개"><b>번개</b><small>번개 단일 3면 · 무색 1면 · 번개+번개 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="격투"><b>격투</b><small>격투 단일 3면 · 무색 1면 · 격투+격투 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="강철"><b>강철</b><small>강철 단일 3면 · 무색 1면 · 강철+강철 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="에스퍼"><b>에스퍼</b><small>에스퍼 단일 3면 · 무색 1면 · 에스퍼+에스퍼 더블 2면</small></button><button type="button" class="move-choice" data-ene-type="악"><b>악</b><small>악 단일 3면 · 무색 1면 · 악+악 더블 2면</small></button></div><p class="sub" id="eneBatchStatus">타입을 선택해 일괄 적용해 줘.</p></div><div class="panel"><h2>AI 에네코로 자동 설정</h2><p class="sub">AI는 상대 포켓몬 타입에 맞춰 별도로 에네코로를 사용해. 이상해씨는 풀, 파이리는 불꽃, 꼬부기는 물, 피카츄는 번개 타입으로 자동 설정돼. 이 설정은 위의 내 에네코로 설정과 별개야.</p><div class="status"><span class="tag">이상해씨 · 풀</span><span class="tag">파이리 · 불꽃</span><span class="tag">꼬부기 · 물</span><span class="tag">피카츄 · 번개</span></div></div></section>
 <section id="rules" class="view hidden"><div class="panel"><h2>에네코로 3개 설정</h2><p class="sub">각 에네코로는 단일 타입 4면과 더블 타입 2면으로 구성돼. 1~4면은 단일 에너지, 5~6면은 더블 에너지로 지정해. 단일 타입 4면이 전부 같은 타입일 수는 없어. 아래 값은 임시 예시이며 실제 주사위 면에 맞게 수정한 뒤 저장해.</p><div id="diceFaceConfig" class="grid"></div><button class="btn" id="saveFaces">에네코로 3개 저장</button><p class="sub" id="faceSaved"></p></div><div class="panel"><h2>저장 데이터</h2><div class="row"><button class="btn secondary" id="export">JSON 내보내기</button><label class="btn secondary" for="importFile" style="text-align:center;cursor:pointer">JSON 가져오기</label><input id="importFile" type="file" accept="application/json" class="hidden"></div></div></section>
 </main>
 <script>
