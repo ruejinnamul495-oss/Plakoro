@@ -51,6 +51,7 @@
 <header><h1>프라코로 배틀 랩</h1><p>스타터 4종 · 에네코로 판정 · AI 대전 프로토타입</p></header>
 <main>
 <div class="notice"><b>현재 구현 범위</b><br>이상해씨·파이리·꼬부기·피카츄를 등록했어. 매 턴 기술을 먼저 고르고 에네코로 3개를 굴려 에너지 조건을 확인해. 조건 미충족 시 공격 실패 후 턴이 종료돼. 에네코로는 주사위 3개를 각각 설정할 수 있어. 각 주사위의 6면을 규칙 설정에서 지정하고, 대전 시작 후에는 포켓몬과 기술 4개를 바꿀 수 없어.</div>
+<div id="appErrorNotice" class="notice" style="display:none;background:#fff0f1;border-color:#e9a1a8;color:#8b1e2b" hidden></div>
 <div class="tabs"><button class="tab" data-tab="tutorial">튜토리얼</button><button class="tab active" data-tab="battle">전투</button><button class="tab" data-tab="pokemon">포켓몬 / 기술</button><button class="tab" data-tab="ene">에네코로 일괄 적용</button><button class="tab" data-tab="rules">규칙 설정</button></div>
 <section id="battle" class="view">
 <div class="battle-layout">
@@ -159,7 +160,33 @@ makeMove('공중날기',{번개:3},30,[{poses:['정방향','물구나무'],type:
 {name:'쁘사이저',hp:120,type:'풀',weakness:'비행',moves:[makeMove('쁘사이저A - 집중',{풀:1},0,[{poses:["정방향","물구나무","뒤로"],type:'diceShift',selfNext:2}],"",{}),makeMove('쁘사이저A - 참기',{풀:2},0,[{poses:[],type:'reduceSelfNext',value:20},{poses:["정방향","물구나무","뒤로"],type:'reduceSelfNext',value:20}],"",{}),makeMove('쁘사이저A - 뿔로 때리기',{풀:3},20,[{poses:["정방향","물구나무","뒤로"],type:'bonus',value:30}],"",{}),makeMove('쁘사이저A - 가위자르기',{무색:5},0,[{poses:["정방향"],type:'setDamage',value:150}],"",{}),makeMove('쁘사이저A - 깨뜨리기',{격투:1},20,[{poses:["정방향","뒤로"],type:'bonus',value:20}],"",{}),makeMove('쁘사이저B - 차지가위',{풀:2},20,[{poses:["정방향","뒤로"],type:'diceShift',selfNext:1}],"",{}),makeMove('쁘사이저B - 발콘스윙',{풀:3},10,[{poses:["정방향","물구나무","뒤로"],type:'bonusIfSelfFailed',value:40}],"",{}),makeMove('쁘사이저B - 돌격',{풀:3},30,[{poses:["정방향","뒤로"],type:'bonus',value:20},{poses:["물구나무","엎드림"],type:'selfDamage',value:20}],"",{}),makeMove('쁘사이저B - 필살잡게',{풀:4},20,[{poses:["정방향"],type:'bonus',value:80}],"",{}),makeMove('쁘사이저B - 지옥의바퀴',{격투:1,무색:3},30,[{poses:[],type:'selfDamage',value:20},{poses:["정방향","물구나무","뒤로","엎드림"],type:'bonus',value:30}],"",{})]}];
 const fresh=()=>({pokemon:starterData.map(p=>({...p,id:slug(p.name),moves:p.moves.map((m,i)=>({...m,id:slug(p.name)+'-'+i}))})),rules:{faces:defaultFaces}});
 function slug(s){return s.replace(/[^가-힣a-zA-Z0-9]/g,'').toLowerCase()}
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Array.isArray(x.pokemon)&&x.pokemon.length){const base=fresh();const merged={...base,...x,pokemon:[...base.pokemon.map(p=>x.pokemon.find(q=>q.id===p.id)||p),...x.pokemon.filter(q=>!base.pokemon.some(p=>p.id===q.id))],rules:{...base.rules,...(x.rules||{})}};return merged}}catch(e){}return fresh()}
+let storageLoadWarning='';
+function load(){
+ try{
+  const raw=localStorage.getItem(KEY);
+  if(raw===null)return fresh();
+  const x=JSON.parse(raw);
+  if(x&&Array.isArray(x.pokemon)&&x.pokemon.length){
+   const base=fresh();
+   return {...base,...x,
+    pokemon:[...base.pokemon.map(p=>x.pokemon.find(q=>q&&q.id===p.id)||p),
+      ...x.pokemon.filter(q=>q&&q.id&&!base.pokemon.some(p=>p.id===q.id))],
+    rules:{...base.rules,...(x.rules||{})}};
+  }
+  storageLoadWarning='저장 데이터는 발견했지만 형식이 예상과 달라 기본 화면으로 표시 중이야. 원본 저장값은 건드리지 않았어.';
+ }catch(e){
+  storageLoadWarning='저장 데이터를 읽는 중 오류가 났어. 원본 저장값은 덮어쓰지 않았어. 아래의 저장 데이터 백업을 먼저 눌러 줘.';
+ }
+ return fresh();
+}
+function showAppDiagnostic(message){
+ const box=document.getElementById('appErrorNotice');
+ if(!box)return;
+ box.hidden=false;
+ box.textContent=message;
+}
+window.addEventListener('error',e=>showAppDiagnostic('화면 처리 중 오류: '+(e.message||'알 수 없는 오류')+' · 저장 데이터는 자동 초기화하지 않았어. JSON 내보내기/백업으로 원본을 보존해 줘.'));
+window.addEventListener('unhandledrejection',e=>showAppDiagnostic('비동기 처리 중 오류: '+String(e.reason?.message||e.reason||'알 수 없는 오류')+' · 저장 데이터는 자동 초기화하지 않았어.'));
 let db=load(), battle={started:false,over:false,turn:1,active:'1',hp1:120,hp2:120,lastMove:{'1':null,'2':null},slots:{'1':[],'2':[]},effects:{'1':{},'2':{}},lastRoll:[],lastRollBySide:{'1':[],'2':[]},lastFailed:{'1':false,'2':false},poisoned:{'1':false,'2':false}};
 let pendingBlockSelection=null;
 function persist(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
@@ -178,7 +205,24 @@ function renderInfo(){const a=selectedPokemon('1'),b=selectedPokemon('2');docume
 function renderLists(){const pl=document.getElementById('pokemonList');pl.innerHTML=db.pokemon.map(p=>`<div class="item"><div><b>${esc(p.name)}</b><small>HP ${p.hp} · ${esc(p.type)} 타입 · 약점 ${esc(p.weakness)} · 기술 ${p.moves.length}개</small></div></div>`).join('');const p=pokemon(document.getElementById('dataPokemon').value)||db.pokemon[0];document.getElementById('moveList').innerHTML=(p?.moves||[]).map(m=>`<div class="item"><div><b>${esc(m.name)}</b><small>에너지: ${costText(m.cost)} · 기본 피해 ${m.damage}${m.memo?' · '+esc(m.memo):''}<br>${m.effects.map(e=>`${e.poses.join('/')} → ${effectText(e)}`).join(' · ')||'추가 효과 없음'}</small></div></div>`).join('');}
 function effectText(e){return ({bonus:`피해 +${e.value}`,heal:`HP +${e.value} 회복`,selfDamage:`자신에게 피해 ${e.value}`,diceShift:`다음 턴 에네코로 ${e.selfNext>0?'+':''}${e.selfNext||0}${e.opponent!==undefined?`, 상대 ${e.opponent}`:''}`,reduceNext:`다음 턴 받는 피해 -${e.value}`,opponentDice:`상대 다음 턴 에네코로 ${e.value}`,blockMove:'상대 기술 1개 봉쇄',fireCountBonus:`불꽃 에너지 수×${e.value}`,lowHpBonus:`HP ${e.threshold} 이하일 때 피해 +${e.value}`,repeat:'반복 공격',immuneNext:'다음 상대 턴 기술 피해 무효',skipRoll:'상대 다음 턴 에네코로 굴리기 불가',diceCountBonus:`굴린 에네코로 수×${e.value} 피해`,opponentEnergyBonus:'상대 에너지 최다 타입 수만큼 추가 피해',reflectDouble:'상대 직전 기술 에너지 요구량 기반 피해 ×2',delayedDamage:'다음 상대 턴 피해 예약',extraRoll:'추가 에네코로 1회',poisonMark:'독가스 성공 기록',healIfPoison:'독가스 성공 시 회복',bonusIfPoison:'독가스 성공 시 추가 피해',conditionalBonus:'조건부 추가 피해',bonusIfOpponentFailed:'상대 직전 공격 실패 시 추가 피해',gyroBonus:'상대 에네코로 조건부 추가 피해',failMove:'기술 실패',reduceSelfNext:'자신의 다음 턴 피해 감소',immuneSelfNext:'자신의 다음 턴 피해 무효',skipPosture:'상대 캐릭코로 금지',setDamage:'피해 고정',bonusIfSelfFailed:'자신 직전 실패 시 추가 피해',poisonMark:'독가스 성공 기록'})[e.type]||e.type}
 function renderFaces(){const root=document.getElementById('diceFaceConfig'),all=getDiceFaces();root.innerHTML=all.map((faces,d)=>`<div class="fighter"><h3>에네코로 ${d+1}</h3><div class="grid">${faces.map((f,i)=>{const choices=i<4?singleFaceChoices:doubleFaceChoices;return `<div class="field"><label>${i+1}면 · ${i<4?'단일 타입':'더블 타입'}</label><select id="die${d}face${i}">${choices.map(v=>`<option value="${v}">${v.replace('+',' + ')}</option>`).join('')}</select></div>`}).join('')}</div><p class="sub">단일 타입 4면은 에네코로 타입 중에서 선택해. 무색은 기술 비용에만 적용돼.</p></div>`).join('');all.forEach((faces,d)=>faces.forEach((f,i)=>{const el=document.getElementById(`die${d}face${i}`);el.value=(f.types||defaultFaces[i].types).join('+');}));}
-function renderAll(){renderPokemonSelects();renderSlots('1');renderSlots('2');renderInfo();renderTurnMove('1');renderTurnMove('2');renderLists();renderFaces();refreshBattle();renderMoveChoices()}
+function renderAll(){
+ const steps=[
+  ['포켓몬 선택 목록',renderPokemonSelects],
+  ['내 기술 슬롯',()=>renderSlots('1')],
+  ['상대 기술 슬롯',()=>renderSlots('2')],
+  ['포켓몬 정보',renderInfo],
+  ['내 선택 기술',()=>renderTurnMove('1')],
+  ['상대 선택 기술',()=>renderTurnMove('2')],
+  ['포켓몬/기술 목록',renderLists],
+  ['에네코로 설정',renderFaces],
+  ['전투 화면',refreshBattle],
+  ['기술 선택 목록',renderMoveChoices]
+ ];
+ const errors=[];
+ for(const [label,fn] of steps){try{fn()}catch(e){errors.push(label+': '+(e?.message||e));}}
+ if(storageLoadWarning)showAppDiagnostic(storageLoadWarning+' 저장 데이터가 사라진 것으로 단정하지 말고, 우선 「브라우저 원본 저장값 백업」을 눌러 줘.');
+ else if(errors.length)showAppDiagnostic('화면 일부를 그리지 못했어 ('+errors.join(' / ')+'). 저장 데이터를 초기화하거나 덮어쓰지 않았어. 「브라우저 원본 저장값 백업」으로 원본부터 보존해 줘.');
+}
 function refreshBattle(){renderOpponentMoves();renderExtraDieChoices();['1','2'].forEach(n=>{const p=selectedPokemon(n),hp=battle['hp'+n],safeHp=Math.max(0,hp??p?.hp??0),pct=p?Math.max(0,Math.min(100,safeHp/p.hp*100)):0;document.getElementById('hp'+n).textContent=p?`${safeHp} / ${p.hp} HP`:'— / —';document.getElementById('bar'+n).style.width=p?`${pct}%`:'0%';document.getElementById('bar'+n).style.background=((hp??(p?.hp||0))/(p?.hp||1))<.25?'var(--red)':'var(--green)';const tn=document.getElementById('terminalName'+n),th=document.getElementById('terminalHp'+n),tb=document.getElementById('terminalBar'+n);if(tn)tn.textContent=p?p.name:(n==='1'?'내 포켓몬':'상대 포켓몬');if(th)th.textContent=p?`${safeHp} / ${p.hp}`:'— / —';if(tb){tb.style.width=`${pct}%`;tb.style.background=pct<25?'var(--red)':'var(--green)';}const status=document.getElementById('status'+n),ef=battle.effects[n]||{};status.innerHTML=[ef.reduce?`받는 피해 -${ef.reduce}`:'',ef.nextDice?`다음 에네코로 ${ef.nextDice>0?'+':''}${ef.nextDice}`:'',ef.blocked?`봉쇄: ${esc(ef.blocked)}`:''].filter(Boolean).map(t=>`<span class="tag">${t}</span>`).join('');});document.getElementById('turnText').textContent=battle.started?(battle.over?'대전 종료':`제 ${battle.turn}턴 · ${battle.active==='1'?'내 차례':'상대 차례'}${battle.firstMovePending?' · 선공 첫 행동은 에네코로 2개':''}`):'새 대전을 시작하면 플레이어 A부터 행동해.';const terminal=document.getElementById('terminalStatus');if(terminal)terminal.textContent=!battle.started?'대전 준비 완료 · 포켓몬과 기술 4개를 설정해.':battle.over?'대전 종료 · 최종 HP를 확인해.':`제 ${battle.turn}턴 · ${battle.active==='1'?'내 차례':'상대 차례'} · ${battle.firstMovePending?'선공 첫 행동: 에네코로 2개':'기술을 선택하고 굴려.'}`;document.getElementById('rollAttack').disabled=!battle.started||battle.over||battle.active!=='1';['1','2'].forEach(n=>{document.getElementById('p'+n).disabled=!!battle.started;for(let i=0;i<4;i++)document.getElementById(`p${n}s${i}`).disabled=!!battle.started;updateSlotInfo(n)});const pickerBtn=document.getElementById('openMovePicker');if(pickerBtn)pickerBtn.disabled=!battle.started||battle.over||battle.active!=='1';}
 function log(msg,cls=''){const l=document.getElementById('log');l.innerHTML+=`<p class="${cls}">${msg}</p>`;l.scrollTop=l.scrollHeight}
 function openSetupModal(){try{const a=document.getElementById('setupP1'),source=document.getElementById('p1'),modal=document.getElementById('setupModal');if(!a||!source||!modal)throw new Error('새 대전 설정 창의 HTML 요소가 없어.');a.innerHTML=source.innerHTML;if(!a.options.length)renderPokemonSelects();a.value=source.value||a.options[0]?.value||'';document.getElementById('p1').value=a.value;renderSetupMoves();modal.classList.add('open');modal.style.display='flex'}catch(err){console.error(err);alert('대전 설정 창을 여는 중 오류가 발생했어: '+(err?.message||err))}}
@@ -260,7 +304,9 @@ document.getElementById('start').onclick=openSetupModal;document.getElementById(
 ['1','2'].forEach(n=>{document.getElementById('p'+n).onchange=()=>{if(battle.started)return;battle.slots[n]=[];renderSlots(n);renderInfo();renderLists();renderMoveChoices();refreshBattle()};for(let i=0;i<4;i++)document.getElementById(`p${n}s${i}`).onchange=()=>{const el=document.getElementById(`p${n}s${i}`),next=el.value,other=[0,1,2,3].filter(j=>j!==i).map(j=>document.getElementById(`p${n}s${j}`).value);if(other.includes(next)){alert('같은 기술을 중복 선택할 수 없어.');el.value=battle.slots[n][i];return}battle.slots[n][i]=next;renderTurnMove(n);updateSlotInfo(n)};document.getElementById('m'+n).onchange=refreshBattle});document.getElementById('dataPokemon').onchange=renderLists;
 const enePrimary=document.getElementById('enePrimaryType'),eneSecondary=document.getElementById('eneSecondaryType');[enePrimary,eneSecondary].forEach(sel=>sel.innerHTML=TYPES.map(t=>`<option value="${t}">${t}</option>`).join(''));enePrimary.value='풀';eneSecondary.value='불꽃';document.getElementById('applyEneBatch').onclick=()=>{const primary=enePrimary.value,secondary=eneSecondary.value;if(primary===secondary){document.getElementById('eneBatchStatus').textContent='보조 타입은 주 타입과 달라야 해.';return}const faces=[{types:[primary]},{types:[primary]},{types:[primary]},{types:[secondary]},{types:[primary,primary]},{types:[primary,primary]}];db.rules={...(db.rules||{}),diceFaces:[0,1,2].map(()=>faces.map(f=>({types:[...f.types]})))};delete db.rules.faces;persist();document.getElementById('eneBatchStatus').textContent='적용 완료: '+primary+' 단일 3면 + '+secondary+' 단일 1면 + '+primary+' 더블 2면을 에네코로 1·2·3에 적용했어.';document.getElementById('faceSaved').textContent='일괄 적용으로 저장됨';};
 document.getElementById('saveFaces').onclick=()=>{const dice=[];for(let d=0;d<3;d++){const faces=[];for(let i=0;i<6;i++){const v=document.getElementById(`die${d}face${i}`).value,types=v.split('+');if(i<4&&types.length!==1){alert(`에네코로 ${d+1}의 ${i+1}면은 단일 타입이어야 해.`);return}if(i>=4&&types.length!==2){alert(`에네코로 ${d+1}의 ${i+1}면은 더블 타입이어야 해.`);return}if(!types.length||types.some(t=>!TYPES.includes(t))){alert(`에네코로 ${d+1}의 면 설정을 확인해.`);return}faces.push({types})}if(new Set(faces.slice(0,4).map(f=>f.types[0])).size===1){alert(`에네코로 ${d+1}의 단일 타입 4면은 전부 같은 타입일 수 없어. 최소 2종류를 사용해.`);return}dice.push(faces)}db.rules={...(db.rules||{}),diceFaces:dice};delete db.rules.faces;persist();document.getElementById('faceSaved').textContent='저장 완료: 에네코로 3개 각각 단일 타입 4면 + 더블 타입 2면. 단일 타입 4면은 모두 같은 타입이 아니야.'};
-document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='plakoro-data.json';a.click();URL.revokeObjectURL(a.href)};document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!Array.isArray(x.pokemon))throw Error();db=x;persist();alert('데이터를 가져왔어.')}catch(err){alert('올바른 프라코로 JSON 파일이 아니야.')}e.target.value=''};
+document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='plakoro-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+const rawBackupButton=document.createElement('button');rawBackupButton.type='button';rawBackupButton.className='btn secondary';rawBackupButton.textContent='브라우저 원본 저장값 백업';rawBackupButton.style.marginLeft='8px';rawBackupButton.onclick=()=>{try{const raw=localStorage.getItem(KEY);if(raw===null){alert('이 사이트 주소의 브라우저 저장소에 해당 저장 키가 없어. 다른 주소나 브라우저에 저장했을 수 있어.');return;}const blob=new Blob([raw],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='plakoro-raw-storage-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);alert('브라우저에 남아 있는 원본 저장값을 백업했어.');}catch(e){alert('원본 백업 실패: '+e.message)}};
+document.getElementById('export').parentElement.appendChild(rawBackupButton);document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!Array.isArray(x.pokemon))throw Error();db=x;persist();alert('데이터를 가져왔어.')}catch(err){alert('올바른 프라코로 JSON 파일이 아니야.')}e.target.value=''};
 renderAll();
 </script>
 <script>
