@@ -72,7 +72,7 @@
 </main>
 <script>
 const KEY='plakoro-battle-lab-v3';
-const TYPES=['풀','불꽃','물','번개','격투','강철','에스퍼','악','무색'];
+const TYPES=['풀','불꽃','물','번개','격투','강철','에스퍼','악','비행','무색'];
 const typeKey={'풀':'grass','불꽃':'fire','물':'water','번개':'lightning','격투':'fighting','강철':'steel','에스퍼':'psychic','악':'dark','무색':'colorless'};
 const defaultFaces=[{types:['풀']},{types:['불꽃']},{types:['물']},{types:['번개']},{types:['강철','강철']},{types:['강철','격투']}];
 const singleFaceChoices=[...TYPES];
@@ -88,10 +88,91 @@ makeMove('불꽃세례',{불꽃:2},20,[{poses:['정방향','오른쪽'],type:'bo
 {name:'꼬부기',hp:120,type:'물',weakness:'번개',moves:[
 makeMove('물대포',{물:1},10,[{poses:['정방향','오른쪽'],type:'bonus',value:20}]),makeMove('껍질에숨기',{물:1},0,[{poses:['오른쪽'],type:'diceShift',selfNext:2}], '캐릭코로 효과는 자료 충돌(HP 회복 30 또는 다음 턴 에네코로 +2)로 확인 필요.', {baseReduceNext:20}),makeMove('물의파동',{물:3},30,[{poses:['정방향','왼쪽','오른쪽'],type:'bonus',value:20}]),makeMove('셸어택',{물:3},30,[{poses:['정방향','왼쪽','오른쪽'],type:'reduceNext',value:20}]),makeMove('거품광선',{물:3},30,[{poses:['정방향','왼쪽','오른쪽'],type:'opponentDice',value:-1}]),makeMove('하이드로앵거',{물:4},40,[{poses:['정방향','왼쪽','오른쪽'],type:'lowHpBonus',threshold:40,value:60}]),makeMove('머드샷',{격투:1,무색:3},30,[{poses:['정방향','왼쪽','오른쪽'],type:'bonus',value:30}])]},
 {name:'피카츄',hp:120,type:'번개',weakness:'격투',moves:[
-makeMove('갉기',{번개:1},10,[{poses:['정방향','오른쪽'],type:'bonus',value:30}]),makeMove('일렉러쉬',{번개:2},20,[{poses:['정방향','오른쪽'],type:'repeat'}],'기본 효과: 약점 계산 안 함.'),makeMove('전기쇼크',{번개:2},10,[{poses:['정방향','왼쪽','오른쪽'],type:'bonus',value:20}]),makeMove('번개',{번개:3},20,[{poses:['정방향','오른쪽'],type:'bonus',value:60}]),makeMove('10만볼트',{번개:3},30,[{poses:['정방향','왼쪽','오른쪽'],type:'bonus',value:30},{poses:['물구나무','엎드림','오른쪽'],type:'diceShift',selfNext:-2}]),makeMove('볼트태클',{번개:4},40,[{poses:['정방향','왼쪽','오른쪽'],type:'bonus',value:40}], '기본 효과: 자신에게 피해 30.', {baseSelfDamage:30}),makeMove('아이언테일',{강철:1},20,[{poses:['정방향','왼쪽','오른쪽'],type:'reduceNext',value:10}])]}];
+makeMove('갉기',{번개:1},10,[{poses:['정방향','오른쪽'],type:'bonus',value:30}]),makeMove('일렉러쉬',{번개:2},20,[{poses:['정방향','오른쪽'],type:'repeat'}],'기본 효과: 약점 계산 안 함.'),makeMove('전기쇼크',{번개:2},10,[{poses:['정방향','왼쪽','오른쪽'],type:'bonus',value:20}]),makeMove('번개',{번개:3},20,[{poses:['정방향','오른쪽'],type:'bonus',value:60}]),makeMove('10만볼트',{번개:3},30,[{poses:['정방향','왼쪽','오른쪽'],type:'bonus',value:30},{poses:['물구나무','엎드림','오른쪽'],type:'diceShift',selfNext:-2}]),makeMove('볼트태클',{번개:4},40,[{poses:['정방향','왼쪽','오른쪽'],type:'bonus',value:40}], '기본 효과: 자신에게 피해 30.', {baseSelfDamage:30}),makeMove('아이언테일',{강철:1},20,[{poses:['정방향','왼쪽','오른쪽'],type:'reduceNext',value:10}])]},
+{name:'이브이',hp:120,type:'무색',weakness:'격투',moves:[
+makeMove('꼬리후리기',{무색:1},10,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('몸통박치기',{무색:1},10,[{poses:['정방향','오른쪽'],type:'bonus',value:20}]),
+makeMove('돌진',{무색:2},30,[{poses:['정방향','물구나무'],type:'bonus',value:20},{poses:['뒤집힘','엎드림'],type:'selfDamage',value:20}]),
+makeMove('돌아다니면서 뛰기',{무색:2},0,[{poses:['정방향','물구나무'],type:'delayedDamage',value:10,selfNextBonus:20}]),
+makeMove('전력대쉬',{무색:5},40,[{poses:['정방향','왼쪽'],type:'bonus',value:40}]),
+makeMove('야브뿌리기',{에스퍼:1},20,[{poses:['정방향','물구나무'],type:'opponentDice',value:-2}]),
+makeMove('물기',{악:1},10,[{poses:['정방향','물구나무'],type:'bonus',value:20}])]},
+{name:'뮤',hp:120,type:'에스퍼',weakness:'악',moves:[
+makeMove('염동력',{에스퍼:1},10,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('환상빔',{에스퍼:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:30}]),
+makeMove('배리어',{에스퍼:2},0,[{poses:['정방향','물구나무'],type:'reduceNext',value:30}], '기본 효과: 다음 상대 턴 받는 피해 -20.', {baseReduceNext:20}),
+makeMove('메모리스킵',{에스퍼:2},0,[{poses:['정방향','물구나무'],type:'blockMove'}]),
+makeMove('사이코샷',{에스퍼:3},30,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('사이코키네시스',{에스퍼:3},20,[{poses:['정방향','물구나무'],type:'opponentEnergyBonus',value:10}]),
+makeMove('리플렉션',{에스퍼:4},0,[{poses:['정방향','물구나무'],type:'reflectDouble'}], '기본 효과: 상대 직전 기술의 에너지 요구량을 기준으로 피해를 계산(에너지 1개당 10 피해). 자세 효과 성공 시 피해 2배.') ]},
+{name:'파이어',hp:120,type:'불꽃',weakness:'물',moves:[
+makeMove('불꽃날개',{불꽃:2},30,[{poses:['정방향','물구나무'],type:'bonus',value:30},{poses:['뒤집힘','엎드림'],type:'selfDamage',value:20}]),
+makeMove('열풍',{불꽃:3},30,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('화염방사',{불꽃:4},40,[{poses:['정방향','물구나무'],type:'bonus',value:40},{poses:['엎드림','뒤집힘'],type:'diceShift',selfNext:-2}]),
+makeMove('플레이어드라이브',{불꽃:5},50,[{poses:['정방향','물구나무'],type:'bonus',value:40},{poses:['뒤집힘','엎드림'],type:'selfDamage',value:20}]),
+makeMove('폭풍',{무색:3},20,[{poses:['정방향','물구나무'],type:'bonus',value:40}]),
+makeMove('회오리불꽃',{불꽃:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:40},{poses:['엎드림','뒤집힘'],type:'diceShift',selfNext:-2}]),
+makeMove('히트브레스',{불꽃:3},40,[{poses:['정방향','물구나무'],type:'bonus',value:40},{poses:['엎드림','뒤집힘'],type:'selfDamage',value:30}]),
+makeMove('불사르기',{불꽃:4},80,[{poses:['정방향','물구나무'],type:'failMove'}]),
+makeMove('날개치기',{무색:1},20,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('공중날기',{무색:3},30,[{poses:['정방향','물구나무'],type:'immuneNext'}])]},
+{name:'프리져',hp:120,type:'물',weakness:'강철',moves:[
+makeMove('아이스윙',{물:1},10,[{poses:['정방향','물구나무'],type:'opponentDice',value:-1}]),
+makeMove('얼어붙은칼날',{물:3},30,[{poses:['정방향','물구나무'],type:'skipRoll'}]),
+makeMove('물의파동',{물:4},30,[{poses:['정방향','물구나무'],type:'bonus',value:30}]),
+makeMove('폭풍',{무색:3},40,[{poses:['정방향','물구나무'],type:'bonus',value:40}]),
+makeMove('날개쉬기',{물:1},0,[{poses:['정방향','물구나무'],type:'heal',value:40}],'정방향/물구나무 성공 시 20+20 회복.'),
+makeMove('프리즈다이브',{물:4},10,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('아이스샷',{물:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('콜드브레스',{물:3},20,[{poses:['정방향','물구나무'],type:'opponentDice',value:-2}]),
+makeMove('절대영도',{물:4},40,[{poses:['정방향','물구나무'],type:'opponentDice',value:-2}]),
+makeMove('공중날기',{물:3},30,[{poses:['정방향','물구나무'],type:'immuneNext'}])]},
+{name:'썬더',hp:120,type:'번개',weakness:'격투',moves:[
+makeMove('전기플래시',{번개:1},20,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('전기쇼크',{번개:2},10,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('볼트러시',{번개:2},10,[{poses:['정방향','물구나무'],type:'diceCountBonus',value:30}]),
+makeMove('제비반환',{무색:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('찌릿찌릿날개',{무색:4},40,[{poses:['정방향','물구나무'],type:'bonus',value:50}]),
+makeMove('더블썬더',{번개:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('일렉ARROW',{번개:3},20,[{poses:['정방향','물구나무'],type:'bonus',value:40}]),
+makeMove('방전',{번개:3},30,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('썬더체인',{번개:4},30,[{poses:['정방향','물구나무'],type:'bonus',value:20},{poses:['정방향','물구나무'],type:'extraRoll',value:1}]),
+makeMove('공중날기',{번개:3},30,[{poses:['정방향','물구나무'],type:'immuneNext'}])]},
+{name:'질퍽이',hp:120,type:'악',weakness:'격투',moves:[
+makeMove('독가스',{악:1},10,[{poses:['정방향','물구나무'],type:'opponentDice',value:-1},{poses:['정방향','물구나무'],type:'poisonMark'}]),
+makeMove('끈적끈적펀치',{악:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('맹독힐',{악:3},30,[{poses:['정방향','물구나무'],type:'healIfPoison',value:30}]),
+makeMove('오물뿌리기',{악:3},30,[{poses:['정방향','물구나무'],type:'blockMove'}]),
+makeMove('베놈펀치',{악:4},40,[{poses:['정방향','물구나무'],type:'bonus',value:30}]),
+makeMove('베놈슬립',{악:2},20,[{poses:['정방향','물구나무'],type:'conditionalBonus',value:20}],'조건은 원문에 구체적으로 지정되지 않아 직전 상대 공격 실패 시 추가 피해로 처리.'),
+makeMove('맹독봄버',{악:3},30,[{poses:['정방향','물구나무'],type:'bonusIfPoison',value:30}]),
+makeMove('오물태클',{악:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:10},{poses:['정방향','물구나무'],type:'selfDamage',value:20}]),
+makeMove('젖은베놈',{악:4},20,[{poses:['정방향','물구나무'],type:'bonusIfOpponentFailed',value:50}])]},
+{name:'롱스톤',hp:120,type:'격투',weakness:'풀',moves:[
+makeMove('암석태클',{격투:2},10,[{poses:['정방향','물구나무'],type:'reduceNext',value:30},{poses:['뒤집힘','엎드림'],type:'reduceNext',value:20}]),
+makeMove('돌떨구기',{격투:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:30}]),
+makeMove('록윌',{격투:3},30,[{poses:['정방향','물구나무'],type:'reduceNext',value:50}]),
+makeMove('하무임팩트',{격투:3},30,[{poses:['정방향','물구나무'],type:'bonus',value:30}]),
+makeMove('자이로볼',{강철:1,무색:2},20,[{poses:['정방향','물구나무'],type:'gyroBonus',value:10}],'상대 에네코로 조건이 구체적으로 지정되지 않아 상대의 직전 굴림 에너지 총수×10으로 처리.'),
+makeMove('부딪치기',{격투:1},10,[{poses:['정방향','물구나무'],type:'bonus',value:10}]),
+makeMove('스톤사워',{격투:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('와일드태클',{격투:3},30,[{poses:['정방향','물구나무'],type:'bonus',value:20},{poses:['정방향','물구나무'],type:'selfDamage',value:20}]),
+makeMove('암석배리어',{격투:4},40,[{poses:['정방향','물구나무'],type:'reduceNext',value:50}]),
+makeMove('아이언테일',{강철:1,무색:2},20,[{poses:['정방향','물구나무'],type:'reduceNext',value:10}])]},
+{name:'쁘사이저',hp:120,type:'풀',weakness:'비행',moves:[
+makeMove('집중',{풀:1},0,[{poses:['정방향','물구나무'],type:'diceShift',selfNext:2}]),
+makeMove('참기',{풀:2},0,[{poses:['정방향','물구나무'],type:'reduceNext',value:40}]),
+makeMove('벌레메리키',{풀:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:30}]),
+makeMove('가위자르기',{무색:5},150,[{poses:['정방향','물구나무'],type:'bonus',value:150}]),
+makeMove('깨부수기',{격투:1},20,[{poses:['정방향','물구나무'],type:'bonus',value:20}]),
+makeMove('치지가지',{풀:2},20,[{poses:['정방향','물구나무'],type:'opponentDice',value:3}]),
+makeMove('발콘스윙',{풀:1},10,[{poses:['정방향','물구나무'],type:'bonusIfOpponentFailed',value:40}]),
+makeMove('돌격',{풀:3},30,[{poses:['정방향','물구나무'],type:'bonus',value:20},{poses:['정방향','물구나무'],type:'selfDamage',value:20}]),
+makeMove('펄살잡게',{풀:2},20,[{poses:['정방향','물구나무'],type:'bonus',value:80}]),
+makeMove('지옥의바퀴',{격투:3},30,[{poses:['정방향','물구나무'],type:'bonus',value:30},{poses:['정방향','물구나무'],type:'selfDamage',value:20}])]}];
 const fresh=()=>({pokemon:starterData.map(p=>({...p,id:slug(p.name),moves:p.moves.map((m,i)=>({...m,id:slug(p.name)+'-'+i}))})),rules:{faces:defaultFaces}});
 function slug(s){return s.replace(/[^가-힣a-zA-Z0-9]/g,'').toLowerCase()}
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Array.isArray(x.pokemon)&&x.pokemon.length)return x}catch(e){}return fresh()}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Array.isArray(x.pokemon)&&x.pokemon.length){const base=fresh();const merged={...base,...x,pokemon:[...base.pokemon.map(p=>x.pokemon.find(q=>q.id===p.id)||p),...x.pokemon.filter(q=>!base.pokemon.some(p=>p.id===q.id))],rules:{...base.rules,...(x.rules||{})}};return merged}}catch(e){}return fresh()}
 let db=load(), battle={started:false,over:false,turn:1,active:'1',hp1:120,hp2:120,lastMove:{'1':null,'2':null},slots:{'1':[],'2':[]},effects:{'1':{},'2':{}},lastRoll:[]};
 let pendingBlockSelection=null;
 function persist(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
