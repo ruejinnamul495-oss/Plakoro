@@ -34,7 +34,7 @@ function hostAction(a){
  if(!move||att.lastMove===mid(move)){log('직전 턴에 사용한 기술은 연속해서 사용할 수 없어.');publish();return}
  if(att.effects.blocked&&att.effects.blocked===mid(move)){log('이 기술은 봉쇄되어 있어.');publish();return}
  if(att.effects.skipRoll){att.effects.skipRoll=false;att.lastFailed=true;att.lastMove=mid(move);log(att.name+'는 효과로 이번 턴 에네코로를 굴릴 수 없어.');roomState.turn=targetId;publish();return}
- var n=Math.max(0,Math.min(6,3+Number(att.effects.nextDice||0)));att.effects.nextDice=0;var roll=rollEnergy(n),posture=att.effects.noPostureNext?(att.effects.noPostureNext=false,'캐릭코로 금지'):randomPose(),success=canPay(move.cost,roll),counts=rollCounts(roll),notes=[],damage=Number(move.damage)||0,heal=0,selfDamage=Number(move.baseSelfDamage)||0,failed=!success,own=att.effects||(att.effects={}),te=tar.effects||(tar.effects={});
+ if(att.effects.startDamage){var delayed=att.effects.startDamage;att.effects.startDamage=0;att.hp=Math.max(0,att.hp-delayed);log(att.name+'는 예약 효과로 '+delayed+' 피해를 받았어.');if(att.hp<=0){roomState.over=true;log(tar.name+' 승리!');publish();return}}if(att.effects.skipRoll){att.effects.skipRoll=false;att.lastFailed=true;att.lastMove=mid(move);log(att.name+'는 효과로 이번 턴 에네코로를 굴릴 수 없어.');roomState.turn=targetId;publish();return}var n=Math.max(0,Math.min(6,3+Number(att.effects.nextDice||0)));att.effects.nextDice=0;var roll=rollEnergy(n),posture=att.effects.noPostureNext?(att.effects.noPostureNext=false,'캐릭코로 금지'):randomPose(),success=canPay(move.cost,roll),counts=rollCounts(roll),notes=[],damage=Number(move.damage)||0,heal=0,selfDamage=Number(move.baseSelfDamage)||0,failed=!success,own=att.effects||(att.effects={}),te=tar.effects||(tar.effects={});
  if(!success)notes.push('에너지 조건 미충족: 공격 실패');
  if(success){
   if(move.baseReduceNext){own.reduce=(own.reduce||0)+move.baseReduceNext;notes.push('다음 공격 피해 감소 '+move.baseReduceNext)}
@@ -53,6 +53,8 @@ function hostAction(a){
    case'failMove':failed=true;notes.push('기술 효과로 실패');break;
    case'immuneSelfNext':case'immuneNext':own.immuneNext=true;notes.push('다음 공격 무효');break;
    case'skipPosture':te.noPostureNext=true;notes.push('상대 다음 캐릭코로 금지');break;
+   case'skipRoll':te.skipRoll=true;notes.push('상대 다음 턴 에네코로 굴리기 불가');break;
+   case'delayedDamage':te.startDamage=(te.startDamage||0)+Number(e.value||0);notes.push('상대 다음 턴 예약 피해 '+e.value);break;
    case'poisonMark':own.poisoned=true;notes.push('독가스 성공 기록');break;
    case'healIfPoison':if(own.poisoned){heal+=e.value;notes.push('독 성공: HP +'+e.value)}break;
    case'bonusIfPoison':if(own.poisoned){damage+=e.value;notes.push('독 성공: 피해 +'+e.value)}break;
