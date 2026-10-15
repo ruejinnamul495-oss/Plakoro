@@ -336,3 +336,75 @@ assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
 }
 
 console.log('Battle core tests passed: shared helpers, all effect handlers and exhaustive move simulations, move-database coverage, and PvP skipped-turn ordering.');
+
+
+// Interaction/regression tests: multiple effects and persistent defensive states.
+{
+  const { result, ctx } = run(
+    { type: 'bonus', value: 20 },
+    { damage: 30, damageParts: [30], move: { damage: 30, effects: [
+      { type: 'bonus', value: 20, poses: ['정방향'] },
+      { type: 'heal', value: 15 },
+      { type: 'selfDamage', value: 5 }
+    ] } }
+  );
+  // run() intentionally overrides effects with its single effect, so exercise the
+  // real multi-effect list directly here.
+  const multi = {
+    move: { damage: 30, effects: [
+      { type: 'bonus', value: 20, poses: ['정방향'] },
+      { type: 'heal', value: 15 },
+      { type: 'selfDamage', value: 5 }
+    ] },
+    own: {}, targetEffects: {}, notes: [], damage: 30, damageParts: [30],
+    heal: 0, selfDamage: 0, failed: false, roll: [['불꽃']], counts: { 불꽃: 1 },
+    posture: '정방향', ownerHp: 80
+  };
+  const out = core.applyMoveEffects(multi);
+  assert.equal(out.damage, 50);
+  assert.equal(out.heal, 15);
+  assert.equal(out.selfDamage, 5);
+  assert.deepEqual(out.damageParts, [30, 20]);
+}
+{
+  // Defensive states must be consumed once and not leak to the next attack.
+  const effects = { reduce: 25 };
+  const first = core.applyDamageRules({ damage: 20, targetEffects: effects, move: { cost: { 불꽃: 1 } } });
+  assert.equal(first.damage, 0);
+  assert.equal(effects.reduce, 0);
+  const second = core.applyDamageRules({ damage: 20, targetEffects: effects, move: { cost: { 불꽃: 1 } } });
+  assert.equal(second.damage, 20);
+}
+{
+  // Failed attacks do not consume a one-hit immunity or damage reduction.
+  const effects = { immuneNext: true, reduce: 15 };
+  const result = core.applyDamageRules({ damage: 40, failed: true, targetEffects: effects, move: { cost: { 불꽃: 1 } } });
+  assert.equal(result.damage, 0);
+  assert.equal(effects.immuneNext, true);
+  assert.equal(effects.reduce, 15);
+}
+{
+  // Cost payment must respect type-specific requirements before colorless costs.
+  assert.equal(core.canPay({ 불꽃: 1, 무색: 2 }, [['불꽃'], ['물'], ['에스퍼']]), true);
+  assert.equal(core.canPay({ 불꽃: 1, 무색: 2 }, [['물'], ['물'], ['에스퍼']]), false);
+  assert.equal(core.canPay({ 불꽃: 2, 무색: 1 }, [['불꽃', '물'], ['불꽃'], ['풀']]), true);
+  assert.equal(core.canPay({ 불꽃: 2, 무색: 1 }, [['불꽃'], ['물'], ['풀']]), false);
+}
+{
+  // Posture-gated effects should be isolated; unsupported postures must not mutate state.
+  const move = { damage: 10, effects: [
+    { type: 'bonus', value: 40, poses: ['물구나무'] },
+    { type: 'reduceNext', value: 20, poses: ['뒤집힘'] }
+  ] };
+  const ctx = { move, own: {}, targetEffects: {}, notes: [], damage: 10, damageParts: [10],
+    heal: 0, selfDamage: 0, failed: false, roll: [], counts: {}, posture: '정방향' };
+  const result = core.applyMoveEffects(ctx);
+  assert.equal(result.damage, 10);
+  assert.deepEqual(ctx.targetEffects, {});
+  assert.deepEqual(ctx.own, {});
+}
+{
+  // Zero damage should remain zero after reductions and must not gain weakness damage.
+  const result = core.applyDamageRules({ damage: 0, weakness: '불꽃', move: { cost: { 불꽃: 1 } } });
+  assert.equal(result.damage, 0);
+}
