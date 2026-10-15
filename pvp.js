@@ -48,7 +48,7 @@ function hostAction(a){
    case'reduceNext':te.reduce=(te.reduce||0)+e.value;notes.push('상대 다음 공격 피해 감소 '+e.value);break;
    case'reduceSelfNext':own.reduce=(own.reduce||0)+e.value;notes.push('자신의 다음 방어 피해 감소 '+e.value);break;
    case'opponentDice':te.nextDice=(te.nextDice||0)+e.value;notes.push('상대 다음 에네코로 '+e.value);break;
-   case'blockMove':{var tm=findMon(tar.pokemon),choices=tm.moves||[];if(choices.length){var bm=choices[Math.floor(Math.random()*choices.length)];te.blocked=mid(bm);notes.push('상대 기술 봉쇄: '+bm.name)}break}
+   case'blockMove':{var tm=findMon(tar.pokemon),choices=(tar.moves||[]).map(function(id){return (tm.moves||[]).find(function(mm){return mid(mm)===id})}).filter(Boolean);if(choices.length){var bm=choices[Math.floor(Math.random()*choices.length)];te.blocked=mid(bm);notes.push('상대 기술 봉쇄: '+bm.name)}break}
    case'fireCountBonus':var fire=(counts['불꽃']||0)*e.value;damage+=fire;notes.push('불꽃 에너지 피해 +'+fire);break;
    case'lowHpBonus':if(att.hp<=e.threshold){damage+=e.value;notes.push('HP 조건 피해 +'+e.value)}break;
    case'failMove':failed=true;notes.push('기술 효과로 실패');break;
@@ -62,11 +62,11 @@ function hostAction(a){
    case'bonusIfOpponentFailed':if(tar.lastFailed){damage+=e.value;notes.push('상대 직전 실패 피해 +'+e.value)}break;
    case'bonusIfSelfFailed':if(att.lastFailed){damage+=e.value;notes.push('자신 직전 실패 피해 +'+e.value)}break;
    case'conditionalBonus':case'gyroBonus':{var rp=randomPose();notes.push('상대 캐릭코로 '+rp);if((e.postures||[]).includes(rp)){damage+=e.value;notes.push('조건 성립 피해 +'+e.value)}break}
-   case'opponentEnergyBonus':{var rr=rollEnergy(3),cc=rollCounts(rr),mx=Math.max(0,...Object.values(cc));damage+=mx*e.value;notes.push('상대 에네코로 최다 타입 '+mx+'개: 피해 +'+mx*e.value);break}
+   case'opponentEnergyBonus':{var rr=rollEnergy(3,tar.diceFaces),cc=rollCounts(rr),mx=Math.max(0,...Object.values(cc));damage+=mx*e.value;notes.push('상대 에네코로 최다 타입 '+mx+'개: 피해 +'+mx*e.value);break}
    case'reflectDouble':{var lm=(findMon(tar.pokemon).moves||[]).find(function(mm){return mid(mm)===tar.lastMove});damage=lm?Number(lm.damage||0):0;if(posture!=='캐릭코로 금지')damage*=2;notes.push('상대 직전 기술 피해 반영');break}
    case'repeat':var total=Object.values(counts).reduce(function(x,y){return x+y},0);damage+=Math.max(0,total-1)*(Number(move.damage)||0);notes.push('반복 공격 피해 적용');break;
    case'diceCountBonus':var dn=roll.length*e.value;damage+=dn;notes.push('굴린 에네코로 수 피해 +'+dn);break;
-   case'extraRoll':{var ex=rollEnergy(1);roll=roll.concat(ex);counts=rollCounts(roll);notes.push('추가 에네코로 '+ex.map(function(x){return x.join('+')}).join('/'));break}
+   case'extraRoll':{var ex=rollEnergy(1,att.diceFaces);roll=roll.concat(ex);counts=rollCounts(roll);notes.push('추가 에네코로 '+ex.map(function(x){return x.join('+')}).join('/'));break}
   }});
   if(own.nextAttackBonus){damage+=own.nextAttackBonus;notes.push('저장된 추가 피해 +'+own.nextAttackBonus);own.nextAttackBonus=0}
  }
