@@ -238,6 +238,173 @@ button,.btn,.tab,.home-action,.move-choice{transition:background-color .15s,bord
  .terminal-heading h2{font-size:16px}
 }
 
+
+/* === Plakoro UI refresh v2: tabletop arena, clearer hierarchy === */
+:root{
+ --bg:#f1f4f2;--panel:#ffffff;--ink:#172a26;--muted:#667873;--line:#d7e2dd;
+ --accent:#087f68;--accent2:#dff5ec;--red:#c84d59;--green:#14835e;
+ --surface-soft:#f6faf8;--radius-card:20px;--shadow-card:0 12px 32px #153d3010;
+ --focus-ring:0 0 0 3px #087f6828;
+}
+html{background:var(--bg);scroll-behavior:smooth}
+body{background:linear-gradient(180deg,#e7f2ed 0,#f4f6f3 250px,var(--bg) 620px);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Noto Sans KR",sans-serif}
+header{background:#102d28;border-bottom:4px solid #34c49b;padding:16px clamp(16px,4vw,54px);box-shadow:0 8px 24px #102d2814}
+header:after{content:"PLAY • CUSTOMIZE • BATTLE";display:block;margin-top:7px;color:#8fe2c6;font-size:9px;letter-spacing:.22em;font-weight:900}
+header h1{font-size:clamp(20px,2.3vw,27px);letter-spacing:-.045em;color:#f7fffb}
+header p{font-size:12px;color:#c0d8d0}
+main{max-width:1240px;padding:clamp(14px,2.6vw,32px) clamp(12px,2vw,24px) 56px}
+.view{animation:plakoro-view-in .22s ease-out}
+h2,h3{letter-spacing:-.035em}
+h2{font-size:clamp(18px,1.8vw,22px)}
+.panel,.pvp-settings,.pvp-room-card,.pvp-action-panel,.fighter,.arena-fighter,.prebattle-card,.move-picker-dialog{border-radius:20px;box-shadow:0 10px 28px #173d3010}
+.panel{border-color:#dce7e1}
+input,select,textarea{border-color:#cbd9d2;border-radius:12px;background:#fbfdfc}
+input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846b;box-shadow:0 0 0 3px #07846b20;outline:none}
+.btn{background:#087f68;border-radius:12px;min-height:44px;padding:11px 16px;box-shadow:0 4px 0 #075e4e;font-weight:800;letter-spacing:-.01em}
+.btn:hover:not(:disabled){background:#079575;transform:translateY(-1px);box-shadow:0 5px 0 #075e4e}
+.btn:active:not(:disabled){transform:translateY(1px);box-shadow:0 2px 0 #075e4e}
+.btn.secondary{background:#edf4f0;color:#24473d;border:1px solid #d5e3dc;box-shadow:none}
+.btn.secondary:hover:not(:disabled){background:#e0eee7}
+.btn.danger{background:#fff0f1;color:#a72f3e;border:1px solid #f1c6cb;box-shadow:none}
+.tab{border-radius:12px}
+.tab.active{background:#087f68;border-color:#087f68}
+.item{border-radius:13px;border-color:#dce7e1}
+.item:hover{border-color:#8acbb8;background:#fbfffd}
+.empty{background:#f8fbf9;border-color:#cddbd4;border-radius:14px}
+.tag{background:#eaf3ee;color:#31564a}
+.pill{background:#dcf6eb;color:#087158;border:1px solid #bdebd9}
+.notice{background:#fff8e8;border-color:#f0dca8;color:#70531a;border-radius:14px}
+.home-return{background:#087f68!important;border:1px solid #70d9b7!important;color:#fff!important;box-shadow:0 5px 16px #052f2730!important}
+.home-brand{display:inline-flex;align-items:center;gap:10px;margin:clamp(8px,2vw,24px) 0 12px;padding:clamp(18px,3vw,30px);width:100%;border-radius:24px;background:radial-gradient(circle at 92% 12%,#35c69d45,transparent 32%),linear-gradient(120deg,#102d28,#155e4b 72%,#087f68);color:#f4fff9;font-size:clamp(28px,5vw,46px);font-weight:950;letter-spacing:-.065em;box-shadow:0 18px 36px #154b3b25}
+.home-brand:before{content:"PK";display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border:2px solid #a2f2d7;border-radius:15px;color:#a2f2d7;font-size:16px;letter-spacing:-.05em}
+.home-subtitle{margin:0 0 22px;color:#47645a;font-size:14px}
+.home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.home-action{position:relative;display:flex;align-items:center;gap:14px;text-align:left;padding:20px;border-radius:20px;min-height:124px;border:1px solid #d7e4dc;background:linear-gradient(145deg,#fff,#f8fbf9);color:#173b30;box-shadow:0 8px 20px #193d3010}
+.home-action:after{content:"↗";position:absolute;right:17px;top:15px;color:#93a89f;font-size:18px;font-weight:800}
+.home-action strong{display:block;font-size:17px;letter-spacing:-.035em}
+.home-action small{display:block;margin-top:5px;color:#667d74;font-size:12px;line-height:1.55}
+.home-action .home-icon{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;border-radius:17px;background:#e1f6ed;color:#087f68;font-size:25px;margin:0}
+.home-action.primary{background:radial-gradient(circle at 100% 0,#42d4a955,transparent 36%),linear-gradient(135deg,#123e33,#087f68);color:#f4fff9;border:1px solid #087f68;box-shadow:0 10px 24px #087f6826}
+.home-action.primary:after{color:#b8f3df}
+.home-action.primary small{color:#c8eee1}
+.home-action.primary .home-icon{background:#ffffff20;color:#a5f4d8}
+.home-action:hover{transform:translateY(-3px);border-color:#8bcdb7;box-shadow:0 16px 28px #193d3018}
+.prebattle-card{border:1px solid #cfe0d7;background:#fbfefc}
+.arena-fighter,.pvp-fighter{border-radius:22px;padding:clamp(14px,2vw,22px)}
+.arena-opponent,.pvp-enemy{background:linear-gradient(145deg,#fff 0%,#fff6f5 100%);border:1px solid #edc8c7;border-top:4px solid #d7656c}
+.arena-player,.pvp-self{background:linear-gradient(145deg,#fff 0%,#effaf5 100%);border:1px solid #bfe4d4;border-top:4px solid #21a47c}
+.arena-label{font-size:10px;letter-spacing:.19em;font-weight:950;color:#71847c}
+.arena-opponent .arena-label,.pvp-enemy .arena-label{color:#bb5a62}
+.arena-player .arena-label,.pvp-self .arena-label{color:#138767}
+.arena-mon-icon{border-radius:20px;background:linear-gradient(145deg,#ffe8e5,#ffd0d0);border-color:#efb9b7;color:#ad3e46}
+.player-icon{background:linear-gradient(145deg,#d8f6e8,#a8e6ce);border-color:#9cdcc3;color:#087f68}
+.arena-mon-info select{border-radius:12px;background:#fff}
+.hp{letter-spacing:-.05em}
+.hpbar{height:10px;background:#e6eeea;border-radius:99px}
+.hpbar span{border-radius:99px;background:linear-gradient(90deg,#2ab58a,#087f68)}
+.arena-opponent .hpbar span{background:linear-gradient(90deg,#f08b82,#cf4c5a)}
+.move-reveal-grid .item{background:#ffffffdf;border-radius:12px}
+.battle-middle{padding:0 4px}
+.battle-divider{height:52px}
+.battle-divider:before{height:1px;background:linear-gradient(90deg,#e6a8a9,#86cdb5)}
+.battle-divider span{background:#123e33;border:3px solid var(--bg);box-shadow:0 4px 12px #123e3330;width:42px;height:42px;font-size:12px}
+.terminal-panel,.pvp-action-panel{background:linear-gradient(150deg,#102b27,#163d36 65%,#1c4b40);border:1px solid #28564b;border-radius:22px;color:#f2fff9;box-shadow:0 18px 38px #102d2828}
+.terminal-panel h2,.pvp-action-panel h2{color:#f5fff9}
+.terminal-panel .arena-label,.pvp-action-panel .arena-label{color:#8de2c4}
+.terminal-live{color:#c2e5d7}
+.terminal-live i{background:#5de5ae;box-shadow:0 0 10px #5de5ae}
+.terminal-panel .sub,.pvp-action-panel .sub{color:#c0d9cf}
+.terminal-status{background:#204c41;border:1px solid #347260;border-radius:13px;color:#b8f6dc;padding:12px 14px}
+.terminal-hp-board{background:#0c211e;border:1px solid #2c5a4c;border-radius:16px;padding:12px}
+.terminal-hp-card{background:#17372f;border-color:#315c4e;border-radius:12px}
+.terminal-hp-player{background:#1b493b;border-color:#2da981}
+.terminal-hp-opponent{background:#482b31;border-color:#c76169}
+.terminal-hp-top b{color:#f3fff9}
+.terminal-hp-top strong{color:#fff}
+.terminal-hp-track{background:#081714}
+.terminal-hp-track span{background:#37d6a0}
+.terminal-hp-opponent .terminal-hp-track span{background:#f17b82}
+.terminal-hp-caption{color:#bdd7cd}
+.terminal-hp-vs{color:#b6d8cb}
+.terminal-panel .die{background:#20493f;color:#f1fff8;border-color:#38695a;border-radius:10px}
+.terminal-panel .tag,.pvp-action-panel .tag{background:#285548;color:#e0fff2}
+.terminal-panel .log,.pvp-log-panel .log{background:#081714;border:1px solid #285346;border-radius:14px;color:#e4f8ee}
+.terminal-panel .log .good,.pvp-log-panel .log .good{color:#75e7b8}
+.terminal-panel .log .bad,.pvp-log-panel .log .bad{color:#ff9da4}
+.terminal-panel input,.terminal-panel select,.pvp-action-panel input,.pvp-action-panel select{background:#f8fcfa;color:#18362d;border-color:#c5ded3}
+.terminal-panel .move-picker-trigger{border-color:#70d8b6;box-shadow:0 0 0 3px #4fd0a51c}
+.terminal-panel .move-picker-trigger span:last-child{color:#087f68}
+.terminal-panel .move-picker-compact button{background:#245346;color:#f1fff8;border-color:#487b69}
+.move-choice{border-radius:14px}
+.terminal-panel .move-choice,.pvp-action-panel .move-choice{background:#1a4036;color:#f3fff8;border-color:#3b6b5b}
+.terminal-panel .move-choice small,.pvp-action-panel .move-choice small{color:#c0ded1}
+.terminal-panel .move-choice.selected,.pvp-action-panel .move-choice.selected{background:#285d4d;border-color:#78e1bc;box-shadow:0 0 0 2px #78e1bc25}
+.terminal-panel .move-choice.blocked,.pvp-action-panel .move-choice.blocked{opacity:.4}
+.dice-side-title{color:#e2fff3}
+.dice-side-zone.player-zone .dice-side-title{color:#aaf2d6}
+.dice-side-zone.opponent-zone .dice-side-title{color:#ffc2c5}
+.charikoro-title{color:#b7d4c8}
+.charikoro-board{border-radius:12px}
+.pvp-shell{max-width:900px}
+.pvp-topbar{padding:0 2px 10px}
+.pvp-topbar h2{font-size:clamp(22px,3vw,30px);margin:3px 0 5px}
+.pvp-settings,.pvp-room-card{border:1px solid #d6e5dd;background:#fff;border-radius:18px;padding:clamp(15px,2vw,22px)}
+.pvp-settings summary{cursor:pointer;font-weight:850;color:#254a3d}
+.pvp-room-card{background:linear-gradient(145deg,#fff,#f3faf6);border-top:3px solid #9edbc4}
+.pvp-room-card h3{font-size:18px}
+.pvp-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.pvp-room-card .row{gap:10px}
+.pvp-player-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.pvp-last-attack{background:#0d241f;border-color:#2e5b4c;border-radius:14px;color:#edfff6}
+.pvp-last-attack .attack-result-title{color:#70e4b5}
+.pvp-shell .pvp-battle-board .terminal-hp-board{margin:14px 0 16px}
+.pvp-shell .pvp-action-panel .move-choice{background:#1a4036;color:#f3fff8;border-color:#3b6b5b}
+.pvp-shell .pvp-action-panel .move-choice.selected{background:#285d4d;border-color:#78e1bc}
+.tutorial-launch{border-radius:22px}
+.tutorial-dialog,.move-picker-dialog{border-radius:22px;box-shadow:0 24px 80px #102d2830}
+.move-picker-dialog{background:#fafffc}
+#eneTypeButtons .move-choice{background:#fff;color:#173b30;border-color:#d6e5dd}
+#eneTypeButtons .move-choice small{color:#667d74}
+#eneTypeButtons .move-choice.selected{background:#e5f7ef;border-color:#70cbb0}
+#diceFaceConfig .panel{border:1px solid #dce7e1;background:#fff}
+#pokemonList .item,#moveList .item{background:#fff}
+#pokemonList .item b,#moveList .item b{color:#173b30}
+@media(max-width:700px){
+ main{padding:12px 10px 32px}
+ header{padding:12px 12px 12px 68px}
+ header h1{font-size:18px}
+ header p{font-size:10px;line-height:1.4}
+ header:after{font-size:8px;margin-top:5px}
+ .home-brand{border-radius:19px;padding:20px 16px;font-size:clamp(26px,8vw,36px);gap:9px}
+ .home-brand:before{width:38px;height:38px;flex-basis:38px;border-radius:13px}
+ .home-grid{grid-template-columns:1fr;gap:10px}
+ .home-action{min-height:92px;padding:15px;border-radius:16px;gap:12px}
+ .home-action .home-icon{width:44px;height:44px;flex-basis:44px;border-radius:14px;font-size:22px}
+ .home-action strong{font-size:15px}
+ .home-action small{font-size:11px;max-width:230px}
+ .arena-fighter{padding:13px;border-radius:17px}
+ .arena-identity{grid-template-columns:54px minmax(0,1fr);gap:10px}
+ .arena-mon-icon{width:54px;height:54px;border-radius:15px;font-size:25px}
+ .terminal-panel,.pvp-action-panel{padding:13px 11px;border-radius:17px}
+ .terminal-hp-board{padding:8px;gap:6px}
+ .terminal-hp-card{padding:8px}
+ .terminal-hp-top strong{font-size:16px}
+ .terminal-hp-top b{font-size:11px}
+ .terminal-hp-caption{font-size:9px}
+ .terminal-actions{gap:8px}
+ .terminal-actions .btn{min-height:46px}
+ .pvp-room-card .row{gap:8px}
+ .pvp-card-heading{align-items:flex-start}
+ .pvp-settings,.pvp-room-card{padding:14px}
+}
+@media(max-width:380px){
+ .home-action{padding:13px}
+ .home-action small{max-width:190px}
+ .terminal-heading h2{font-size:16px}
+ .terminal-hp-board{grid-template-columns:minmax(0,1fr)!important}
+ .terminal-hp-vs{height:20px}
+}
+
 </style><style>
 .home-return{position:fixed;top:12px;right:14px;z-index:900;border:1px solid #ffffff40;border-radius:999px;padding:9px 14px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002}
 </style></head>
