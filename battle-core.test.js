@@ -194,6 +194,10 @@ assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
   const index = fs.readFileSync('./index.html', 'utf8');
   assert(index.includes("rollOpponent:function(){return rollForTurn(opp,opp==='2',0,3).map(x=>x.face)}"),
     'opponent-energy bonus must roll using the target side dice configuration');
+  assert(index.includes("face:rollFace(dieIndex,n==='2'?'2':'1')"),
+    'dice face lookup must follow the actual side being rolled');
+  assert(index.includes('rollExtra:function(){return rollForTurn(n,true,1,0).map(x=>x.face)}'),
+    'extraRoll must choose a die index instead of always rolling die one');
 }
 
 {
