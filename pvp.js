@@ -70,7 +70,7 @@ async function signin(){
  authUser=res.data.user;var p=await client.from('plakoro_profiles').select('username').eq('user_id',authUser.id).maybeSingle();
  setAuthUI(authUser,p.data&&p.data.username||u);authMessage('로그인했어. 내 전적을 불러왔어.');window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
 }
-$('pvpSignUp').onclick=signup;$('pvpSignIn').onclick=signin;
+window.plakoroSignUp=signup;window.plakoroSignIn=signin;$('pvpSignUp').onclick=signup;$('pvpSignIn').onclick=signin;
 $('pvpSignOut').onclick=async function(){if(client)await client.auth.signOut();authUser=null;setAuthUI(null,'');authMessage('로그아웃했어. 비회원 대전은 계속 이용할 수 있어.')};
 $('pvpRefreshLeaderboard').onclick=function(){if(!initClient())return;loadLeaderboard()};
 
