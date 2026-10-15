@@ -461,7 +461,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
  .pvp-lobby-dialog .pvp-room-card .row>*{width:100%}
 }
 
-</style><style>
+.pvp-leaderboard{display:grid;gap:6px;margin-top:8px}.pvp-ranking-head,.pvp-ranking-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:13px}.pvp-ranking-head{background:var(--bg);font-weight:700}.pvp-ranking-row span{color:var(--muted);text-align:right}</style><style>
 .home-return{position:fixed;top:12px;right:14px;z-index:900;border:1px solid #ffffff40;border-radius:999px;padding:9px 14px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002}
 </style>
 <style>
@@ -541,7 +541,17 @@ header:after{display:none!important;content:none!important}
   <div id="pvpLobbyModal" class="pvp-lobby-modal" role="dialog" aria-modal="true" aria-labelledby="pvpLobbyTitle">
    <div class="pvp-lobby-dialog">
     <div class="pvp-lobby-heading"><div><div class="arena-label">ROOM SETUP</div><h2 id="pvpLobbyTitle">방 생성 / 참가</h2><p class="sub">방을 만들거나 친구의 6자리 코드를 입력해. 연결되면 전투 화면으로 이동해.</p></div><button type="button" class="btn secondary" id="pvpLobbyClose">전투 화면</button></div>
-  <details class="pvp-settings"><summary>연결 설정 <span id="pvpConnectionStatus" class="pill">미연결</span></summary><div class="pvp-settings-body"><p class="sub">Supabase Project URL과 공개용 publishable/anon key가 필요해. service_role/secret key는 절대 입력하지 마.</p><div class="grid"><div class="field"><label for="pvpSupabaseUrl">Supabase Project URL</label><input id="pvpSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="pvpSupabaseKey">Publishable / anon key</label><input id="pvpSupabaseKey" placeholder="sb_publishable_... 또는 anon key"></div></div><button type="button" class="btn secondary" id="pvpSaveConfig">연결 설정 저장</button></div></details>
+  <section class="pvp-room-card" id="pvpAccountCard">
+ <div class="pvp-card-heading"><div><div class="arena-label">ACCOUNT</div><h3>회원 계정 · 전적</h3></div><span class="pill" id="pvpAuthStatus">비로그인</span></div>
+ <p class="sub">아이디와 비밀번호로 로그인하면 전적이 서버에 저장돼. 비회원도 기존 대전을 이용할 수 있어.</p>
+ <div class="grid"><div class="field"><label for="pvpAuthUsername">아이디</label><input id="pvpAuthUsername" maxlength="20" autocomplete="username" placeholder="영문·숫자·밑줄 3~20자"></div><div class="field"><label for="pvpAuthPassword">비밀번호</label><input id="pvpAuthPassword" type="password" minlength="8" autocomplete="current-password" placeholder="8자 이상"></div></div>
+ <div class="row"><button type="button" class="btn" id="pvpSignUp">회원가입</button><button type="button" class="btn secondary" id="pvpSignIn">로그인</button><button type="button" class="btn secondary" id="pvpSignOut" disabled>로그아웃</button></div>
+ <p class="sub" id="pvpAuthMessage" aria-live="polite">계정 없이도 대전할 수 있어. 회원가입 후에는 대전 결과가 자동 저장돼.</p>
+ <div id="pvpMyRecord" class="pvp-player-tags"></div>
+ <div class="pvp-card-heading" style="margin-top:14px"><div><div class="arena-label">RANKING</div><h3>전체 사용자 랭킹</h3></div><button type="button" class="btn secondary" id="pvpRefreshLeaderboard">새로고침</button></div>
+ <div id="pvpLeaderboard" class="pvp-leaderboard"><p class="sub">랭킹을 불러오려면 연결 설정을 확인해.</p></div>
+ </section>
+<details class="pvp-settings"><summary>연결 설정 <span id="pvpConnectionStatus" class="pill">미연결</span></summary><div class="pvp-settings-body"><p class="sub">Supabase Project URL과 공개용 publishable/anon key가 필요해. service_role/secret key는 절대 입력하지 마.</p><div class="grid"><div class="field"><label for="pvpSupabaseUrl">Supabase Project URL</label><input id="pvpSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="pvpSupabaseKey">Publishable / anon key</label><input id="pvpSupabaseKey" placeholder="sb_publishable_... 또는 anon key"></div></div><button type="button" class="btn secondary" id="pvpSaveConfig">연결 설정 저장</button></div></details>
   <div class="pvp-room-card"><div class="pvp-card-heading"><div><div class="arena-label">ROOM</div><h3>방 만들기 / 참가하기</h3></div><span class="pill">2 PLAYERS</span></div><div class="row quick-match-row"><button type="button" class="btn primary" id="pvpQuickMatch" style="width:100%;min-height:48px;font-size:16px;font-weight:800">⚡ 빠른 대전</button></div><p class="sub">대기 중인 빠른 대전 방이 있으면 참가하고, 없으면 새 방을 만들어 상대를 기다려.</p><div class="grid"><div class="field"><label for="pvpName">닉네임</label><input id="pvpName" maxlength="20" placeholder="플레이어 이름"></div><div class="field"><label for="pvpRoomCode">방 코드 (6자리)</label><input id="pvpRoomCode" maxlength="6" placeholder="6자리 코드"></div></div><div class="row"><button type="button" class="btn" id="pvpCreateRoom">방 코드 생성</button><button type="button" class="btn secondary" id="pvpJoinRoom">코드로 참가</button></div><p class="sub" id="pvpRoomStatus" aria-live="polite">먼저 연결 설정을 저장해.</p><div class="pvp-player-tags" id="pvpPlayers"></div></div>
    </div>
   </div>
