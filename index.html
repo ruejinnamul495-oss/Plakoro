@@ -832,7 +832,7 @@ function renderSlots(n){const p=selectedPokemon(n);for(let i=0;i<4;i++){const el
  document.addEventListener('pointerover',e=>{if(matchMedia('(hover: hover) and (pointer: fine)').matches){const b=e.target.closest('[data-move-id]');if(b)show(b,e.clientX,e.clientY,false)}});
  document.addEventListener('pointermove',e=>{if(active&&!pinned&&matchMedia('(hover: hover) and (pointer: fine)').matches)show(active,e.clientX,e.clientY,false)});
  document.addEventListener('pointerout',e=>{if(!matchMedia('(hover: hover) and (pointer: fine)').matches)return;const b=e.target.closest('[data-move-id]');if(b&&!b.contains(e.relatedTarget))hide()});
- document.addEventListener('click',e=>{const b=e.target.closest('[data-move-id]');if(!b){if(pinned)hide();return}if(matchMedia('(hover: none), (pointer: coarse)').matches){if(pinned&&active===b)hide();else show(b,0,0,true)}});
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-move-id]');if(!b){if(pinned)hide();return}if(matchMedia('(hover: none), (pointer: coarse)').matches){if(pinned&&active===b){hide()}else{e.preventDefault();e.stopImmediatePropagation();show(b,0,0,true)}}},true);
  document.addEventListener('scroll',()=>{if(pinned&&active)show(active,0,0,true);else hide()},true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')hide()});
 })();
