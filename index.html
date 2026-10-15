@@ -813,11 +813,16 @@ function pokemon(id){return db.pokemon.find(p=>p.id===id)}function selectedPokem
 function renderPokemonSelects(){if(!Array.isArray(db.pokemon)||db.pokemon.length===0){db.pokemon=fresh().pokemon;showAppDiagnostic('저장 데이터에서 포켓몬 목록을 읽지 못해 기본 포켓몬 목록만 화면에 표시하고 있어. 기존 저장값은 자동 저장하거나 덮어쓰지 않았어. 「브라우저 원본 저장값 백업」으로 원본을 먼저 보존해 줘.');}['1','2'].forEach(n=>{const el=document.getElementById('p'+n),old=el.value;el.innerHTML=db.pokemon.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');if(old&&pokemon(old))el.value=old;});const d=document.getElementById('dataPokemon'),old=d.value;d.innerHTML=db.pokemon.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');if(old&&pokemon(old))d.value=old;}
 function renderSlots(n){const p=selectedPokemon(n);for(let i=0;i<4;i++){const el=document.getElementById(`p${n}s${i}`),old=el.value;el.innerHTML=(p?.moves||[]).map(m=>`<option value="${m.id}">${esc(m.name)} · ${costText(m.cost)}</option>`).join('');const saved=battle.slots[n][i];if(saved&&p?.moves.some(m=>m.id===saved))el.value=saved;else if(old&&p?.moves.some(m=>m.id===old))el.value=old;else if(p?.moves[i]&&!(n==='1'&&!(battle.slots[n]||[]).some(Boolean)))el.value=p.moves[i].id;else el.selectedIndex=-1;battle.slots[n][i]=el.value;el.disabled=!!battle.started;}renderTurnMove(n);updateSlotInfo(n);if(n==='1')renderMoveChoices()}
 
-// Additional-effect preview for move selection: hover on desktop, tap on mobile.
+// Additional-effect preview: support both setup move cards and the in-battle turn picker.
 (function(){
  const tip=document.createElement('div');tip.id='moveEffectTooltip';tip.setAttribute('role','tooltip');document.body.appendChild(tip);
  let pinned=false,active=null;
- function getMove(btn){const id=btn&&btn.dataset&&btn.dataset.moveId;if(!id)return null;const p=selectedPokemon('1');return p&&(p.moves||[]).find(m=>String(m.id)===String(id))||null}
+ const selector='[data-move-id], [data-turn-id]';
+ function getMove(btn){
+  if(!btn||!btn.dataset)return null;
+  const id=btn.dataset.moveId||btn.dataset.turnId;if(!id)return null;
+  const p=selectedPokemon('1');return p&&moveById(p,id)||null;
+ }
  function show(btn,x,y,keep){
   const m=getMove(btn);if(!m)return hide();
   const effects=m.effects||[];tip.innerHTML='<b>'+esc(m.name)+' · 캐릭코로 추가 효과</b>'+(effects.length?effects.map(e=>'<div class="effect-line">'+esc(formatEffectLine(e))+'</div>').join(''):'<div class="effect-muted">추가 효과 없음</div>');
@@ -829,10 +834,10 @@ function renderSlots(n){const p=selectedPokemon(n);for(let i=0;i<4;i++){const el
   tip.style.left=left+'px';tip.style.top=Math.max(8,Math.min(innerHeight-tip.offsetHeight-8,top))+'px';
  }
  function hide(){tip.classList.remove('show');pinned=false;active=null}
- document.addEventListener('pointerover',e=>{if(matchMedia('(hover: hover) and (pointer: fine)').matches){const b=e.target.closest('[data-move-id]');if(b)show(b,e.clientX,e.clientY,false)}});
+ document.addEventListener('pointerover',e=>{if(matchMedia('(hover: hover) and (pointer: fine)').matches){const b=e.target.closest(selector);if(b)show(b,e.clientX,e.clientY,false)}});
  document.addEventListener('pointermove',e=>{if(active&&!pinned&&matchMedia('(hover: hover) and (pointer: fine)').matches)show(active,e.clientX,e.clientY,false)});
- document.addEventListener('pointerout',e=>{if(!matchMedia('(hover: hover) and (pointer: fine)').matches)return;const b=e.target.closest('[data-move-id]');if(b&&!b.contains(e.relatedTarget))hide()});
- document.addEventListener('click',e=>{const b=e.target.closest('[data-move-id]');if(!b){if(pinned)hide();return}if(matchMedia('(hover: none), (pointer: coarse)').matches){if(pinned&&active===b){hide()}else{e.preventDefault();e.stopImmediatePropagation();show(b,0,0,true)}}},true);
+ document.addEventListener('pointerout',e=>{if(!matchMedia('(hover: hover) and (pointer: fine)').matches)return;const b=e.target.closest(selector);if(b&&!b.contains(e.relatedTarget))hide()});
+ document.addEventListener('click',e=>{const b=e.target.closest(selector);if(!b){if(pinned)hide();return}if(matchMedia('(hover: none), (pointer: coarse)').matches){if(pinned&&active===b){hide()}else{e.preventDefault();e.stopImmediatePropagation();show(b,0,0,true)}}},true);
  document.addEventListener('scroll',()=>{if(pinned&&active)show(active,0,0,true);else hide()},true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')hide()});
 })();
