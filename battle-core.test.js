@@ -291,6 +291,16 @@ assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
     assert(Array.isArray(pokemon.moves), pokemon.name + ' must have a move list');
     for (const move of pokemon.moves) {
       assert(move.name && move.cost && Number.isFinite(Number(move.damage)), pokemon.name + ' has malformed move data');
+      // Construct a roll that satisfies each move's exact energy cost.
+      const paymentRoll = [];
+      for (const [type, amount] of Object.entries(move.cost || {})) {
+        for (let i = 0; i < Number(amount || 0); i++) paymentRoll.push([type === '무색' ? '비행' : type]);
+      }
+      assert(core.canPay(move.cost, paymentRoll), pokemon.name + ' / ' + move.name + ': a roll matching its cost must pay');
+      if (Object.keys(move.cost || {}).length) {
+        const failed = core.applyDamageRules({ damage: Number(move.damage) || 0, failed: true, move });
+        assert.equal(failed.damage, 0, pokemon.name + ' / ' + move.name + ': failed energy check must deal zero damage');
+      }
       for (const posture of postures) {
         const own = {}, targetEffects = {}, notes = [];
         const ctx = {
