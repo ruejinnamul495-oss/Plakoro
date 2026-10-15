@@ -662,7 +662,34 @@ makeMove('썬더체인',{번개:4},30,[{poses:['정방향','물구나무'],type:
 makeMove('공중날기',{번개:3},30,[{poses:['정방향','물구나무'],type:'immuneNext'}])]},
 {name:'질퍽이',hp:120,type:'악',weakness:'격투',moves:[makeMove('질퍽이A - 독가스',{악:1},10,[{poses:["정방향","물구나무","뒤로"],type:'opponentDice',value:-1},{poses:["정방향","물구나무","뒤로"],type:'poisonMark'}],"",{}),makeMove('질퍽이A - 끈적끈적던지기',{악:2},20,[{poses:["정방향","물구나무","뒤로"],type:'bonus',value:20}],"",{}),makeMove('질퍽이A - 맹독힐',{악:3},30,[{poses:["정방향","물구나무","뒤로","엎드림"],type:'healIfPoison',value:30}],"",{}),makeMove('질퍽이A - 오물두르기',{악:3},30,[{poses:["정방향","물구나무","뒤로"],type:'blockMove'}],"",{}),makeMove('질퍽이A - 베놈펀치',{악:4},40,[{poses:["정방향","뒤로"],type:'bonus',value:30}],"",{}),makeMove('질퍽이B - 독가스',{악:1},10,[{poses:["정방향","물구나무","뒤로"],type:'opponentDice',value:-1},{poses:["정방향","물구나무","뒤로"],type:'poisonMark'}],"",{}),makeMove('질퍽이B - 베놈슬립',{악:2},20,[{poses:["정방향","물구나무","뒤로","엎드림"],type:'conditionalBonus',value:20,postures:["뒤로","엎드림"]}],"",{}),makeMove('질퍽이B - 맹독봄버',{악:3},30,[{poses:["정방향","물구나무","뒤로"],type:'bonusIfPoison',value:30}],"",{}),makeMove('질퍽이B - 오물태클',{악:3},20,[{poses:["정방향","물구나무","뒤로"],type:'bonus',value:40},{poses:["엎드림","왼쪽","오른쪽"],type:'selfDamage',value:20}],"",{}),makeMove('질퍽이B - 젖은베놈',{악:4},20,[{poses:["정방향","물구나무","뒤로"],type:'bonusIfOpponentFailed',value:50}],"",{})]},
 {name:'롱스톤',hp:120,type:'격투',weakness:'풀',moves:[makeMove('롱스톤A - 암석태클',{격투:1},10,[{poses:[],type:'reduceSelfNext',value:10},{poses:["정방향","물구나무","뒤로"],type:'reduceSelfNext',value:20}],"",{}),makeMove('롱스톤A - 돌떨구기',{격투:3},20,[{poses:["정방향"],type:'bonus',value:30}],"",{}),makeMove('롱스톤A - 록윌',{격투:3},30,[{poses:["정방향","물구나무","뒤로","엎드림"],type:'reduceSelfNext',value:30}],"",{}),makeMove('롱스톤A - 하드임팩트',{격투:3},30,[{poses:["정방향","물구나무","뒤로"],type:'bonus',value:30},{poses:["엎드림"],type:'diceShift',selfNext:-1}],"",{}),makeMove('롱스톤A - 자이로볼',{강철:1,무색:2},20,[{poses:["정방향","물구나무","뒤로"],type:'gyroBonus',value:60,postures:["엎드림","왼쪽"]}],"",{}),makeMove('롱스톤B - 부딪치기',{격투:1},10,[{poses:["정방향","뒤로","엎드림"],type:'bonus',value:10}],"",{}),makeMove('롱스톤B - 스톤샤워',{격투:2},20,[{poses:["정방향","물구나무","뒤로"],type:'bonus',value:20}],"",{}),makeMove('롱스톤B - 와일드태클',{격투:3},30,[{poses:["정방향","뒤로"],type:'bonus',value:20},{poses:["물구나무","엎드림","왼쪽","오른쪽"],type:'selfDamage',value:20}],"",{}),makeMove('롱스톤B - 암석배리어',{격투:4},40,[{poses:["정방향","뒤로"],type:'reduceSelfNext',value:50}],"",{}),makeMove('롱스톤B - 아이언테일',{강철:1,무색:2},20,[{poses:["정방향","물구나무"],type:'reduceSelfNext',value:10}],"",{})]},
-{name:'쁘사이저',hp:120,type:'풀',weakness:'비행',moves:[makeMove('쁘사이저A - 집중',{풀:1},0,[{poses:["정방향","물구나무","뒤로"],type:'diceShift',selfNext:2}],"",{}),makeMove('쁘사이저A - 참기',{풀:2},0,[{poses:[],type:'reduceSelfNext',value:20},{poses:["정방향","물구나무","뒤로"],type:'reduceSelfNext',value:20}],"",{}),makeMove('쁘사이저A - 뿔로 때리기',{풀:3},20,[{poses:["정방향","물구나무","뒤로"],type:'bonus',value:30}],"",{}),makeMove('쁘사이저A - 가위자르기',{무색:5},0,[{poses:["정방향"],type:'setDamage',value:150}],"",{}),makeMove('쁘사이저A - 깨뜨리기',{격투:1},20,[{poses:["정방향","뒤로"],type:'bonus',value:20}],"",{}),makeMove('쁘사이저B - 차지가위',{풀:2},20,[{poses:["정방향","뒤로"],type:'diceShift',selfNext:1}],"",{}),makeMove('쁘사이저B - 발콘스윙',{풀:3},10,[{poses:["정방향","물구나무","뒤로"],type:'bonusIfSelfFailed',value:40}],"",{}),makeMove('쁘사이저B - 돌격',{풀:3},30,[{poses:["정방향","뒤로"],type:'bonus',value:20},{poses:["물구나무","엎드림"],type:'selfDamage',value:20}],"",{}),makeMove('쁘사이저B - 필살잡게',{풀:4},20,[{poses:["정방향"],type:'bonus',value:80}],"",{}),makeMove('쁘사이저B - 지옥의바퀴',{격투:1,무색:3},30,[{poses:[],type:'selfDamage',value:20},{poses:["정방향","물구나무","뒤로","엎드림"],type:'bonus',value:30}],"",{})]}];
+{name:'쁘사이저',hp:120,type:'풀',weakness:'비행',moves:[makeMove('쁘사이저A - 집중',{풀:1},0,[{poses:["정방향","물구나무","뒤로"],type:'diceShift',selfNext:2}],"",{}),makeMove('쁘사이저A - 참기',{풀:2},0,[{poses:[],type:'reduceSelfNext',value:20},{poses:["정방향","물구나무","뒤로"],type:'reduceSelfNext',value:20}],"",{}),makeMove('쁘사이저A - 뿔로 때리기',{풀:3},20,[{poses:["정방향","물구나무","뒤로"],type:'bonus',value:30}],"",{}),makeMove('쁘사이저A - 가위자르기',{무색:5},0,[{poses:["정방향"],type:'setDamage',value:150}],"",{}),makeMove('쁘사이저A - 깨뜨리기',{격투:1},20,[{poses:["정방향","뒤로"],type:'bonus',value:20}],"",{}),makeMove('쁘사이저B - 차지가위',{풀:2},20,[{poses:["정방향","뒤로"],type:'diceShift',selfNext:1}],"",{}),makeMove('쁘사이저B - 발콘스윙',{풀:3},10,[{poses:["정방향","물구나무","뒤로"],type:'bonusIfSelfFailed',value:40}],"",{}),makeMove('쁘사이저B - 돌격',{풀:3},30,[{poses:["정방향","뒤로"],type:'bonus',value:20},{poses:["물구나무","엎드림"],type:'selfDamage',value:20}],"",{}),makeMove('쁘사이저B - 필살잡게',{풀:4},20,[{poses:["정방향"],type:'bonus',value:80}],"",{}),makeMove('쁘사이저B - 지옥의바퀴',{격투:1,무색:3},30,[{poses:[],type:'selfDamage',value:20},{poses:["정방향","물구나무","뒤로","엎드림"],type:'bonus',value:30}],"",{})]},
+{name:'팬텀',hp:120,type:'악',weakness:'격투',moves:[
+makeMove('할로우샷',{악:2},20,[{poses:['정방향','뒤로','왼쪽','오른쪽'],type:'bonus',value:20}]),
+makeMove('그림자묶기',{악:3},30,[{poses:['정방향','물구나무','뒤로','엎드림'],type:'skipPosture'}]),
+makeMove('거꾸로뒤집기',{악:2},20,[{poses:['정방향','물구나무','뒤로'],type:'forceOpponentPosture',value:'물구나무'}]),
+makeMove('팬텀트릭',{악:4},10,[{poses:['정방향','물구나무','뒤로'],type:'charikoroBonusRoll',value:40,rolls:3,postures:['물구나무','엎드림']}]),
+makeMove('가스로감싸기',{악:1},10,[{poses:['정방향','물구나무','뒤로'],type:'bonus',value:10}]),
+makeMove('사이코웨이브',{에스퍼:1,무색:2},30,[{poses:['정방향'],type:'bonus',value:40}]),
+makeMove('오물폭탄',{악:3},30,[{poses:['정방향','물구나무','뒤로','엎드림'],type:'bonus',value:20}])
+]},
+{name:'메타그로스',hp:120,type:'강철',weakness:'불꽃',moves:[
+makeMove('빔',{강철:1},10,[{poses:['정방향','뒤로'],type:'bonus',value:20}]),
+makeMove('헤비봄버',{강철:4},40,[{poses:['정방향','물구나무'],type:'bonus',value:40},{poses:['뒤로','엎드림'],type:'diceShift',selfNext:-2}]),
+makeMove('사칙연산',{강철:2},20,[{poses:['정방향','물구나무','뒤로','엎드림'],type:'mirrorOwnPosture'}]),
+makeMove('스트레이트 스탬프',{강철:3},30,[{poses:['정방향','뒤로'],type:'bonus',value:20}]),
+makeMove('코멧펀치',{강철:3},20,[{poses:['정방향','뒤로'],type:'bonus',value:40}]),
+makeMove('대폭발',{무색:4},100,[{poses:['정방향'],type:'immuneSelfNext'}],'기본 효과: 이 포켓몬에게도 120 데미지. 서기 효과 성공 시 자신이 받는 이 기술의 데미지를 무효화.',{baseSelfDamage:120}),
+makeMove('와이드 프레스',{강철:2},20,[{poses:['정방향','뒤로'],type:'bonus',value:30}])
+]},
+{name:'루카리오',hp:120,type:'격투',weakness:'불꽃',moves:[
+makeMove('킥',{격투:1},10,[{poses:['정방향','물구나무','뒤로'],type:'bonus',value:10}]),
+makeMove('파동탄',{격투:4},40,[{poses:['정방향','뒤로'],type:'lowHpBonus',value:50,threshold:40}]),
+makeMove('파동너클',{격투:2},20,[{poses:['정방향','물구나무','뒤로'],type:'lowHpBonus',value:30,threshold:80}]),
+makeMove('아우라찌르기',{격투:3},30,[{poses:['정방향','물구나무','뒤로','엎드림'],type:'reduceSelfNext',value:20,threshold:80}],'남은 HP가 80 이하일 때 다음 상대 턴 받는 데미지 -20.'),
+makeMove('발경',{격투:2},20,[{poses:['정방향','뒤로'],type:'opponentDice',value:-1}]),
+makeMove('메탈클로',{강철:1,무색:2},30,[{poses:['정방향'],type:'bonus',value:40}]),
+makeMove('돌려차기',{격투:3},20,[{poses:['정방향','물구나무','뒤로'],type:'bonus',value:30}])
+]};
 const fresh=()=>({pokemon:starterData.map(p=>({...p,id:slug(p.name),moves:p.moves.map((m,i)=>({...m,id:slug(p.name)+'-'+i}))})),rules:{faces:defaultFaces}});
 function slug(s){return s.replace(/[^가-힣a-zA-Z0-9]/g,'').toLowerCase()}
 let storageLoadWarning='';
