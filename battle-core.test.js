@@ -26,6 +26,7 @@ function run(effect, overrides = {}) {
     rollExtra: () => [['불꽃']],
     getTargetLastMove: () => ({ damage: 30 })
   }, overrides);
+  ctx.move = move;
   return { result: core.applyMoveEffects(ctx), ctx };
 }
 
