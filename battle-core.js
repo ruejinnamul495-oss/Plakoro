@@ -63,12 +63,15 @@
     case 'diceShift': if(e.selfNext)own.nextDice=(own.nextDice||0)+e.selfNext;if(e.opponent!==undefined)targetEffects.nextDice=(targetEffects.nextDice||0)+e.opponent;notes.push('다음 턴 에네코로 수 변경');break;
     case 'reduceNext': targetEffects.reduce=(targetEffects.reduce||0)+Number(e.value||0);notes.push('상대 다음 턴 받는 피해 -'+e.value);break;
     case 'reduceSelfNext': own.reduce=(own.reduce||0)+Number(e.value||0);notes.push('자신의 다음 방어 피해 -'+e.value);break;
+    case 'lowHpReduceNext': if(ctx.ownerHp<=Number(e.threshold||0)){own.reduce=(own.reduce||0)+Number(e.value||0);notes.push('남은 HP 조건: 다음 상대 턴 받는 피해 -'+e.value)}break;
     case 'opponentDice': targetEffects.nextDice=(targetEffects.nextDice||0)+Number(e.value||0);notes.push('상대 다음 턴 에네코로 '+e.value);break;
     case 'blockMove': if(ctx.chooseBlockedMove){var blocked=ctx.chooseBlockedMove();if(blocked){targetEffects.blocked=blocked.id||blocked.name;notes.push('상대 기술 봉쇄: '+blocked.name)}}break;
     case 'fireCountBonus': var fire=(counts['불꽃']||0)*Number(e.value||0);damage+=fire;if(fire)damageParts.push(fire);notes.push('불꽃 에너지 추가 피해 +'+fire);break;
     case 'lowHpBonus': if(ctx.ownerHp<=e.threshold){damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('남은 HP 조건 피해 +'+e.value)}break;
     case 'failMove': failed=true;notes.push('기술 실패');break;
     case 'immuneSelfNext': case 'immuneNext': own.immuneNext=true;notes.push('다음 상대 턴 기술 피해 무효');break;
+    case 'forceOpponentPosture': targetEffects.forcedPose=e.value||'물구나무';notes.push('상대 다음 턴 캐릭코로 방향 지정: '+targetEffects.forcedPose);break;
+    case 'mirrorOwnPosture': own.forcedPose=posture;notes.push('다음 자신의 턴 캐릭코로 방향 지정: '+posture);break;
     case 'skipPosture': targetEffects.noPostureNext=true;notes.push('상대 다음 턴 캐릭코로 던지기 불가');break;
     case 'skipRoll': targetEffects.skipRoll=true;notes.push('상대 다음 턴 에네코로 굴리기 불가');break;
     case 'delayedDamage': targetEffects.startDamage=(targetEffects.startDamage||0)+Number(e.value||0);notes.push('상대 다음 턴 예약 피해 '+e.value);break;
@@ -77,6 +80,7 @@
     case 'bonusIfPoison': if(own.poisoned){damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('독가스 성공: 피해 +'+e.value)}else notes.push('독가스 성공 기록 없음');break;
     case 'bonusIfOpponentFailed': if(ctx.targetFailed){damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('상대 직전 실패: 피해 +'+e.value)}break;
     case 'bonusIfSelfFailed': if(ctx.ownerFailed){damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('자신 직전 실패: 피해 +'+e.value)}break;
+    case 'charikoroBonusRoll': if(ctx.rollPostures){var ps=ctx.rollPostures(Number(e.rolls||3));var cb=ps.filter(function(p){return (e.postures||[]).includes(p)}).length*Number(e.value||0);damage+=cb;if(cb)damageParts.push(cb);notes.push('추가 캐릭코로 '+ps.join(', ')+' · 추가 피해 +'+cb)}break;
     case 'conditionalBonus': case 'gyroBonus': {var rp=ctx.randomPose?ctx.randomPose():'정방향';notes.push('상대 캐릭코로 '+rp);if((e.postures||[]).includes(rp)){damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('조건 성립 피해 +'+e.value)}break}
     case 'opponentEnergyBonus': if(ctx.rollOpponent){var oc=rollCounts(ctx.rollOpponent()),mx=Math.max(0,...Object.values(oc)),od=mx*Number(e.value||0);damage+=od;if(od)damageParts.push(od);notes.push('상대 에네코로 최다 타입 '+mx+'개: 피해 +'+od)}break;
     case 'reflectDouble': {var last=ctx.getTargetLastMove?ctx.getTargetLastMove():null;var reflected=last?Math.max(0,Number(last.damage)||0):0;damage=reflected;damageParts.splice(0,damageParts.length,reflected);if(last)notes.push('상대 직전 기술 기본 피해 '+reflected);if(e.poses&&e.poses.includes(posture)){damage*=2;damageParts.push(reflected);notes.push('리플렉션 자세 성공: 피해 2배')}break}
