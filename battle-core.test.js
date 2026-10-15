@@ -408,3 +408,61 @@ console.log('Battle core tests passed: shared helpers, all effect handlers and e
   const result = core.applyDamageRules({ damage: 0, weakness: '불꽃', move: { cost: { 불꽃: 1 } } });
   assert.equal(result.damage, 0);
 }
+
+
+// Oracle comparison tests: expected damage is calculated independently from the
+// real move database, then compared with the shared engine's actual result.
+{
+  const vm = require('node:vm');
+  const index = fs.readFileSync('./index.html', 'utf8');
+  const start = index.indexOf('const starterData=[');
+  const open = index.indexOf('[', start);
+  let depth = 0, quote = null, escaped = false, end = -1;
+  for (let i = open; i < index.length; i++) {
+    const ch = index[i];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (ch === '\\\\') escaped = true;
+      else if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') { quote = ch; continue; }
+    if (ch === '[') depth++;
+    else if (ch === ']' && --depth === 0) { end = i + 1; break; }
+  }
+  assert(end > open, 'oracle: actual move data must parse');
+  const data = vm.runInNewContext(index.slice(open, end), {
+    makeMove: (name, cost, damage, effects = [], memo = '', base = {}) => ({ name, cost, damage, effects, memo, ...base })
+  });
+  const postures = ['정방향', '왼쪽', '오른쪽', '뒤로', '엎드림', '물구나무', '뒤집힘'];
+  const fixedOracle = {
+    '뮤|염동력': { '정방향': 30, '왼쪽': 10, '오른쪽': 10, '뒤로': 30, '엎드림': 10, '물구나무': 30, '뒤집힘': 10 },
+    '뮤|환상빔': { '정방향': 50, '왼쪽': 20, '오른쪽': 20, '뒤로': 20, '엎드림': 20, '물구나무': 50, '뒤집힘': 20 },
+    '뮤|사이코샷': { '정방향': 50, '왼쪽': 30, '오른쪽': 30, '뒤로': 50, '엎드림': 50, '물구나무': 50, '뒤집힘': 30 },
+    '파이리|불꽃세례': { '정방향': 50, '왼쪽': 20, '오른쪽': 50, '뒤로': 20, '엎드림': 20, '물구나무': 20, '뒤집힘': 20 },
+    '꼬부기|물대포': { '정방향': 30, '왼쪽': 10, '오른쪽': 30, '뒤로': 10, '엎드림': 10, '물구나무': 10, '뒤집힘': 10 },
+    '이브이|돌아다니면서 뛰기': { '정방향': 70, '왼쪽': 20, '오른쪽': 20, '뒤로': 20, '엎드림': 20, '물구나무': 40, '뒤집힘': 20 }
+  };
+  let checked = 0;
+  for (const pokemon of data) for (const move of pokemon.moves) {
+    const oracle = fixedOracle[pokemon.name + '|' + move.name];
+    if (!oracle) continue;
+    for (const posture of postures) {
+      const ctx = {
+        move, own: {}, targetEffects: {}, notes: [],
+        damage: Number(move.damage) || 0, damageParts: [Number(move.damage) || 0],
+        heal: 0, selfDamage: Number(move.baseSelfDamage) || 0, failed: false,
+        roll: [['불꽃'], ['물'], ['에스퍼']], counts: { 불꽃: 1, 물: 1, 에스퍼: 1 },
+        posture, ownerHp: 120, ownerFailed: false, targetFailed: false,
+        randomPose: () => '뒤로', rollPostures: n => Array.from({ length: n }, () => '정방향'),
+        chooseBlockedMove: () => null, rollOpponent: () => [['물'], ['물'], ['불꽃']],
+        rollExtra: () => [['에스퍼']], getTargetLastMove: () => ({ damage: 30 })
+      };
+      const actual = core.applyMoveEffects(ctx).damage;
+      assert.equal(actual, oracle[posture], pokemon.name + ' / ' + move.name + ' / ' + posture + ': expected vs actual damage mismatch');
+      checked++;
+    }
+  }
+  assert.equal(checked, 42, 'oracle must compare every posture for all six representative moves');
+  console.log('Expected-vs-actual damage oracle passed: ' + checked + ' comparisons across live move data.');
+}
