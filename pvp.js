@@ -5,7 +5,7 @@ var CFG='plakoro-pvp-supabase-config-v1',client=null,channel=null,quickChannel=n
 function say(t){$('pvpRoomStatus').textContent=t}
 function conf(){return {url:$('pvpSupabaseUrl').value.trim(),key:$('pvpSupabaseKey').value.trim()}}
 try{var saved=JSON.parse(localStorage.getItem(CFG)||'{}');saved.url=saved.url||'https://madsebygaqqnecmwwadb.supabase.co';saved.key=saved.key||'sb_publishable_OPaNvSWDGGx2GpE6K5TLpw_ZGNestGT';$('pvpSupabaseUrl').value=saved.url;$('pvpSupabaseKey').value=saved.key;localStorage.setItem(CFG,JSON.stringify(saved))}catch(e){$('pvpSupabaseUrl').value='https://madsebygaqqnecmwwadb.supabase.co';$('pvpSupabaseKey').value='sb_publishable_OPaNvSWDGGx2GpE6K5TLpw_ZGNestGT'}
-$('pvpName').value='플레이어-'+Math.floor(100+Math.random()*900);
+$('pvpName').value='';
 function initClient(){var c=conf();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)||!c.key){say('Supabase Project URL과 공개용 key를 입력해.');return false}if(!window.supabase||!window.supabase.createClient){say('Supabase 라이브러리를 불러오지 못했어. CDN 연결을 확인해.');return false}try{localStorage.setItem(CFG,JSON.stringify(c));client=window.supabase.createClient(c.url,c.key);$('pvpConnectionStatus').textContent='설정 저장됨';return true}catch(e){say('설정 오류: '+e.message);return false}}
 $('pvpSaveConfig').onclick=function(){if(initClient())say('설정을 저장했어. 방을 만들거나 코드를 입력해.')};
 
@@ -17,6 +17,8 @@ function validUsername(u){return /^[a-z0-9_]{3,20}$/.test(u)}
 function setAuthUI(user,username){
  authUser=user||null;authReady=true;$('pvpAuthStatus').textContent=user?(username||safeUsername()||'로그인됨'):'비로그인';
  $('pvpSignUp').disabled=!!user;$('pvpSignIn').disabled=!!user;$('pvpSignOut').disabled=!user;$('pvpAuthUsername').disabled=!!user;$('pvpAuthPassword').disabled=!!user;
+ var nickname=$('pvpName');
+ if(nickname){nickname.value=user?String(username||safeUsername()||'').slice(0,20):'';nickname.readOnly=true;}
  var credentials=$('pvpAuthUsername').closest('.grid'),signUp=$('pvpSignUp'),signIn=$('pvpSignIn');
  if(credentials)credentials.classList.toggle('hidden',!!user);
  signUp.classList.toggle('hidden',!!user);signIn.classList.toggle('hidden',!!user);
