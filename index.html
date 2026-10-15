@@ -497,6 +497,13 @@ header:after{display:none!important;content:none!important}
 }
 </style>
 
+<style>
+/* Fix battle terminal HP cards on narrow mobile screens */
+.terminal-hp-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch;width:100%;box-sizing:border-box}
+.terminal-hp-card{width:100%;min-width:0;box-sizing:border-box}
+.terminal-hp-vs{display:none!important}
+@media(max-width:480px){.terminal-hp-board{grid-template-columns:minmax(0,1fr)!important}.terminal-hp-card{grid-column:1;min-width:0;width:100%}}
+</style>
 </head>
 <body><button type="button" class="home-return" id="returnHome">⌂ 홈</button>
 <header><h1>프라코로 배틀 랩</h1></header>
