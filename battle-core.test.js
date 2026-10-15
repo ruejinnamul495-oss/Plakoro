@@ -180,7 +180,7 @@ assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
 {
   const html = fs.readFileSync('./index.html', 'utf8');
   const coreSource = fs.readFileSync('./battle-core.js', 'utf8');
-  const pokemonTypes = new Set(['풀', '불꽃', '물', '번개', '무색', '에스퍼', '악', '격투', '강철', '비행']);
+  const pokemonTypes = new Set(['풀', '불꽃', '물', '번개', '무색', '에스퍼', '악', '격투', '강철', '비행', 'application/json']);
   const usedEffects = [...html.matchAll(/type\s*:\s*['"]([^'"]+)['"]/g)]
     .map(match => match[1])
     .filter(type => !pokemonTypes.has(type));
@@ -208,6 +208,30 @@ assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
   const validation = pvp.indexOf('var moveCheck=PlakoroBattleCore.validateMove', attack);
   assert(attack >= 0 && skip > attack && move > skip && validation > move,
     'PvP must process a forced skipped turn before move selection and validation');
+}
+
+
+{
+  const failed = core.applyDamageRules({ damage: 50, failed: true, move: { cost: { 불꽃: 1 } } });
+  assert.equal(failed.damage, 0, 'failed attacks must deal no damage');
+}
+{
+  const effects = { immuneNext: true };
+  const blocked = core.applyDamageRules({ damage: 50, targetEffects: effects, move: { cost: { 불꽃: 1 } } });
+  assert.equal(blocked.damage, 0);
+  assert.equal(effects.immuneNext, false, 'a successful hit consumes the next-hit immunity');
+}
+{
+  const effects = { reduce: 20 };
+  const reduced = core.applyDamageRules({ damage: 50, targetEffects: effects, move: { cost: { 불꽃: 1 } } });
+  assert.equal(reduced.damage, 30);
+  assert.equal(effects.reduce, 0, 'damage reduction is consumed by a damaging hit');
+}
+{
+  const weak = core.applyDamageRules({ damage: 50, weakness: '불꽃', move: { cost: { 불꽃: 1 } } });
+  assert.equal(weak.damage, 70, 'weakness adds 20 damage');
+  const ignored = core.applyDamageRules({ damage: 50, weakness: '불꽃', ignoreWeakness: true, move: { cost: { 불꽃: 1 } } });
+  assert.equal(ignored.damage, 50, 'explicit weakness-ignore effects are respected');
 }
 
 console.log('Battle core tests passed: shared helpers, all 29 effect handlers, move-database coverage, and PvP skipped-turn ordering.');
