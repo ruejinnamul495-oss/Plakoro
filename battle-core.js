@@ -57,7 +57,7 @@
    if(e.type!=='reflectDouble'&&e.poses&&e.poses.length&&!e.poses.includes(posture))return;
    switch(e.type){
     case 'bonus': damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('자세 효과 피해 +'+e.value);break;
-    case 'setDamage': damage=Number(e.value||0);notes.push('피해 '+e.value+'로 설정');break;
+    case 'setDamage': damage=Number(e.value||0);damageParts.splice(0,damageParts.length,damage);notes.push('피해 '+e.value+'로 설정');break;
     case 'heal': heal+=Number(e.value||0);notes.push('HP '+e.value+' 회복');break;
     case 'selfDamage': selfDamage+=Number(e.value||0);notes.push('자신에게 피해 '+e.value);break;
     case 'diceShift': if(e.selfNext)own.nextDice=(own.nextDice||0)+e.selfNext;if(e.opponent!==undefined)targetEffects.nextDice=(targetEffects.nextDice||0)+e.opponent;notes.push('다음 턴 에네코로 수 변경');break;
