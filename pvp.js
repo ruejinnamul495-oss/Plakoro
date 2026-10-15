@@ -32,8 +32,7 @@ function hostAction(a){
  if(a.kind!=='attack'||!ps[a.by]||roomState.turn!==a.by||roomState.over)return;
  var ids=Object.keys(ps);if(ids.length!==2||!ids.every(function(id){return ps[id].ready}))return;
  var att=ps[a.by],targetId=ids.find(function(id){return id!==a.by}),tar=ps[targetId],mon2=findMon(att.pokemon),move=(mon2.moves||[]).find(function(m){return mid(m)===a.moveId})||(mon2.moves||[])[Number(a.moveIndex)];if(!move||!(att.moves||[]).includes(mid(move))){log('선택한 4개 기술 중에서 골라 줘.');publish();return}
- if(!move||att.lastMove===mid(move)){log('직전 턴에 사용한 기술은 연속해서 사용할 수 없어.');publish();return}
- if(att.effects.blocked&&att.effects.blocked===mid(move)){log('이 기술은 봉쇄되어 있어.');publish();return}
+ var moveCheck=PlakoroBattleCore.validateMove(mid(move),att.lastMove,att.effects.blocked);if(!moveCheck.ok){log(moveCheck.reason==='repeat'?'직전 턴에 사용한 기술은 연속해서 사용할 수 없어.':'이 기술은 봉쇄되어 있어.');publish();return}
  if(att.effects.skipRoll){att.effects.skipRoll=false;att.lastFailed=true;att.lastMove=mid(move);log(att.name+'는 효과로 이번 턴 에네코로를 굴릴 수 없어.');roomState.turn=targetId;publish();return}
  if(att.effects.startDamage){var delayed=att.effects.startDamage;att.effects.startDamage=0;att.hp=Math.max(0,att.hp-delayed);log(att.name+'는 예약 효과로 '+delayed+' 피해를 받았어.');if(att.hp<=0){roomState.over=true;log(tar.name+' 승리!');publish();return}}if(att.effects.skipRoll){att.effects.skipRoll=false;att.lastFailed=true;att.lastMove=mid(move);log(att.name+'는 효과로 이번 턴 에네코로를 굴릴 수 없어.');roomState.turn=targetId;publish();return}var baseDice=roomState.firstMovePending?2:3;var n=Math.max(0,Math.min(6,baseDice+Number(att.effects.nextDice||0)));roomState.firstMovePending=false;att.effects.nextDice=0;var roll=rollEnergy(n,att.diceFaces),posture=att.effects.noPostureNext?(att.effects.noPostureNext=false,'캐릭코로 금지'):randomPose(),success=canPay(move.cost,roll),counts=rollCounts(roll),notes=[],damage=Number(move.damage)||0,heal=0,selfDamage=Number(move.baseSelfDamage)||0,failed=!success,own=att.effects||(att.effects={}),te=tar.effects||(tar.effects={});
  roomState.lastRollByPlayer=roomState.lastRollByPlayer||{};roomState.lastPoseByPlayer=roomState.lastPoseByPlayer||{};roomState.lastRollByPlayer[a.by]=roll;roomState.lastPoseByPlayer[a.by]=success?posture:'캐릭코로 금지';if(!success)notes.push('에너지 조건 미충족: 공격 실패');
@@ -70,9 +69,7 @@ function hostAction(a){
   }});
   if(own.nextAttackBonus){damage+=own.nextAttackBonus;notes.push('저장된 추가 피해 +'+own.nextAttackBonus);own.nextAttackBonus=0}
  }
- if(failed)damage=0;else if(te.immuneNext){damage=0;te.immuneNext=false;notes.push('피해 무효')}
- if(te.reduce&&damage>0){damage=Math.max(0,damage-te.reduce);notes.push('피해 감소 -'+te.reduce);te.reduce=0}
- var at=Object.keys(move.cost||{}).find(function(t){return t!=='무색'});if(damage>0&&move.name!=='일렉러쉬'&&at&&tar.weakness===at){damage+=20;notes.push('약점 피해 +20')}
+ var damageResult=PlakoroBattleCore.applyDamageRules({damage:damage,failed:failed,targetEffects:te,move:move,weakness:tar.weakness,ignoreWeakness:move.name==='일렉러쉬'});damage=damageResult.damage;notes=notes.concat(damageResult.notes);
  tar.hp=Math.max(0,tar.hp-damage);att.hp=Math.min(att.maxHp,att.hp+heal);if(selfDamage&&!failed)att.hp=Math.max(0,att.hp-selfDamage);att.lastFailed=failed;att.lastMove=mid(move);
  log(att.name+' · '+move.name+' · 에네코로 '+(roll.length?roll.map(function(x){return x.join('+')}).join(' / '):'없음')+' · 캐릭코로 '+posture+' · '+(success?'에너지 성공':'에너지 실패')+' · '+damage+' 피해'+(heal?' · 회복 '+heal:'')+(selfDamage&&!failed?' · 자해 '+selfDamage:'')+(notes.length?' · '+notes.join(' / '):''));
  if(tar.hp<=0||att.hp<=0){roomState.over=true;log((tar.hp<=0?att.name:tar.name)+' 승리!')}else roomState.turn=targetId;publish();
