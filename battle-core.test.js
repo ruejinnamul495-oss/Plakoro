@@ -261,4 +261,68 @@ assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
   assert.equal(ignored.damage, 50, 'explicit weakness-ignore effects are respected');
 }
 
-console.log('Battle core tests passed: shared helpers, all 29 effect handlers, move-database coverage, and PvP skipped-turn ordering.');
+
+{
+  // Parse the real starterData array from the app and run every registered move
+  // through the shared combat engine for every possible posture.
+  const vm = require('node:vm');
+  const index = fs.readFileSync('./index.html', 'utf8');
+  const start = index.indexOf('const starterData=[');
+  assert(start >= 0, 'starter move database must exist');
+  const open = index.indexOf('[', start);
+  let depth = 0, quote = null, escaped = false, end = -1;
+  for (let i = open; i < index.length; i++) {
+    const ch = index[i];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (ch === '\\\\') escaped = true;
+      else if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') { quote = ch; continue; }
+    if (ch === '[') depth++;
+    else if (ch === ']' && --depth === 0) { end = i + 1; break; }
+  }
+  assert(end > open, 'starter move database array must parse');
+  const starterData = vm.runInNewContext(index.slice(open, end), { makeMove: (name, cost, damage, effects = [], memo = '', base = {}) => ({ name, cost, damage, effects, memo, ...base }) });
+  const postures = ['정방향', '왼쪽', '오른쪽', '뒤로', '엎드림', '물구나무', '뒤집힘'];
+  let simulated = 0;
+  for (const pokemon of starterData) {
+    assert(Array.isArray(pokemon.moves), pokemon.name + ' must have a move list');
+    for (const move of pokemon.moves) {
+      assert(move.name && move.cost && Number.isFinite(Number(move.damage)), pokemon.name + ' has malformed move data');
+      for (const posture of postures) {
+        const own = {}, targetEffects = {}, notes = [];
+        const ctx = {
+          move, own, targetEffects, notes, damage: Number(move.damage) || 0,
+          damageParts: [Number(move.damage) || 0], heal: 0,
+          selfDamage: Number(move.baseSelfDamage) || 0, failed: false,
+          roll: [['불꽃'], ['물'], ['에스퍼']], counts: { 불꽃: 1, 물: 1, 에스퍼: 1 },
+          posture, ownerHp: 120, ownerFailed: false, targetFailed: false,
+          randomPose: () => '뒤로', rollPostures: n => Array.from({length:n}, (_,i)=>postures[i % postures.length]),
+          chooseBlockedMove: () => ({id:'sim-block',name:'시뮬레이션 기술'}),
+          rollOpponent: () => [['물'], ['물'], ['불꽃']],
+          rollExtra: () => [['에스퍼']],
+          getTargetLastMove: () => ({damage: 30})
+        };
+        const effects = core.applyMoveEffects(ctx);
+        const damageResult = core.applyDamageRules({
+          damage: effects.damage, failed: effects.failed, targetEffects,
+          move, weakness: '에스퍼', ignoreWeakness: move.name === '일렉러쉬'
+        });
+        assert(Number.isFinite(effects.damage), pokemon.name + ' / ' + move.name + ' / ' + posture + ': damage must be finite');
+        assert(Number.isFinite(damageResult.damage) && damageResult.damage >= 0,
+          pokemon.name + ' / ' + move.name + ' / ' + posture + ': final damage must be valid');
+        assert(Number.isFinite(effects.heal) && Number.isFinite(effects.selfDamage),
+          pokemon.name + ' / ' + move.name + ' / ' + posture + ': healing/self-damage must be valid');
+        assert(Array.isArray(effects.notes) && Array.isArray(effects.damageParts),
+          pokemon.name + ' / ' + move.name + ' / ' + posture + ': result details must be arrays');
+        simulated++;
+      }
+    }
+  }
+  assert(simulated >= 700, 'expected hundreds of real move/posture simulation cases');
+  console.log('Exhaustive move simulation passed: ' + starterData.length + ' Pokémon, ' + simulated + ' move/posture cases.');
+}
+
+console.log('Battle core tests passed: shared helpers, all effect handlers and exhaustive move simulations, move-database coverage, and PvP skipped-turn ordering.');
