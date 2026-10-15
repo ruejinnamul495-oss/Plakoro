@@ -790,12 +790,49 @@ function renderTurnMove(n){const p=selectedPokemon(n),el=document.getElementById
 function costText(cost){return Object.entries(cost||{}).map(([t,n])=>`${t}×${n}`).join(' + ')||'에너지 없음'}
 function renderOpponentMoves(){const root=document.getElementById('opponentMoveReveal');if(!root)return;if(!battle.started){root.innerHTML='<p class="sub">대전 시작 시 선택한 기술 4개가 공개돼.</p>';return}const p=selectedPokemon('2'),blocked=battle.effects['2']?.blocked,moves=(battle.slots['2']||[]).map(id=>moveById(p,id)).filter(Boolean);root.innerHTML=moves.length?moves.map(m=>`<div class="item${blocked===m.id?' blocked-move':''}"><div><b>${esc(m.name)}${blocked===m.id?' · 봉쇄':''}</b><small>에너지 ${costText(m.cost)} · 기본 피해 ${m.damage}</small></div></div>`).join(''):'<p class="sub">공개할 기술이 없어.</p>';}
 function renderInfo(){const a=selectedPokemon('1'),b=selectedPokemon('2');document.getElementById('info1').textContent=a?`HP ${a.hp} · ${a.type} 타입 · 약점 ${a.weakness} (+20)`:'포켓몬을 선택해';document.getElementById('info2').textContent=b?`HP ${b.hp}`:'포켓몬을 선택해';}
-function renderLists(){const pl=document.getElementById('pokemonList');pl.innerHTML=db.pokemon.map(p=>`<button type="button" class="item pokemon-card-button" data-pokemon-moves="${esc(p.id)}"><span><b>${esc(p.name)}</b><small>HP ${p.hp} · ${esc(p.type)} 타입 · 약점 ${esc(p.weakness)} · 기술 ${p.moves.length}개</small></span><span aria-hidden="true">기술 보기　›</span></button>`).join('');const p=pokemon(document.getElementById('dataPokemon').value)||db.pokemon[0];document.getElementById('moveList').innerHTML=(p?.moves||[]).map(m=>`<div class="item"><div><b>${esc(m.name)}</b><small>에너지: ${costText(m.cost)} · 기본 피해 ${m.damage}${m.memo?' · '+esc(m.memo):''}<br>${m.effects.map(e=>`${e.poses.join('/')} → ${effectText(e)}`).join(' · ')||'추가 효과 없음'}</small></div></div>`).join('');}
-function openPokemonMoves(id){const p=pokemon(id);if(!p)return;document.getElementById('pokemonMovesTitle').textContent=p.name+'의 기술';document.getElementById('pokemonMovesSummary').textContent=`HP ${p.hp} · ${p.type} 타입 · 약점 ${p.weakness} · 기술 ${p.moves.length}개`;document.getElementById('pokemonMovesContent').innerHTML=(p.moves||[]).map(m=>`<div class="item"><div><b>${esc(m.name)}</b><small>에너지: ${costText(m.cost)} · 기본 피해 ${m.damage}${m.memo?' · '+esc(m.memo):''}<br>${(m.effects||[]).map(e=>`${(e.poses||[]).join('/')} → ${effectText(e)}`).join(' · ')||'추가 효과 없음'}</small></div></div>`).join('')||'<div class="empty">등록된 기술이 없어.</div>';document.getElementById('pokemonMovesModal').classList.add('open')}
+function renderLists(){const pl=document.getElementById('pokemonList');pl.innerHTML=db.pokemon.map(p=>`<button type="button" class="item pokemon-card-button" data-pokemon-moves="${esc(p.id)}"><span><b>${esc(p.name)}</b><small>HP ${p.hp} · ${esc(p.type)} 타입 · 약점 ${esc(p.weakness)} · 기술 ${p.moves.length}개</small></span><span aria-hidden="true">기술 보기　›</span></button>`).join('');const p=pokemon(document.getElementById('dataPokemon').value)||db.pokemon[0];document.getElementById('moveList').innerHTML=(p?.moves||[]).map(m=>`<div class="item"><div><b>${esc(m.name)}</b><small>에너지: ${costText(m.cost)} · 기본 피해 ${m.damage}${m.memo?' · '+esc(m.memo):''}<br>${(m.effects||[]).map(e=>esc(formatEffectLine(e))).join(' · ')||'추가 효과 없음'}</small></div></div>`).join('');}
+function openPokemonMoves(id){const p=pokemon(id);if(!p)return;document.getElementById('pokemonMovesTitle').textContent=p.name+'의 기술';document.getElementById('pokemonMovesSummary').textContent=`HP ${p.hp} · ${p.type} 타입 · 약점 ${p.weakness} · 기술 ${p.moves.length}개`;document.getElementById('pokemonMovesContent').innerHTML=(p.moves||[]).map(m=>`<div class="item"><div><b>${esc(m.name)}</b><small>에너지: ${costText(m.cost)} · 기본 피해 ${m.damage}${m.memo?' · '+esc(m.memo):''}<br>${(m.effects||[]).map(e=>esc(formatEffectLine(e))).join(' · ')||'추가 효과 없음'}</small></div></div>`).join('')||'<div class="empty">등록된 기술이 없어.</div>';document.getElementById('pokemonMovesModal').classList.add('open')}
 document.getElementById('pokemonList').addEventListener('click',e=>{const b=e.target.closest('[data-pokemon-moves]');if(b)openPokemonMoves(b.dataset.pokemonMoves)});
 document.getElementById('closePokemonMoves').onclick=()=>document.getElementById('pokemonMovesModal').classList.remove('open');
 document.getElementById('pokemonMovesModal').addEventListener('click',e=>{if(e.target.id==='pokemonMovesModal')e.currentTarget.classList.remove('open')});
-function effectText(e){return ({bonus:`피해 +${e.value}`,heal:`HP +${e.value} 회복`,selfDamage:`자신에게 피해 ${e.value}`,diceShift:`다음 턴 에네코로 ${e.selfNext>0?'+':''}${e.selfNext||0}${e.opponent!==undefined?`, 상대 ${e.opponent}`:''}`,reduceNext:`다음 턴 받는 피해 -${e.value}`,opponentDice:`상대 다음 턴 에네코로 ${e.value}`,blockMove:'상대 기술 1개 봉쇄',fireCountBonus:`불꽃 에너지 수×${e.value}`,lowHpBonus:`HP ${e.threshold} 이하일 때 피해 +${e.value}`,repeat:'반복 공격',immuneNext:'다음 상대 턴 기술 피해 무효',skipRoll:'상대 다음 턴 에네코로 굴리기 불가',diceCountBonus:`굴린 에네코로 수×${e.value} 피해`,opponentEnergyBonus:'상대 에너지 최다 타입 수만큼 추가 피해',reflectDouble:'상대 직전 기술 에너지 요구량 기반 피해 ×2',delayedDamage:'다음 상대 턴 피해 예약',extraRoll:'추가 에네코로 1회',poisonMark:'독가스 성공 기록',healIfPoison:'독가스 성공 시 회복',bonusIfPoison:'독가스 성공 시 추가 피해',conditionalBonus:'조건부 추가 피해',bonusIfOpponentFailed:'상대 직전 공격 실패 시 추가 피해',gyroBonus:'상대 에네코로 조건부 추가 피해',failMove:'기술 실패',reduceSelfNext:'자신의 다음 턴 피해 감소',immuneSelfNext:'자신의 다음 턴 피해 무효',skipPosture:'상대 캐릭코로 금지',setDamage:'피해 고정',bonusIfSelfFailed:'자신 직전 실패 시 추가 피해',poisonMark:'독가스 성공 기록'})[e.type]||e.type}
+function formatEffectLine(e){const poses=Array.isArray(e.poses)?e.poses:[];return (poses.length?'자세 '+poses.join('/'): '자세 제한 없음')+' → '+effectText(e)}
+function effectText(e){const labels={
+bonus:`피해 +${e.value}`,
+heal:`HP +${e.value} 회복`,
+selfDamage:`자신에게 피해 ${e.value}`,
+diceShift:`다음 턴 에네코로 ${e.selfNext>0?'+':''}${e.selfNext||0}${e.opponent!==undefined?`, 상대 ${e.opponent}`:''}`,
+reduceNext:`다음 턴 받는 피해 -${e.value}`,
+reduceSelfNext:`자신의 다음 방어 피해 -${e.value}`,
+lowHpReduceNext:`HP ${e.threshold} 이하일 때 다음 상대 턴 받는 피해 -${e.value}`,
+opponentDice:`상대 다음 턴 에네코로 ${e.value}`,
+blockMove:'상대 기술 1개 봉쇄',
+fireCountBonus:`불꽃 에너지 수×${e.value} 추가 피해`,
+lowHpBonus:`HP ${e.threshold} 이하일 때 피해 +${e.value}`,
+repeat:'에네코로 결과에 따른 반복 공격',
+immuneNext:'다음 상대 턴 기술 피해 무효',
+immuneSelfNext:'자신의 다음 턴 기술 피해 무효',
+skipRoll:'상대 다음 턴 에네코로 굴리기 불가',
+skipPosture:'상대 다음 턴 캐릭코로 던지기 불가',
+diceCountBonus:`굴린 에네코로 수×${e.value} 피해`,
+opponentEnergyBonus:`상대 에너지 최다 타입 수×${e.value} 추가 피해`,
+reflectDouble:'상대 직전 기술 기본 피해 반사 (지정 자세에서 2배)',
+delayedDamage:`상대 다음 턴 시작 시 예약 피해 ${e.value}`,
+extraRoll:'추가 에네코로 1회',
+poisonMark:'독가스 성공 기록',
+healIfPoison:`독가스 성공 시 HP +${e.value} 회복`,
+bonusIfPoison:`독가스 성공 시 피해 +${e.value}`,
+conditionalBonus:`상대 자세가 조건에 맞으면 피해 +${e.value}`,
+bonusIfOpponentFailed:`상대 직전 공격 실패 시 피해 +${e.value}`,
+bonusIfSelfFailed:`자신 직전 공격 실패 시 피해 +${e.value}`,
+gyroBonus:`상대 에네코로 자세 조건 충족 시 피해 +${e.value}`,
+failMove:'기술 실패',
+setDamage:`피해를 ${e.value}(으)로 설정`,
+forceOpponentPosture:`상대 다음 턴 자세를 ${e.value||'물구나무'}로 지정`,
+mirrorOwnPosture:'다음 자신의 턴 자세를 이번 자세로 고정',
+charikoroBonusRoll:`추가 캐릭코로 ${e.rolls||3}회: ${(e.postures||[]).join('/')} 자세마다 피해 +${e.value}`,
+selfDamageIfFailed:'공격 실패 시 자신에게 피해',
+poisonMark:'독가스 성공 기록'
+};return labels[e.type]||e.type||'알 수 없는 추가 효과'}
 function renderFaces(){const root=document.getElementById('diceFaceConfig'),all=getDiceFaces();root.innerHTML=all.map((faces,d)=>`<div class="fighter"><h3>에네코로 ${d+1}</h3><div class="grid">${faces.map((f,i)=>{const choices=i<4?singleFaceChoices:doubleFaceChoices;return `<div class="field"><label>${i+1}면 · ${i<4?'단일 타입':'더블 타입'}</label><select id="die${d}face${i}">${choices.map(v=>`<option value="${v}">${v.replace('+',' + ')}</option>`).join('')}</select></div>`}).join('')}</div><p class="sub">단일 타입 4면은 에네코로 타입 중에서 선택해. 무색은 기술 비용에만 적용돼.</p></div>`).join('');all.forEach((faces,d)=>faces.forEach((f,i)=>{const el=document.getElementById(`die${d}face${i}`);el.value=(f.types||defaultFaces[i].types).join('+');}));}
 function renderAll(){
  const steps=[
