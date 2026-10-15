@@ -29,7 +29,7 @@ async function loadMyRecord(){
 }
 async function loadLeaderboard(){
  if(!client){$('pvpLeaderboard').textContent='Supabase 연결 설정을 확인해.';return}
- var q=await client.from('plakoro_leaderboard').select('username,wins,losses,total_matches,win_rate').order('wins',{ascending:false}).order('win_rate',{ascending:false}).limit(20);
+ var q=await client.from('plakoro_leaderboard').select('username,wins,losses,total_matches,win_rate').gt('total_matches',0).order('wins',{ascending:false}).order('win_rate',{ascending:false}).limit(20);
  if(q.error){$('pvpLeaderboard').textContent='랭킹 테이블 설정 필요: '+q.error.message;return}
  if(!q.data.length){$('pvpLeaderboard').innerHTML='<p class="sub">아직 등록된 전적이 없어. 첫 대전을 해 봐!</p>';return}
  $('pvpLeaderboard').innerHTML='<div class="pvp-ranking-head"><span>순위 · 아이디</span><span>전적 · 승률</span></div>'+q.data.map(function(x,i){return '<div class="pvp-ranking-row"><b>'+(i+1)+'. '+esc(x.username)+'</b><span>'+Number(x.wins||0)+'승 '+Number(x.losses||0)+'패 · '+Number(x.win_rate||0).toFixed(1)+'%</span></div>'}).join('');
