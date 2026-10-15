@@ -37,36 +37,7 @@ function hostAction(a){
  if(att.effects.startDamage){var delayed=att.effects.startDamage;att.effects.startDamage=0;att.hp=Math.max(0,att.hp-delayed);log(att.name+'는 예약 효과로 '+delayed+' 피해를 받았어.');if(att.hp<=0){roomState.over=true;log(tar.name+' 승리!');publish();return}}if(att.effects.skipRoll){att.effects.skipRoll=false;att.lastFailed=true;att.lastMove=mid(move);log(att.name+'는 효과로 이번 턴 에네코로를 굴릴 수 없어.');roomState.turn=targetId;publish();return}var baseDice=roomState.firstMovePending?2:3;var n=PlakoroBattleCore.diceCount(baseDice,att.effects.nextDice||0);roomState.firstMovePending=false;att.effects.nextDice=0;var roll=rollEnergy(n,att.diceFaces),posture=att.effects.noPostureNext?(att.effects.noPostureNext=false,'캐릭코로 금지'):randomPose(),success=canPay(move.cost,roll),counts=rollCounts(roll),notes=[],damage=Number(move.damage)||0,heal=0,selfDamage=Number(move.baseSelfDamage)||0,failed=!success,own=att.effects||(att.effects={}),te=tar.effects||(tar.effects={});
  roomState.lastRollByPlayer=roomState.lastRollByPlayer||{};roomState.lastPoseByPlayer=roomState.lastPoseByPlayer||{};roomState.lastRollByPlayer[a.by]=roll;roomState.lastPoseByPlayer[a.by]=success?posture:'캐릭코로 금지';if(!success)notes.push('에너지 조건 미충족: 공격 실패');
  if(success){
-  if(move.baseReduceNext){own.reduce=(own.reduce||0)+move.baseReduceNext;notes.push('다음 공격 피해 감소 '+move.baseReduceNext)}
-  (move.effects||[]).forEach(function(e){if(e.poses&&e.poses.length&&!e.poses.includes(posture))return;switch(e.type){
-   case'bonus':damage+=Number(e.value||0);notes.push('캐릭코로 피해 +'+e.value);break;
-   case'setDamage':damage=Number(e.value||0);notes.push('피해를 '+damage+'로 설정');break;
-   case'heal':heal+=Number(e.value||0);notes.push('HP '+e.value+' 회복');break;
-   case'selfDamage':selfDamage+=Number(e.value||0);notes.push('자신에게 피해 '+e.value);break;
-   case'diceShift':if(e.selfNext)own.nextDice=(own.nextDice||0)+e.selfNext;if(e.opponent!==undefined)te.nextDice=(te.nextDice||0)+e.opponent;notes.push('다음 턴 에네코로 수 변경');break;
-   case'reduceNext':te.reduce=(te.reduce||0)+e.value;notes.push('상대 다음 공격 피해 감소 '+e.value);break;
-   case'reduceSelfNext':own.reduce=(own.reduce||0)+e.value;notes.push('자신의 다음 방어 피해 감소 '+e.value);break;
-   case'opponentDice':te.nextDice=(te.nextDice||0)+e.value;notes.push('상대 다음 에네코로 '+e.value);break;
-   case'blockMove':{var tm=findMon(tar.pokemon),choices=(tar.moves||[]).map(function(id){return (tm.moves||[]).find(function(mm){return mid(mm)===id})}).filter(Boolean);if(choices.length){var bm=choices[Math.floor(Math.random()*choices.length)];te.blocked=mid(bm);notes.push('상대 기술 봉쇄: '+bm.name)}break}
-   case'fireCountBonus':var fire=(counts['불꽃']||0)*e.value;damage+=fire;notes.push('불꽃 에너지 피해 +'+fire);break;
-   case'lowHpBonus':if(att.hp<=e.threshold){damage+=e.value;notes.push('HP 조건 피해 +'+e.value)}break;
-   case'failMove':failed=true;notes.push('기술 효과로 실패');break;
-   case'immuneSelfNext':case'immuneNext':own.immuneNext=true;notes.push('다음 공격 무효');break;
-   case'skipPosture':te.noPostureNext=true;notes.push('상대 다음 캐릭코로 금지');break;
-   case'skipRoll':te.skipRoll=true;notes.push('상대 다음 턴 에네코로 굴리기 불가');break;
-   case'delayedDamage':te.startDamage=(te.startDamage||0)+Number(e.value||0);notes.push('상대 다음 턴 예약 피해 '+e.value);break;
-   case'poisonMark':own.poisoned=true;notes.push('독가스 성공 기록');break;
-   case'healIfPoison':if(own.poisoned){heal+=e.value;notes.push('독 성공: HP +'+e.value)}break;
-   case'bonusIfPoison':if(own.poisoned){damage+=e.value;notes.push('독 성공: 피해 +'+e.value)}break;
-   case'bonusIfOpponentFailed':if(tar.lastFailed){damage+=e.value;notes.push('상대 직전 실패 피해 +'+e.value)}break;
-   case'bonusIfSelfFailed':if(att.lastFailed){damage+=e.value;notes.push('자신 직전 실패 피해 +'+e.value)}break;
-   case'conditionalBonus':case'gyroBonus':{var rp=randomPose();notes.push('상대 캐릭코로 '+rp);if((e.postures||[]).includes(rp)){damage+=e.value;notes.push('조건 성립 피해 +'+e.value)}break}
-   case'opponentEnergyBonus':{var rr=rollEnergy(3,tar.diceFaces),cc=rollCounts(rr),mx=Math.max(0,...Object.values(cc));damage+=mx*e.value;notes.push('상대 에네코로 최다 타입 '+mx+'개: 피해 +'+mx*e.value);break}
-   case'reflectDouble':{var lm=(findMon(tar.pokemon).moves||[]).find(function(mm){return mid(mm)===tar.lastMove});damage=lm?Number(lm.damage||0):0;if(posture!=='캐릭코로 금지')damage*=2;notes.push('상대 직전 기술 피해 반영');break}
-   case'repeat':var total=Object.values(counts).reduce(function(x,y){return x+y},0);damage+=Math.max(0,total-1)*(Number(move.damage)||0);notes.push('반복 공격 피해 적용');break;
-   case'diceCountBonus':var dn=roll.length*e.value;damage+=dn;notes.push('굴린 에네코로 수 피해 +'+dn);break;
-   case'extraRoll':{var ex=rollEnergy(1,att.diceFaces);roll=roll.concat(ex);counts=rollCounts(roll);notes.push('추가 에네코로 '+ex.map(function(x){return x.join('+')}).join('/'));break}
-  }});
+  var effectResult=PlakoroBattleCore.applyMoveEffects({move:move,own:own,targetEffects:te,notes:notes,damage:damage,damageParts:[Number(move.damage)||0],heal:heal,selfDamage:selfDamage,failed:failed,roll:roll,counts:counts,posture:posture,ownerHp:att.hp,ownerFailed:att.lastFailed,targetFailed:tar.lastFailed,randomPose:randomPose,chooseBlockedMove:function(){var tm=findMon(tar.pokemon),choices=(tar.moves||[]).map(function(id){return (tm.moves||[]).find(function(mm){return mid(mm)===id})}).filter(Boolean);return choices.length?choices[Math.floor(Math.random()*choices.length)]:null},rollOpponent:function(){return rollEnergy(3,tar.diceFaces)},rollExtra:function(){return rollEnergy(1,att.diceFaces)},getTargetLastMove:function(){var targetMon=findMon(tar.pokemon);return (targetMon.moves||[]).find(function(mm){return mid(mm)===tar.lastMove})||null}});damage=effectResult.damage;heal=effectResult.heal;selfDamage=effectResult.selfDamage;failed=effectResult.failed;roll=effectResult.roll;counts=effectResult.counts;notes=effectResult.notes;
   if(own.nextAttackBonus){damage+=own.nextAttackBonus;notes.push('저장된 추가 피해 +'+own.nextAttackBonus);own.nextAttackBonus=0}
  }
  var damageResult=PlakoroBattleCore.applyDamageRules({damage:damage,failed:failed,targetEffects:te,move:move,weakness:tar.weakness,ignoreWeakness:move.name==='일렉러쉬'});damage=damageResult.damage;notes=notes.concat(damageResult.notes);
