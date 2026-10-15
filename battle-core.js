@@ -54,7 +54,7 @@
   var move=ctx.move,own=ctx.own,targetEffects=ctx.targetEffects,notes=ctx.notes,damage=Number(ctx.damage)||0,damageParts=ctx.damageParts,heal=Number(ctx.heal)||0,selfDamage=Number(ctx.selfDamage)||0,failed=!!ctx.failed,roll=ctx.roll||[],counts=ctx.counts||rollCounts(roll),posture=ctx.posture;
   if(move.baseReduceNext){own.reduce=(own.reduce||0)+move.baseReduceNext;notes.push('다음 상대 턴 받는 피해 -'+move.baseReduceNext)}
   (move.effects||[]).forEach(function(e){
-   if(e.poses&&e.poses.length&&!e.poses.includes(posture))return;
+   if(e.type!=='reflectDouble'&&e.poses&&e.poses.length&&!e.poses.includes(posture))return;
    switch(e.type){
     case 'bonus': damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('자세 효과 피해 +'+e.value);break;
     case 'setDamage': damage=Number(e.value||0);notes.push('피해 '+e.value+'로 설정');break;
@@ -79,7 +79,7 @@
     case 'bonusIfSelfFailed': if(ctx.ownerFailed){damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('자신 직전 실패: 피해 +'+e.value)}break;
     case 'conditionalBonus': case 'gyroBonus': {var rp=ctx.randomPose?ctx.randomPose():'정방향';notes.push('상대 캐릭코로 '+rp);if((e.postures||[]).includes(rp)){damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('조건 성립 피해 +'+e.value)}break}
     case 'opponentEnergyBonus': if(ctx.rollOpponent){var oc=rollCounts(ctx.rollOpponent()),mx=Math.max(0,...Object.values(oc)),od=mx*Number(e.value||0);damage+=od;if(od)damageParts.push(od);notes.push('상대 에네코로 최다 타입 '+mx+'개: 피해 +'+od)}break;
-    case 'reflectDouble': {var last=ctx.getTargetLastMove?ctx.getTargetLastMove():null;damage=last?Number(last.damage||0):0;if(last)notes.push('상대 직전 기술 기본 피해 '+last.damage);if(posture&&posture!=='캐릭코로 금지')damage*=2;break}
+    case 'reflectDouble': {var last=ctx.getTargetLastMove?ctx.getTargetLastMove():null;var reflected=last?Math.max(0,Number(last.damage)||0):0;damage=reflected;damageParts.splice(0,damageParts.length,reflected);if(last)notes.push('상대 직전 기술 기본 피해 '+reflected);if(e.poses&&e.poses.includes(posture)){damage*=2;damageParts.push(reflected);notes.push('리플렉션 자세 성공: 피해 2배')}break}
     case 'repeat': {var total=Object.keys(counts).reduce(function(sum,k){return sum+Number(counts[k]||0)},0),extra=Math.max(0,total-1)*(Number(move.damage)||0);damage+=extra;if(extra)damageParts.push(extra);notes.push('에네코로 결과에 따른 반복 공격');break}
     case 'diceCountBonus': var db=roll.length*Number(e.value||0);damage+=db;if(db)damageParts.push(db);notes.push('굴린 에네코로 수 피해 +'+db);break;
     case 'extraRoll': if(ctx.rollExtra){var extraRoll=ctx.rollExtra();roll=roll.concat(extraRoll);counts=rollCounts(roll);notes.push('추가 에네코로 '+extraRoll.map(function(x){return x.join('+')}).join('/'))}break;
