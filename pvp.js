@@ -159,6 +159,6 @@ $('pvpAttack').onclick=openPvpMovePicker;
 $('pvpMovePickerClose').onclick=closePvpMovePicker;
 $('pvpMovePickerModal').addEventListener('click',function(e){if(e.target===$('pvpMovePickerModal'))closePvpMovePicker()});
 $('pvpLeave').disabled=true;
-$('pvpAccountOpen').onclick=function(){showLobby();setTimeout(function(){var card=$('pvpAccountCard'),input=$('pvpAuthUsername');if(card)card.scrollIntoView({behavior:'smooth',block:'start'});if(input&&!input.disabled)input.focus({preventScroll:true})},80)};$('pvpLobbyOpen').onclick=showLobby;$('pvpLobbyClose').onclick=hideLobby;
+$('pvpAccountOpen').onclick=function(){showLobby();setTimeout(function(){var card=$('pvpAccountCard'),input=$('pvpAuthUsername');if(card)card.scrollIntoView({behavior:'smooth',block:'start'});if(input&&!input.disabled)input.focus({preventScroll:true})},80)};$('pvpLobbyOpen').onclick=showLobby;
 $('pvpLobbyModal').addEventListener('click',function(e){if(e.target===$('pvpLobbyModal')&&connected)hideLobby()});
 })();
