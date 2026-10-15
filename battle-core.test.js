@@ -196,7 +196,7 @@ assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
     'opponent-energy bonus must roll using the target side dice configuration');
   assert(index.includes("face:rollFace(dieIndex,n==='2'?'2':'1')"),
     'dice face lookup must follow the actual side being rolled');
-  assert(index.includes('rollExtra:function(){return rollForTurn(n,true,1,0).map(x=>x.face)}'),
+  assert(index.includes('rollExtra:function(){return rollForTurn(n,isAI,1,0).map(x=>x.face)}'),
     'extraRoll must choose a die index instead of always rolling die one');
 }
 
