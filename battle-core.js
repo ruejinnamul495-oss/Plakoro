@@ -24,6 +24,7 @@
  }
  function pose(){return ['정방향','왼쪽','오른쪽','뒤로','엎드림','물구나무','뒤집힘'][Math.floor(Math.random()*7)]}
  function attackType(move){return Object.keys((move&&move.cost)||{}).find(function(type){return type!=='무색'})||null}
+ function poseInfo(posture){return ({'정방향':['⬆️','정방향'],'왼쪽':['⬅️','왼쪽'],'오른쪽':['➡️','오른쪽'],'뒤로':['↩️','뒤쪽'],'엎드림':['⬇️','엎드림'],'물구나무':['🔄','물구나무'],'뒤집힘':['🔃','뒤집힘'],'캐릭코로 금지':['⛔','방향 효과 없음']})[posture]||['🎯',posture]}
  function validateMove(moveId,lastMove,blockedMove){
   if(!moveId)return {ok:false,reason:'missing'};
   if(lastMove===moveId)return {ok:false,reason:'repeat'};
@@ -86,5 +87,5 @@
   });
   return {damage:damage,damageParts:damageParts,heal:heal,selfDamage:selfDamage,failed:failed,roll:roll,counts:counts,notes:notes};
  }
- root.PlakoroBattleCore={rollCounts:rollCounts,canPay:canPay,pose:pose,attackType:attackType,validateMove:validateMove,diceCount:diceCount,applyDamageRules:applyDamageRules,applyMoveEffects:applyMoveEffects};
+ root.PlakoroBattleCore={rollCounts:rollCounts,canPay:canPay,pose:pose,attackType:attackType,poseInfo:poseInfo,validateMove:validateMove,diceCount:diceCount,applyDamageRules:applyDamageRules,applyMoveEffects:applyMoveEffects};
 })(typeof window!=='undefined'?window:this);
