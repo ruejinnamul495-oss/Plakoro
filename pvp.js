@@ -1,8 +1,8 @@
 (function(){
 'use strict';
 var $=function(id){return document.getElementById(id)};
-var CFG='plakoro-pvp-supabase-config-v1',client=null,channel=null,quickChannel=null,quickTimer=null,quickActive=false,quickCreating=false,roomCode='',role='',playerId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random(),roomState=null,connected=false,pendingReveals={},revealSent=false,resultShown=false;
-function say(t){var roomStatus=$('pvpRoomStatus');if(roomStatus)roomStatus.textContent=t;var quickStatus=$('pvpQuickStatus');if(quickStatus){var active=quickActive||String(t).indexOf('빠른 대전')>=0||String(t).indexOf('상대를 찾았어')>=0;quickStatus.style.display=active?'block':'none';if(active)quickStatus.textContent=t}}
+var CFG='plakoro-pvp-supabase-config-v1',client=null,channel=null,quickChannel=null,quickTimer=null,quickAnimTimer=null,quickAnimFrame=0,quickActive=false,quickCreating=false,roomCode='',role='',playerId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random(),roomState=null,connected=false,pendingReveals={},revealSent=false,resultShown=false;
+function say(t){var roomStatus=$('pvpRoomStatus');if(roomStatus)roomStatus.textContent=t}
 function conf(){return {url:$('pvpSupabaseUrl').value.trim(),key:$('pvpSupabaseKey').value.trim()}}
 try{var saved=JSON.parse(localStorage.getItem(CFG)||'{}');saved.url=saved.url||'https://madsebygaqqnecmwwadb.supabase.co';saved.key=saved.key||'sb_publishable_OPaNvSWDGGx2GpE6K5TLpw_ZGNestGT';$('pvpSupabaseUrl').value=saved.url;$('pvpSupabaseKey').value=saved.key;localStorage.setItem(CFG,JSON.stringify(saved))}catch(e){$('pvpSupabaseUrl').value='https://madsebygaqqnecmwwadb.supabase.co';$('pvpSupabaseKey').value='sb_publishable_OPaNvSWDGGx2GpE6K5TLpw_ZGNestGT'}
 $('pvpName').value='';
@@ -120,11 +120,11 @@ function hostAction(a){
 async function connectRoom(code,asRole){if(!client&&!initClient())return;code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);if(code.length!==6){say('방 코드는 영문/숫자 6자리야.');return}leave(true);roomCode=code;role=asRole;channel=client.channel('plakoro-pvp-'+code,{config:{broadcast:{self:false},presence:{key:playerId}}});channel.on('broadcast',{event:'room_state'},function(msg){if(msg.payload&&msg.payload.state){roomState=msg.payload.state;render();if(role==='guest'&&roomState.players[playerId])say('방 '+roomCode+'에 연결됐어.')}}).on('broadcast',{event:'room_action'},function(msg){if(msg.payload&&role==='host')hostAction(msg.payload)});channel.on('presence',{event:'sync'},function(){say('방 '+roomCode+' · 접속 '+Object.keys(channel.presenceState()).length+'/2명')});channel.subscribe(async function(state){if(state==='SUBSCRIBED'){connected=true;await channel.track({id:playerId,name:$('pvpName').value.trim()||'플레이어'});hideLobby();$('pvpLeave').disabled=false;$('pvpCreateRoom').disabled=true;$('pvpJoinRoom').disabled=true;$('pvpRoomCode').value=roomCode;if(role==='host'){if(quickActive&&quickChannel)quickChannel.track({id:playerId,name:$('pvpName').value.trim()||'플레이어',quickMatch:true,roomCode:roomCode,waiting:true});roomState={players:{},turn:playerId,over:false,log:['방이 생성됐어. 상대가 참가하기를 기다리는 중이야.']};roomState.players[playerId]={name:$('pvpName').value.trim()||'플레이어',ready:false,pokemon:'',hp:0,maxHp:0,effects:{},lastMove:null,lastFailed:false};publish();say('방 생성 완료. 코드 '+roomCode+'를 상대에게 알려 줘.')}else{channel.send({type:'broadcast',event:'room_action',payload:{kind:'join',by:playerId,name:$('pvpName').value.trim()||'상대'}});say('방 참가 요청을 보냈어. 호스트 응답을 기다리는 중이야.')}render()}else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT'||state==='CLOSED'){connected=false;say('실시간 연결 실패 ('+state+'). Supabase URL/key와 Realtime 연결을 확인해.')}})}
 
 function quickPresenceEntries(){if(!quickChannel)return [];var state=quickChannel.presenceState(),out=[];Object.keys(state).forEach(function(k){(state[k]||[]).forEach(function(meta){if(meta&&meta.id&&meta.id!==playerId&&meta.quickMatch)out.push(meta)})});return out}
-function stopQuickQueue(){quickActive=false;quickCreating=false;if(quickTimer){clearTimeout(quickTimer);quickTimer=null}if(quickChannel&&client)client.removeChannel(quickChannel);quickChannel=null;$('pvpQuickMatch').disabled=false;var quickStatus=$('pvpQuickStatus');if(quickStatus)quickStatus.style.display='none'}
+function stopQuickQueue(){quickActive=false;quickCreating=false;if(quickTimer){clearTimeout(quickTimer);quickTimer=null}if(quickAnimTimer){clearInterval(quickAnimTimer);quickAnimTimer=null}if(quickChannel&&client)client.removeChannel(quickChannel);quickChannel=null;var quickButton=$('pvpQuickMatch');quickButton.disabled=false;quickButton.textContent='⚡ 빠른 대전'}
 function startQuickMatch(){
  if(quickActive){say('빠른 대전 상대를 찾고 있어. 잠시만 기다려 줘.');return}
  if(!client&&!initClient())return;
- quickActive=true;quickCreating=false;$('pvpQuickMatch').disabled=true;say('빠른 대전 중… 상대를 찾고 있어. 매칭 전에는 방에 들어가지 않아.');
+ quickActive=true;quickCreating=false;var quickButton=$('pvpQuickMatch');quickButton.disabled=true;quickAnimFrame=0;var quickFrames=['매칭중.','매칭중..','매칭중...','매칭중.','매칭중..'];quickButton.textContent=quickFrames[0];if(quickAnimTimer)clearInterval(quickAnimTimer);quickAnimTimer=setInterval(function(){if(!quickActive)return;quickAnimFrame=(quickAnimFrame+1)%quickFrames.length;quickButton.textContent=quickFrames[quickAnimFrame]},450);say('빠른 대전 매칭 중…');
  quickChannel=client.channel('plakoro-pvp-quickmatch-v1',{config:{presence:{key:playerId}}});
  function checkQueue(){
   if(!quickActive||!quickChannel||quickCreating)return;
@@ -146,7 +146,7 @@ function startQuickMatch(){
    connectRoom(code,'host');
    return;
   }
-  say('빠른 대전 중… 상대를 찾고 있어. 매칭 전에는 방에 들어가지 않아.');
+  say('빠른 대전 매칭 중…');
   quickTimer=setTimeout(checkQueue,1000);
  }
  quickChannel.on('presence',{event:'sync'},function(){checkQueue()});
@@ -154,7 +154,7 @@ function startQuickMatch(){
   if(state!=='SUBSCRIBED'){if(state==='CHANNEL_ERROR'||state==='TIMED_OUT'||state==='CLOSED'){stopQuickQueue();say('빠른 대전 연결에 실패했어. 연결 설정을 확인하고 다시 시도해.')}return}
   try{await quickChannel.track({id:playerId,name:$('pvpName').value.trim()||'플레이어',quickMatch:true,roomCode:'',waiting:true})}
   catch(e){stopQuickQueue();say('빠른 대전 대기열에 들어가지 못했어: '+e.message);return}
-  say('빠른 대전 중… 상대를 찾고 있어. 매칭 전에는 방에 들어가지 않아.');
+  say('빠른 대전 매칭 중…');
   quickTimer=setTimeout(checkQueue,1000);
  });
 }
