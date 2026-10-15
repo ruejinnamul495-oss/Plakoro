@@ -689,7 +689,7 @@ makeMove('아우라찌르기',{격투:3},30,[{poses:['정방향','물구나무',
 makeMove('발경',{격투:2},20,[{poses:['정방향','뒤로'],type:'opponentDice',value:-1}]),
 makeMove('메탈클로',{강철:1,무색:2},30,[{poses:['정방향'],type:'bonus',value:40}]),
 makeMove('돌려차기',{격투:3},20,[{poses:['정방향','물구나무','뒤로'],type:'bonus',value:30}])
-]};
+]}];
 const fresh=()=>({pokemon:starterData.map(p=>({...p,id:slug(p.name),moves:p.moves.map((m,i)=>({...m,id:slug(p.name)+'-'+i}))})),rules:{faces:defaultFaces}});
 function slug(s){return s.replace(/[^가-힣a-zA-Z0-9]/g,'').toLowerCase()}
 let storageLoadWarning='';
