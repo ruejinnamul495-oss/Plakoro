@@ -18,7 +18,7 @@ function setAuthUI(user,username){
  authUser=user||null;authReady=true;$('pvpAuthStatus').textContent=user?(username||safeUsername()||'로그인됨'):'비로그인';
  $('pvpSignUp').disabled=!!user;$('pvpSignIn').disabled=!!user;$('pvpSignOut').disabled=!user;$('pvpAuthUsername').disabled=!!user;$('pvpAuthPassword').disabled=!!user;
  var nickname=$('pvpName');
- if(nickname){nickname.value=user?String(username||safeUsername()||'').slice(0,20):'';nickname.readOnly=true;}
+ if(nickname){var loginId=user&&user.email?String(user.email).split('@')[0]:'';nickname.value=user?String(loginId||username||safeUsername()||'').slice(0,20):'';nickname.readOnly=true;}
  var credentials=$('pvpAuthUsername').closest('.grid'),signUp=$('pvpSignUp'),signIn=$('pvpSignIn');
  if(credentials)credentials.classList.toggle('hidden',!!user);
  signUp.classList.toggle('hidden',!!user);signIn.classList.toggle('hidden',!!user);
