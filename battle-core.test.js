@@ -3,7 +3,8 @@ const fs = require('node:fs');
 const core = require('./battle-core.js').PlakoroBattleCore;
 
 function run(effect, overrides = {}) {
-  const move = Object.assign({ damage: 10 }, overrides.move || {});\n  move.effects = [effect];
+  const move = Object.assign({ damage: 10 }, overrides.move || {});
+  move.effects = [effect];
   const ctx = Object.assign({
     move,
     own: {},
