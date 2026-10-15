@@ -405,6 +405,62 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
  .terminal-hp-vs{height:20px}
 }
 
+
+/* === PvP VS-AI layout: battle first, room setup in a modal === */
+.pvp-shell{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);grid-template-areas:"top top" "field commands" "log log";align-items:start;gap:14px;max-width:1240px}
+.pvp-topbar{grid-area:top;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.pvp-top-actions{display:flex;gap:8px;flex-shrink:0}
+.pvp-battle-board{grid-area:field;min-width:0;margin:0!important}
+.pvp-action-panel{grid-area:commands;min-width:0;margin:0!important;position:sticky;top:12px}
+.pvp-log-panel{grid-area:log;min-width:0;margin:0!important}
+.pvp-action-panel .field:first-child{display:block!important}
+.pvp-action-panel .field{margin-bottom:10px}
+.pvp-action-panel .move-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pvp-action-panel .move-choice{min-height:68px;padding:10px}
+.pvp-action-panel .terminal-actions{display:grid;grid-template-columns:1fr;gap:8px}
+.pvp-action-panel .terminal-actions .btn{width:100%}
+.pvp-battle-board .dice-results-board{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pvp-battle-board .dice-side-zone{min-width:0;padding:10px}
+.pvp-battle-board .dice-side-content{display:flex;flex-direction:column;gap:8px}
+.pvp-battle-board .charikoro-column{display:flex;align-items:center;gap:8px}
+.pvp-battle-board .charikoro-title{margin:0}
+.pvp-battle-board .charikoro-board{min-width:54px;min-height:54px}
+.pvp-battle-board .dice-row-inner{min-width:0;flex-wrap:wrap}
+.pvp-battle-board .energy-face{min-width:28px}
+.pvp-battle-board .die-roll{padding:5px}
+.pvp-battle-board .pvp-last-attack{margin-top:10px}
+.pvp-log-panel .log{max-height:180px;overflow:auto}
+.pvp-lobby-modal{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:16px;background:#071b17b8;backdrop-filter:blur(8px)}
+.pvp-lobby-modal.hidden{display:none!important}
+.pvp-lobby-dialog{width:min(680px,100%);max-height:min(90vh,820px);overflow:auto;padding:clamp(16px,3vw,26px);border-radius:24px;background:#f8fcf9;border:1px solid #b8d6c8;box-shadow:0 28px 90px #041a1455}
+.pvp-lobby-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+.pvp-lobby-heading h2{margin:4px 0;font-size:clamp(22px,3vw,29px)}
+.pvp-lobby-heading .sub{margin:0;color:#5f766c}
+.pvp-lobby-heading .btn{flex-shrink:0}
+.pvp-lobby-dialog .pvp-settings,.pvp-lobby-dialog .pvp-room-card{margin-bottom:12px;box-shadow:none}
+.pvp-lobby-dialog .pvp-settings{background:#fff}
+.pvp-lobby-dialog .pvp-room-card{background:#edf8f2}
+.pvp-lobby-dialog .pvp-room-card .row{display:flex}
+.pvp-lobby-dialog .pvp-room-card .row>*{flex:1;min-width:0}
+.pvp-lobby-dialog .pvp-settings-body .grid{grid-template-columns:1fr}
+.pvp-lobby-dialog #pvpRoomStatus{overflow-wrap:anywhere}
+@media(max-width:900px){
+ .pvp-shell{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "field" "commands" "log";max-width:760px}
+ .pvp-action-panel{position:static}
+ .pvp-log-panel .log{max-height:140px}
+}
+@media(max-width:560px){
+ .pvp-topbar{align-items:flex-start}
+ .pvp-top-actions{flex-direction:column}
+ .pvp-top-actions .btn{font-size:12px;padding:8px 10px;min-height:38px}
+ .pvp-battle-board .dice-results-board{grid-template-columns:minmax(0,1fr)}
+ .pvp-lobby-dialog{padding:14px;border-radius:18px}
+ .pvp-lobby-heading{flex-direction:column}
+ .pvp-lobby-heading .btn{width:100%}
+ .pvp-lobby-dialog .pvp-room-card .row{flex-direction:column}
+ .pvp-lobby-dialog .pvp-room-card .row>*{width:100%}
+}
+
 </style><style>
 .home-return{position:fixed;top:12px;right:14px;z-index:900;border:1px solid #ffffff40;border-radius:999px;padding:9px 14px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002}
 </style></head>
@@ -426,7 +482,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
 
 <section id="pvp" class="view hidden">
  <div class="pvp-shell">
-  <div class="pvp-topbar"><div><div class="arena-label">PVP BATTLE</div><h2>플레이어 대전</h2><p class="sub">VS AI와 같은 배틀 화면에서 방을 만들고 친구와 대전해.</p></div><button type="button" class="btn secondary" id="pvpLeave" disabled>방 나가기</button></div>
+  <div class="pvp-topbar"><div><div class="arena-label">PVP BATTLE</div><h2>플레이어 대전</h2><p class="sub">VS AI와 같은 배틀 필드에서 친구와 대전해.</p></div><div class="pvp-top-actions"><button type="button" class="btn secondary" id="pvpLobbyOpen">방 설정</button><button type="button" class="btn secondary" id="pvpLeave" disabled>방 나가기</button></div></div>
   <div class="terminal-panel pvp-battle-board">
    <div class="terminal-heading"><div><div class="arena-label">LIVE BATTLE</div><h2>배틀 필드</h2></div><span class="terminal-live"><i></i> REALTIME</span></div>
    <div class="terminal-status" id="pvpBattleStatus">방을 만들거나 참가한 뒤 포켓몬과 기술 4개를 확정해.</div>
@@ -441,8 +497,13 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
    </div>
    <div id="pvpLastAttack" class="pvp-last-attack" aria-live="polite"><span class="sub">첫 공격 결과가 여기에 표시돼.</span></div>
   </div>
+  <div id="pvpLobbyModal" class="pvp-lobby-modal" role="dialog" aria-modal="true" aria-labelledby="pvpLobbyTitle">
+   <div class="pvp-lobby-dialog">
+    <div class="pvp-lobby-heading"><div><div class="arena-label">ROOM SETUP</div><h2 id="pvpLobbyTitle">방 생성 / 참가</h2><p class="sub">방을 만들거나 친구의 6자리 코드를 입력해. 연결되면 전투 화면으로 이동해.</p></div><button type="button" class="btn secondary" id="pvpLobbyClose">전투 화면</button></div>
   <details class="pvp-settings"><summary>연결 설정 <span id="pvpConnectionStatus" class="pill">미연결</span></summary><div class="pvp-settings-body"><p class="sub">Supabase Project URL과 공개용 publishable/anon key가 필요해. service_role/secret key는 절대 입력하지 마.</p><div class="grid"><div class="field"><label for="pvpSupabaseUrl">Supabase Project URL</label><input id="pvpSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="pvpSupabaseKey">Publishable / anon key</label><input id="pvpSupabaseKey" placeholder="sb_publishable_... 또는 anon key"></div></div><button type="button" class="btn secondary" id="pvpSaveConfig">연결 설정 저장</button></div></details>
   <div class="pvp-room-card"><div class="pvp-card-heading"><div><div class="arena-label">ROOM</div><h3>방 만들기 / 참가하기</h3></div><span class="pill">2 PLAYERS</span></div><div class="grid"><div class="field"><label for="pvpName">닉네임</label><input id="pvpName" maxlength="20" placeholder="플레이어 이름"></div><div class="field"><label for="pvpRoomCode">방 코드 (6자리)</label><input id="pvpRoomCode" maxlength="6" placeholder="6자리 코드"></div></div><div class="row"><button type="button" class="btn" id="pvpCreateRoom">방 코드 생성</button><button type="button" class="btn secondary" id="pvpJoinRoom">코드로 참가</button></div><p class="sub" id="pvpRoomStatus" aria-live="polite">먼저 연결 설정을 저장해.</p><div class="pvp-player-tags" id="pvpPlayers"></div></div>
+   </div>
+  </div>
   <div class="terminal-panel pvp-action-panel">
    <div class="terminal-heading"><div><div class="arena-label">BATTLE COMMAND</div><h2>배틀 준비 / 기술 선택</h2></div><span class="pill" id="pvpTurnPill">준비 중</span></div>
    <p class="sub">VS AI와 같은 방식으로 포켓몬과 기술 4개를 준비해. 방에 참가한 뒤 준비를 확정하면 대전이 시작돼.</p>
