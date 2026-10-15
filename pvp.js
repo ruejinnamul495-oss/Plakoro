@@ -60,7 +60,7 @@ async function signup(){
  if(!res.data.session){authMessage('계정 생성 요청은 완료됐지만 즉시 로그인되지 않았어. Supabase에서 이메일 확인을 꺼야 이메일 없이 가입할 수 있어.');return}
  authUser=res.data.user;var p=await client.from('plakoro_profiles').upsert({user_id:authUser.id,username:u},{onConflict:'user_id'});
  if(p.error){authMessage('계정은 만들어졌지만 프로필 저장에 실패했어: '+p.error.message);return}
- setAuthUI(authUser,u);authMessage('회원가입 및 로그인 완료! 이후 대전 전적이 서버에 저장돼.');
+ setAuthUI(authUser,u);authMessage('회원가입 및 로그인 완료! 이후 대전 전적이 서버에 저장돼.');window.dispatchEvent(new CustomEvent('plakoro:auth-success'));window.dispatchEvent(new CustomEvent('plakoro:first-signup'));
 }
 async function signin(){
  if(!initClient())return;var u=safeUsername(),pw=$('pvpAuthPassword').value;
@@ -68,7 +68,7 @@ async function signin(){
  var res=await client.auth.signInWithPassword({email:authEmail(u),password:pw});
  if(res.error){authMessage('로그인 실패: 아이디 또는 비밀번호를 확인해.');return}
  authUser=res.data.user;var p=await client.from('plakoro_profiles').select('username').eq('user_id',authUser.id).maybeSingle();
- setAuthUI(authUser,p.data&&p.data.username||u);authMessage('로그인했어. 내 전적을 불러왔어.');
+ setAuthUI(authUser,p.data&&p.data.username||u);authMessage('로그인했어. 내 전적을 불러왔어.');window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
 }
 $('pvpSignUp').onclick=signup;$('pvpSignIn').onclick=signin;
 $('pvpSignOut').onclick=async function(){if(client)await client.auth.signOut();authUser=null;setAuthUI(null,'');authMessage('로그아웃했어. 비회원 대전은 계속 이용할 수 있어.')};
