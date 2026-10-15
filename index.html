@@ -361,30 +361,7 @@ function attackType(m){return PlakoroBattleCore.attackType(m)}
 function showBattleResult(winner){const mine=selectedPokemon('1'),theirs=selectedPokemon('2'),won=winner==='1';document.getElementById('resultTitle').textContent=won?'🎉 승리!':'😢 패배';document.getElementById('resultMessage').innerHTML=(won?'<strong>승리!</strong>':'<strong>패배</strong>')+'<br>'+esc(won?mine?.name||'내 포켓몬':theirs?.name||'상대 포켓몬')+'의 승리!<br><span class="sub">내 HP '+Math.max(0,battle.hp1)+' · 상대 HP '+Math.max(0,battle.hp2)+'</span>';document.getElementById('resultModal').classList.add('open')}
 function resolveMove(n,m,roll,posture,isAI=false,forceFail=false){
 const opp=n==='1'?'2':'1',p=selectedPokemon(n),target=selectedPokemon(opp),counts=rollCounts(roll),own=battle.effects[n]||(battle.effects[n]={}),te=battle.effects[opp]||(battle.effects[opp]={});let damage=m.damage,damageParts=[m.damage],ignoreWeakness=m.name==='일렉러쉬',selfDamage=m.baseSelfDamage||0,heal=0,notes=[],failed=!!forceFail;
-if(m.baseReduceNext){own.reduce=(own.reduce||0)+m.baseReduceNext;notes.push('다음 상대 턴 받는 피해 -'+m.baseReduceNext)}
-for(const e of m.effects||[]){if(e.poses.length&&!e.poses.includes(posture))continue;switch(e.type){
-case'bonus':damage+=e.value;damageParts.push(e.value);notes.push('자세 효과 피해 +'+e.value);break;case'setDamage':damage=e.value;notes.push('피해 '+e.value+'로 설정');break;
-case'heal':heal+=e.value;notes.push('HP '+e.value+' 회복');break;case'selfDamage':selfDamage+=e.value;notes.push('자신에게 피해 '+e.value);break;
-case'diceShift':if(e.selfNext)own.nextDice=(own.nextDice||0)+e.selfNext;if(e.opponent!==undefined)te.nextDice=(te.nextDice||0)+e.opponent;notes.push('다음 턴 에네코로 수 변경');break;
-case'reduceNext':te.reduce=(te.reduce||0)+e.value;notes.push('상대 다음 턴 받는 피해 -'+e.value);break;case'reduceSelfNext':own.reduce=(own.reduce||0)+e.value;notes.push('자신의 다음 방어 피해 -'+e.value);break;
-case'opponentDice':te.nextDice=(te.nextDice||0)+e.value;notes.push('상대 다음 턴 에네코로 '+e.value);break;
-case'blockMove':{const choices=(battle.slots[opp]||[]).map(id=>moveById(target,id)).filter(Boolean);if(choices.length){if(isAI){const q=choices[Math.floor(Math.random()*choices.length)];te.blocked=q.id;notes.push('상대 기술 봉쇄: '+q.name)}else{pendingBlockSelection={opp,choices};notes.push('상대 기술 봉쇄 대상을 선택')}}break}
-case'fireCountBonus':damage+=(counts['불꽃']||0)*e.value;if((counts['불꽃']||0)*e.value)damageParts.push((counts['불꽃']||0)*e.value);notes.push('불꽃 에너지 추가 피해 +'+(counts['불꽃']||0)*e.value);break;
-case'lowHpBonus':if(battle['hp'+n]<=e.threshold){damage+=e.value;damageParts.push(e.value);notes.push('남은 HP 조건 피해 +'+e.value)}break;
-case'failMove':failed=true;notes.push('기술 실패');break;
-case'immuneSelfNext':own.immuneNext=true;notes.push('다음 상대 턴 기술 피해 무효');break;
-case'skipPosture':te.noPostureNext=true;notes.push('상대 다음 턴 캐릭코로 던지기 불가');break;
-case'poisonMark':own.poisoned=true;notes.push('독가스 성공 기록');break;
-case'healIfPoison':if(own.poisoned){heal+=e.value;notes.push('독가스 성공: HP +'+e.value)}else notes.push('독가스 성공 기록 없음');break;
-case'bonusIfPoison':if(own.poisoned){damage+=e.value;damageParts.push(e.value);notes.push('독가스 성공: 피해 +'+e.value)}else notes.push('독가스 성공 기록 없음');break;
-case'bonusIfOpponentFailed':if(battle.lastFailed[opp]){damage+=e.value;damageParts.push(e.value);notes.push('상대 직전 실패: 피해 +'+e.value)}break;
-case'bonusIfSelfFailed':if(battle.lastFailed[n]){damage+=e.value;damageParts.push(e.value);notes.push('자신 직전 실패: 피해 +'+e.value)}break;
-case'conditionalBonus':{const r=pose();notes.push('상대 캐릭코로 '+r);if((e.postures||[]).includes(r)){damage+=e.value;damageParts.push(e.value);notes.push('조건 성립 피해 +'+e.value)}break}
-case'gyroBonus':{const r=pose();notes.push('상대 캐릭코로 '+r);if((e.postures||[]).includes(r)){damage+=e.value;notes.push('조건 성립 피해 +'+e.value)}break}
-case'opponentEnergyBonus':{const rr=rollForTurn(opp,true,0,3).map(x=>x.face),cc=rollCounts(rr),mx=Math.max(0,...Object.values(cc));damage+=mx*e.value;if(mx*e.value)damageParts.push(mx*e.value);notes.push('상대 에네코로 최다 타입 '+mx+'개: 피해 +'+mx*e.value);break}
-case'reflectDouble':{const lm=moveById(target,battle.lastMove[opp]);damage=lm?lm.damage:0;if(lm)notes.push('상대 직전 기술 기본 피해 '+lm.damage);if(posture)damage*=2;break}
-case'repeat':{const total=Object.values(counts).reduce((a,b)=>a+b,0);damage+=Math.max(0,total-1)*m.damage;if(Math.max(0,total-1)*m.damage)damageParts.push(Math.max(0,total-1)*m.damage);notes.push('에네코로 결과에 따른 반복 공격');break}
-}}
+const effectResult=PlakoroBattleCore.applyMoveEffects({move:m,own:own,targetEffects:te,notes:notes,damage:damage,damageParts:damageParts,heal:heal,selfDamage:selfDamage,failed:failed,roll:roll,counts:counts,posture:posture,ownerHp:battle['hp'+n],ownerFailed:battle.lastFailed[n],targetFailed:battle.lastFailed[opp],randomPose:pose,chooseBlockedMove:function(){const choices=(battle.slots[opp]||[]).map(id=>moveById(target,id)).filter(Boolean);if(!choices.length)return null;if(isAI)return choices[Math.floor(Math.random()*choices.length)];pendingBlockSelection={opp:opp,choices:choices};return null},rollOpponent:function(){return rollForTurn(opp,true,0,3).map(x=>x.face)},rollExtra:function(){return rollForTurn(n,isAI,0,1).map(x=>x.face)},getTargetLastMove:function(){return moveById(target,battle.lastMove[opp])}});damage=effectResult.damage;damageParts=effectResult.damageParts;heal=effectResult.heal;selfDamage=effectResult.selfDamage;failed=effectResult.failed;roll=effectResult.roll;counts=effectResult.counts;notes=effectResult.notes;
 if(own.nextAttackBonus){damage+=own.nextAttackBonus;damageParts.push(own.nextAttackBonus);notes.push('이전 효과 추가 피해 +'+own.nextAttackBonus);own.nextAttackBonus=0}
 battle.lastRollBySide[n]=roll.map(x=>Array.isArray(x)?x:[x]);battle.lastRoll=roll;
 const damageResult=PlakoroBattleCore.applyDamageRules({damage:damage,failed:failed,targetEffects:te,move:m,weakness:target.weakness,ignoreWeakness:ignoreWeakness});damage=damageResult.damage;notes.push(...damageResult.notes);if(damageResult.notes.some(t=>t==='약점 피해 +20'))damageParts.push(20);
