@@ -12,9 +12,10 @@ function roster(){return (db&&Array.isArray(db.pokemon)&&db.pokemon.length?db.po
 function findMon(name){return roster().find(function(p){return p.name===name})||roster()[0]}
 function mid(m){return m.id||m.name}
 function costText(cost){return Object.entries(cost||{}).map(function(x){return x[0]+'×'+x[1]}).join(' + ')||'에너지 없음'}
+var chosenMoves=[];
 $('pvpPokemon').innerHTML=roster().map(function(p){return '<option value="'+esc(p.name)+'">'+esc(p.name)+'</option>'}).join('');
-function updateMoves(){var p=findMon($('pvpPokemon').value);$('pvpMove').innerHTML=(p.moves||[]).map(function(m,i){return '<option value="'+i+'">'+esc(m.name)+' · '+Number(m.damage||0)+' 피해 · '+esc(costText(m.cost))+'</option>'}).join('')}
-$('pvpPokemon').onchange=updateMoves;updateMoves();
+function updateMoves(){var p=findMon($('pvpPokemon').value);chosenMoves=chosenMoves.filter(function(id){return (p.moves||[]).some(function(m){return mid(m)===id})});var root=$('pvpMoveChoices');root.innerHTML=(p.moves||[]).map(function(m){var on=chosenMoves.indexOf(mid(m))>=0;return '<button type="button" class="move-choice'+(on?' selected':'')+'" data-pvp-move="'+esc(mid(m))+'" aria-pressed="'+on+'"><span class="pick-mark">'+(on?'✓':'')+'</span><b>'+esc(m.name)+'</b><small>기본 피해 '+Number(m.damage||0)+' · '+esc(costText(m.cost))+'</small></button>'}).join('');$('pvpMoveSlotInfo').textContent='기술 '+chosenMoves.length+'/4 선택'+(chosenMoves.length===4?' · 준비 가능':' · 서로 다른 기술 4개를 선택해');$('pvpReady').disabled=!connected||chosenMoves.length!==4||!roomState||!roomState.players[playerId]||!!roomState.players[playerId].ready;$('pvpMove').innerHTML=chosenMoves.map(function(id){var m=(p.moves||[]).find(function(x){return mid(x)===id});return m?'<option value="'+esc(id)+'">'+esc(m.name)+' · '+Number(m.damage||0)+' 피해 · '+esc(costText(m.cost))+'</option>':''}).join('');root.querySelectorAll('[data-pvp-move]').forEach(function(btn){btn.onclick=function(){var id=btn.getAttribute('data-pvp-move'),at=chosenMoves.indexOf(id);if(at>=0)chosenMoves.splice(at,1);else if(chosenMoves.length<4)chosenMoves.push(id);else{say('기술은 7개 중 4개까지만 선택할 수 있어. 먼저 하나를 해제해.');return}updateMoves()}})}
+$('pvpPokemon').onchange=function(){chosenMoves=[];updateMoves()};updateMoves();
 function rollCounts(roll){var c={};(roll||[]).forEach(function(face){(Array.isArray(face)?face:[face]).forEach(function(t){c[t]=(c[t]||0)+1})});return c}
 function canPay(cost,roll){var a=rollCounts(roll);for(var t in (cost||{})){if(t==='무색')continue;var n=Number(cost[t]||0);if((a[t]||0)<n)return false;a[t]-=n}return Object.values(a).reduce(function(x,y){return x+y},0)>=Number((cost||{}).무색||0)}
 function randomPose(){return ['정방향','왼쪽','오른쪽','뒤로','엎드림','물구나무','뒤집힘'][Math.floor(Math.random()*7)]}
@@ -27,10 +28,10 @@ function leave(){if(channel&&client)client.removeChannel(channel);channel=null;r
 function hostAction(a){
  if(role!=='host'||!roomState)return;var ps=roomState.players;
  if(a.kind==='join'){if(Object.keys(ps).length>=2&&!ps[a.by]){say('이 방은 이미 가득 찼어.');return}if(!ps[a.by])ps[a.by]={name:String(a.name||'상대').slice(0,20),ready:false,pokemon:'',hp:0,maxHp:0,effects:{},lastMove:null,lastFailed:false};log(ps[a.by].name+'가 참가했어.');publish();return}
- if(a.kind==='ready'&&ps[a.by]&&!ps[a.by].ready){var mon=findMon(a.pokemon);if(!mon)return;ps[a.by]=Object.assign(ps[a.by],{ready:true,pokemon:mon.name,hp:mon.hp,maxHp:mon.hp,effects:{},lastMove:null,lastFailed:false});if(Object.keys(ps).length===2&&Object.keys(ps).every(function(id){return ps[id].ready})){roomState.turn=Object.keys(ps)[Math.floor(Math.random()*2)];log('양쪽 준비 완료. '+ps[roomState.turn].name+'부터 시작해.')}else log(ps[a.by].name+' 포켓몬 확정. 상대 준비를 기다리는 중이야.');publish();return}
+ if(a.kind==='ready'&&ps[a.by]&&!ps[a.by].ready){var mon=findMon(a.pokemon);var picked=(a.moveIds||[]).filter(function(id,i,arr){return arr.indexOf(id)===i&&(mon.moves||[]).some(function(m){return mid(m)===id})});if(!mon||picked.length!==4)return;ps[a.by]=Object.assign(ps[a.by],{ready:true,pokemon:mon.name,moves:picked,hp:mon.hp,maxHp:mon.hp,effects:{},lastMove:null,lastFailed:false});if(Object.keys(ps).length===2&&Object.keys(ps).every(function(id){return ps[id].ready})){roomState.turn=Object.keys(ps)[Math.floor(Math.random()*2)];log('양쪽 준비 완료. '+ps[roomState.turn].name+'부터 시작해.')}else log(ps[a.by].name+' 포켓몬 확정. 상대 준비를 기다리는 중이야.');publish();return}
  if(a.kind!=='attack'||!ps[a.by]||roomState.turn!==a.by||roomState.over)return;
  var ids=Object.keys(ps);if(ids.length!==2||!ids.every(function(id){return ps[id].ready}))return;
- var att=ps[a.by],targetId=ids.find(function(id){return id!==a.by}),tar=ps[targetId],mon2=findMon(att.pokemon),move=mon2.moves[Number(a.moveIndex)];
+ var att=ps[a.by],targetId=ids.find(function(id){return id!==a.by}),tar=ps[targetId],mon2=findMon(att.pokemon),move=(mon2.moves||[]).find(function(m){return mid(m)===a.moveId})||(mon2.moves||[])[Number(a.moveIndex)];if(!move||!(att.moves||[]).includes(mid(move))){log('선택한 4개 기술 중에서 골라 줘.');publish();return}
  if(!move||att.lastMove===mid(move)){log('직전 턴에 사용한 기술은 연속해서 사용할 수 없어.');publish();return}
  if(att.effects.blocked&&att.effects.blocked===mid(move)){log('이 기술은 봉쇄되어 있어.');publish();return}
  if(att.effects.skipRoll){att.effects.skipRoll=false;att.lastFailed=true;att.lastMove=mid(move);log(att.name+'는 효과로 이번 턴 에네코로를 굴릴 수 없어.');roomState.turn=targetId;publish();return}
@@ -84,7 +85,7 @@ $('pvpJoinRoom').onclick=function(){joinFromCode()};
 $('pvpRoomCode').addEventListener('input',function(){clearTimeout(autoJoinTimer);var code=$('pvpRoomCode').value.replace(/[^a-z0-9]/gi,'');if(code.length===6)autoJoinTimer=setTimeout(joinFromCode,350)});
 $('pvpRoomCode').addEventListener('keydown',function(e){if(e.key==='Enter'){clearTimeout(autoJoinTimer);joinFromCode()}});
 $('pvpLeave').onclick=leave;
-$('pvpReady').onclick=function(){if(!channel||!roomState||!roomState.players[playerId])return;var mon=findMon($('pvpPokemon').value),a={kind:'ready',by:playerId,pokemon:mon.name};if(role==='host')hostAction(a);else channel.send({type:'broadcast',event:'room_action',payload:a})};
-$('pvpAttack').onclick=function(){if(!channel||!roomState||roomState.turn!==playerId||roomState.over)return;var a={kind:'attack',by:playerId,moveIndex:Number($('pvpMove').value)};if(role==='host')hostAction(a);else channel.send({type:'broadcast',event:'room_action',payload:a})};
+$('pvpReady').onclick=function(){if(!channel||!roomState||!roomState.players[playerId])return;var mon=findMon($('pvpPokemon').value);if(chosenMoves.length!==4){say('기술 7개 중 서로 다른 4개를 선택해.');return}var a={kind:'ready',by:playerId,pokemon:mon.name,moveIds:chosenMoves.slice()};if(role==='host')hostAction(a);else channel.send({type:'broadcast',event:'room_action',payload:a})};
+$('pvpAttack').onclick=function(){if(!channel||!roomState||roomState.turn!==playerId||roomState.over)return;var a={kind:'attack',by:playerId,moveId:$('pvpMove').value};if(role==='host')hostAction(a);else channel.send({type:'broadcast',event:'room_action',payload:a})};
 $('pvpLeave').disabled=true;
 })();
