@@ -112,6 +112,132 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{height:100vh;heig
 
 /* PvP shares the VS AI battle-field visual system. */
 .pvp-shell .pvp-battle-board,.pvp-shell .pvp-action-panel{margin-bottom:14px}.pvp-shell .pvp-battle-board .terminal-hp-board{margin:14px 0 16px}.pvp-shell .pvp-action-panel .move-choice-grid{margin-top:8px}.pvp-shell .pvp-action-panel .move-choice{min-height:70px;background:#202b44;color:#f1f3ff;border-color:#3b496a}.pvp-shell .pvp-action-panel .move-choice small{color:#c2cbe8}.pvp-shell .pvp-action-panel .move-choice.selected{background:#303b62;border-color:#a8b3ff}.pvp-shell .pvp-action-panel .terminal-actions{margin-top:12px}.pvp-shell .pvp-action-panel .pvp-state-list{margin-top:12px}.pvp-shell .pvp-battle-board .charikoro-board{font-size:10px}.pvp-shell .pvp-battle-board .charikoro-board .charikoro-direction{font-size:18px}.pvp-shell .pvp-battle-board .charikoro-board .charikoro-label{font-size:9px}
+
+/* === Unified Plakoro UI system (visual-only overrides; keep existing IDs and behavior) === */
+:root{
+ --bg:#f3f5fb;--panel:#fff;--ink:#192238;--muted:#69758c;--line:#dce2ef;
+ --accent:#5952df;--accent2:#eeedff;--red:#d94b58;--green:#16845b;
+ --surface-soft:#f7f8fc;--radius-card:18px;--shadow-card:0 8px 26px #20294a0d;
+ --focus-ring:0 0 0 3px #655df02e;
+}
+body{background:radial-gradient(ellipse at 50% -12%,#e9eaff 0,transparent 42%),var(--bg);color:var(--ink);line-height:1.5}
+header{position:relative;background:linear-gradient(115deg,#171b2e 0%,#27244f 58%,#37317a 100%);padding:12px clamp(16px,3vw,48px);border-bottom:1px solid #ffffff1c}
+header h1{font-size:clamp(18px,2vw,23px);letter-spacing:-.035em;margin:0 0 2px}
+header p{font-size:12px;color:#cbd0e6}
+main{max-width:1500px;padding:clamp(12px,2vw,26px);scrollbar-gutter:stable}
+.view{width:100%;animation:plakoro-view-in .18s ease-out}
+@keyframes plakoro-view-in{from{opacity:.7;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.view{animation:none}}
+h2,h3{letter-spacing:-.025em;line-height:1.3}
+h2{font-size:clamp(17px,1.7vw,21px);margin-bottom:12px}
+h3{font-size:16px}
+.sub,.field label{color:var(--muted)}
+.sub{line-height:1.6}
+.panel,.pvp-settings,.pvp-room-card,.pvp-action-panel,.fighter,.arena-fighter,.prebattle-card,.move-picker-dialog{
+ border-radius:var(--radius-card);box-shadow:var(--shadow-card)
+}
+.panel{padding:clamp(15px,2vw,22px);margin-bottom:14px}
+.grid{gap:12px}
+.field{gap:7px;margin-bottom:13px}
+.field label{font-size:12px;letter-spacing:.01em}
+input,select,textarea{border-color:#cbd3e2;border-radius:11px;padding:11px 12px;background:#fff;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:none;border-color:var(--accent);box-shadow:var(--focus-ring)}
+button,.btn,.tab,.home-action,.move-choice{transition:background-color .15s,border-color .15s,box-shadow .15s,transform .15s}
+.btn{border-radius:11px;padding:11px 15px;min-height:42px;background:linear-gradient(135deg,#625be8,#4e47d1);box-shadow:0 3px 8px #5952df20}
+.btn:hover:not(:disabled){filter:brightness(1.04);box-shadow:0 5px 14px #5952df2a}
+.btn.secondary{background:#eef0f7;color:#303a54;border:1px solid #dfe3ed;box-shadow:none}
+.btn.secondary:hover:not(:disabled){background:#e5e8f2}
+.btn.danger{background:#fff0f1;color:#a12635;border:1px solid #f2c8cc;box-shadow:none}
+.btn:disabled{box-shadow:none}
+.list{gap:9px}
+.item{border-radius:12px;border-color:var(--line);background:#fff;padding:12px 13px}
+.item:hover{border-color:#b9b7f3}
+.empty{border-radius:12px;background:#fafbfe}
+.tag,.pill{border-radius:8px}
+.pill{padding:5px 9px}
+.notice{border-radius:12px}
+.home-return{z-index:50;top:12px;left:12px;border:1px solid #ffffff3a!important;border-radius:999px!important;background:#ffffff17!important;color:#fff!important;backdrop-filter:blur(10px);padding:7px 12px!important;font-weight:800}
+.home-brand{letter-spacing:-.055em;line-height:1.05}
+.home-subtitle{max-width:620px;line-height:1.65;margin-bottom:24px}
+.home-grid{gap:12px}
+.home-action{border:1px solid #e0e4ef;border-radius:20px;box-shadow:0 7px 22px #20294a0b;min-height:clamp(112px,15vh,165px)}
+.home-action:hover{transform:translateY(-2px);border-color:#b9b5ff;box-shadow:0 12px 28px #20294a14}
+.home-action.primary{background:linear-gradient(130deg,#24204c,#5147d9);box-shadow:0 10px 26px #5147d926}
+.home-action .home-icon{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:15px;background:#f0efff;margin-bottom:8px}
+.home-action.primary .home-icon{background:#ffffff20}
+.prebattle-card{border:1px solid #e1e5f0}
+.battle-layout,.pvp-shell{gap:12px}
+.arena-fighter,.pvp-fighter{border-radius:18px}
+.arena-opponent,.pvp-enemy{background:linear-gradient(135deg,#fff 0%,#fff7f7 100%)}
+.arena-player,.pvp-self{background:linear-gradient(135deg,#fff 0%,#f6f5ff 100%)}
+.terminal-panel,.pvp-action-panel{border-radius:18px;background:linear-gradient(145deg,#11182a,#1a2239);border-color:#303a58}
+.terminal-heading{gap:12px}
+.terminal-status{border-radius:11px}
+.terminal-hp-board{border-radius:14px}
+.terminal-hp-card{border-radius:11px}
+.log{border-radius:12px}
+.move-choice{border-radius:12px}
+.move-choice:hover:not(:disabled){border-color:#9c98f6}
+.move-choice.selected{box-shadow:0 0 0 2px #7770ed20}
+.pvp-shell{max-width:1000px}
+.pvp-topbar{padding:2px 2px 6px}
+.pvp-settings,.pvp-room-card{padding:clamp(14px,2vw,20px);border-radius:16px}
+.pvp-room-card{background:linear-gradient(135deg,#fff,#f7f7ff);border-color:#dfe0f7}
+.pvp-room-card .row{gap:10px}
+.pvp-player-tags .tag{overflow-wrap:anywhere}
+.pvp-last-attack{border-radius:12px}
+.tutorial-launch{padding:clamp(22px,4vw,40px)}
+.tutorial-launch h2{font-size:clamp(20px,2.2vw,26px)}
+.tutorial-dialog,.move-picker-dialog{border:1px solid #dfe4ef}
+.tutorial-modal-footer{padding-top:14px}
+#pokemonList .item,#moveList .item{align-items:flex-start}
+#diceFaceConfig{gap:12px}
+#diceFaceConfig>.panel,#diceFaceConfig>div{border-radius:14px}
+#rules .row{gap:10px}
+#rules .row>*{min-width:0}
+#eneTypeButtons:not(.hidden){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#eneTypeButtons .move-choice{min-height:72px}
+#eneTypeButtons .move-choice b{font-size:14px}
+#eneTypeButtons .move-choice small{line-height:1.5}
+#faceSaved,#eneBatchStatus{padding:8px 0}
+#pvp .terminal-hp-board{grid-template-columns:minmax(0,1fr);gap:8px}
+#pvp .terminal-hp-vs{height:20px;display:grid;place-items:center}
+#pvp .terminal-hp-vs:before{content:"";height:1px;width:100%;background:#59617b;grid-area:1/1}
+#pvp .terminal-hp-vs{position:relative}
+#pvp .terminal-hp-vs{isolation:isolate}
+#pvp .terminal-hp-vs::after{content:"VS";grid-area:1/1;background:#0b1120;padding:0 10px}
+#pvp .terminal-hp-card{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+#pvp .dice-results-board{display:flex;flex-direction:column;gap:14px}
+#pvp .dice-side-zone{width:100%}
+#pvp .pvp-last-attack{margin-top:12px}
+@media(min-width:700px){
+ #pvp .terminal-hp-board{grid-template-columns:minmax(0,1fr);max-width:600px;margin-left:auto;margin-right:auto}
+ #pvp .pvp-shell{max-width:1000px}
+ #pvp .pvp-battle-board{padding:clamp(16px,2vw,24px)}
+}
+@media(max-width:640px){
+ main{padding:12px 10px 24px}
+ header{padding:10px 12px 10px 64px}
+ header h1{font-size:18px}
+ header p{font-size:10px}
+ .home-return{top:9px;left:8px;padding:6px 10px!important;font-size:12px}
+ .home-action{border-radius:16px;padding:16px;min-height:96px}
+ .home-action .home-icon{width:42px;height:42px;border-radius:13px;margin:0 12px 0 0;flex:0 0 auto}
+ .panel{padding:14px}
+ .pvp-topbar{align-items:flex-start}
+ .pvp-topbar h2{font-size:20px}
+ .pvp-topbar>.btn{padding:8px 10px;min-height:38px;font-size:12px}
+ .pvp-room-card .row{gap:7px}
+ .pvp-room-card .row .btn{font-size:12px}
+ .terminal-hp-top strong{font-size:18px}
+ .tutorial-modal-footer .btn{min-width:0;flex:1}
+}
+@media(max-width:380px){
+ .pvp-room-card .row{flex-direction:column}
+ .pvp-room-card .row>*{width:100%}
+ .terminal-heading h2{font-size:16px}
+}
+
 </style><style>
 .home-return{position:fixed;top:12px;right:14px;z-index:900;border:1px solid #ffffff40;border-radius:999px;padding:9px 14px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002}
 </style></head>
