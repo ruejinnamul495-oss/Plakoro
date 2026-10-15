@@ -1,0 +1,40 @@
+name: Battle validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  battle-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax
+        run: |
+          node --check battle-core.js
+          node --check pvp.js
+          python3 - <<'PY'
+          import pathlib, re
+          html = pathlib.Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script\b([^>]*)>([\s\S]*?)</script\s*>', html, re.I)
+          checked = 0
+          for attrs, body in scripts:
+              if not body.strip() or re.search(r'\bsrc\s*=', attrs, re.I):
+                  continue
+              if re.search(r'\btype\s*=\s*["\']application/json["\']', attrs, re.I):
+                  continue
+              path = pathlib.Path(f'/tmp/plakoro-inline-{checked}.js')
+              path.write_text(body, encoding='utf-8')
+              checked += 1
+          if not checked:
+              raise SystemExit('No inline JavaScript found in index.html')
+          print(f'Extracted {checked} inline JavaScript block(s).')
+          PY
+          for file in /tmp/plakoro-inline-*.js; do node --check "$file"; done
+      - name: Run battle regression tests
+        run: node battle-core.test.js
