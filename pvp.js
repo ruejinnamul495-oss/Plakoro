@@ -16,7 +16,10 @@ function safeUsername(){return String($('pvpAuthUsername').value||'').trim().toL
 function validUsername(u){return /^[a-z0-9_]{3,20}$/.test(u)}
 function setAuthUI(user,username){
  authUser=user||null;authReady=true;$('pvpAuthStatus').textContent=user?(username||safeUsername()||'로그인됨'):'비로그인';
- $('pvpSignUp').disabled=!!user;$('pvpSignIn').disabled=!!user;$('pvpSignOut').disabled=!user;$('pvpAuthUsername').disabled=!!user;
+ $('pvpSignUp').disabled=!!user;$('pvpSignIn').disabled=!!user;$('pvpSignOut').disabled=!user;$('pvpAuthUsername').disabled=!!user;$('pvpAuthPassword').disabled=!!user;
+ var credentials=$('pvpAuthUsername').closest('.grid'),signUp=$('pvpSignUp'),signIn=$('pvpSignIn');
+ if(credentials)credentials.classList.toggle('hidden',!!user);
+ signUp.classList.toggle('hidden',!!user);signIn.classList.toggle('hidden',!!user);
  $('pvpMyRecord').textContent=user?'전적 불러오는 중…':'로그인하면 내 전적을 볼 수 있어.';
  if(user){loadMyRecord();loadLeaderboard()}else{$('pvpMyRecord').textContent='로그인하면 내 전적을 볼 수 있어.';loadLeaderboard()}
 }
