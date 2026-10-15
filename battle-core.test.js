@@ -191,6 +191,12 @@ assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
 }
 
 {
+  const index = fs.readFileSync('./index.html', 'utf8');
+  assert(index.includes("rollOpponent:function(){return rollForTurn(opp,opp==='2',0,3).map(x=>x.face)}"),
+    'opponent-energy bonus must roll using the target side dice configuration');
+}
+
+{
   const pvp = fs.readFileSync('./pvp.js', 'utf8');
   const attack = pvp.indexOf('var att=ps[a.by],targetId=');
   const skip = pvp.indexOf('if(att.effects.skipRoll)', attack);
