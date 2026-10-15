@@ -64,7 +64,7 @@
     case 'reduceNext': targetEffects.reduce=(targetEffects.reduce||0)+Number(e.value||0);notes.push('상대 다음 턴 받는 피해 -'+e.value);break;
     case 'reduceSelfNext': own.reduce=(own.reduce||0)+Number(e.value||0);notes.push('자신의 다음 방어 피해 -'+e.value);break;
     case 'opponentDice': targetEffects.nextDice=(targetEffects.nextDice||0)+Number(e.value||0);notes.push('상대 다음 턴 에네코로 '+e.value);break;
-    case 'blockMove': if(ctx.chooseBlockedMove){var blocked=ctx.chooseBlockedMove();if(blocked){targetEffects.blocked=blocked.id;notes.push('상대 기술 봉쇄: '+blocked.name)}}break;
+    case 'blockMove': if(ctx.chooseBlockedMove){var blocked=ctx.chooseBlockedMove();if(blocked){targetEffects.blocked=blocked.id||blocked.name;notes.push('상대 기술 봉쇄: '+blocked.name)}}break;
     case 'fireCountBonus': var fire=(counts['불꽃']||0)*Number(e.value||0);damage+=fire;if(fire)damageParts.push(fire);notes.push('불꽃 에너지 추가 피해 +'+fire);break;
     case 'lowHpBonus': if(ctx.ownerHp<=e.threshold){damage+=Number(e.value||0);damageParts.push(Number(e.value||0));notes.push('남은 HP 조건 피해 +'+e.value)}break;
     case 'failMove': failed=true;notes.push('기술 실패');break;
