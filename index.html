@@ -249,7 +249,6 @@ button,.btn,.tab,.home-action,.move-choice{transition:background-color .15s,bord
 html{background:var(--bg);scroll-behavior:smooth}
 body{background:linear-gradient(180deg,#e7f2ed 0,#f4f6f3 250px,var(--bg) 620px);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Noto Sans KR",sans-serif}
 header{background:#102d28;border-bottom:4px solid #34c49b;padding:16px clamp(16px,4vw,54px);box-shadow:0 8px 24px #102d2814}
-header:after{content:"PLAY • CUSTOMIZE • BATTLE";display:block;margin-top:7px;color:#8fe2c6;font-size:9px;letter-spacing:.22em;font-weight:900}
 header h1{font-size:clamp(20px,2.3vw,27px);letter-spacing:-.045em;color:#f7fffb}
 header p{font-size:12px;color:#c0d8d0}
 main{max-width:1240px;padding:clamp(14px,2.6vw,32px) clamp(12px,2vw,24px) 56px}
@@ -469,6 +468,8 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
 /* Remove decorative VS divider and the tagline under the header. */
 header:after{display:none!important;content:none!important}
 .battle-divider{display:none!important}
+.terminal-hp-vs{display:none!important}
+.terminal-hp-vs:before{display:none!important;content:none!important}
 </style>
 
 </head>
@@ -535,7 +536,6 @@ header:after{display:none!important;content:none!important}
   </div>
 
   <div class="battle-middle">
-    <div class="battle-divider"><span>VS</span></div>
     <div class="panel terminal-panel">
       <div class="terminal-heading"><div><div class="arena-label">BATTLE TERMINAL</div><h2>전투 터미널</h2></div><span class="terminal-live"><i></i> 상태 모니터</span></div>
       <select id="m1" aria-hidden="true" tabindex="-1" style="display:none"></select><span id="selectedMoveLabel" hidden></span>
