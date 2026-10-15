@@ -42,6 +42,33 @@ assert.equal(core.validateMove('a', null, null).ok, true);
 assert.deepEqual(core.poseInfo('물구나무'), ['🔄', '물구나무']);
 
 {
+  const mewMoves = [
+    { name: '염동력', damage: 10, value: 20, poses: ['정방향', '물구나무', '뒤로'] },
+    { name: '환상빔', damage: 20, value: 30, poses: ['정방향', '물구나무'] },
+    { name: '사이코샷', damage: 30, value: 20, poses: ['정방향', '물구나무', '뒤로', '엎드림'] }
+  ];
+  for (const move of mewMoves) {
+    for (const posture of move.poses) {
+      const { result } = run(
+        { type: 'bonus', value: move.value, poses: move.poses },
+        { move: { damage: move.damage }, damage: move.damage, damageParts: [move.damage], posture }
+      );
+      assert.equal(result.damage, move.damage + move.value, `Mew ${move.name} bonus must apply in ${posture}`);
+      assert.deepEqual(result.damageParts, [move.damage, move.value]);
+    }
+    const excludedPose = ['왼쪽', '오른쪽', '엎드림'].find(p => !move.poses.includes(p));
+    if (excludedPose) {
+      const { result } = run(
+        { type: 'bonus', value: move.value, poses: move.poses },
+        { move: { damage: move.damage }, damage: move.damage, damageParts: [move.damage], posture: excludedPose }
+      );
+      assert.equal(result.damage, move.damage, `Mew ${move.name} bonus must not apply in ${excludedPose}`);
+    }
+  }
+}
+
+
+{
   const { result } = run({ type: 'bonus', value: 20 });
   assert.equal(result.damage, 30);
   assert.deepEqual(result.damageParts, [10, 20]);
