@@ -415,6 +415,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
 .pvp-log-panel{grid-area:log;min-width:0;margin:0!important}
 .pvp-action-panel .field:first-child{display:block!important}
 .pvp-action-panel .field{margin-bottom:10px}
+.pvp-action-panel .player-move-select{display:none!important}
 .pvp-action-panel .move-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .pvp-action-panel .move-choice{min-height:68px;padding:10px}
 .pvp-action-panel .terminal-actions{display:grid;grid-template-columns:1fr;gap:8px}
@@ -430,16 +431,16 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
 .pvp-battle-board .die-roll{padding:5px}
 .pvp-battle-board .pvp-last-attack{margin-top:10px}
 .pvp-log-panel .log{max-height:180px;overflow:auto}
-.pvp-lobby-modal{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:16px;background:#071b17b8;backdrop-filter:blur(8px)}
+.pvp-lobby-modal{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:16px;background:#171b2eb8;backdrop-filter:blur(8px)}
 .pvp-lobby-modal.hidden{display:none!important}
-.pvp-lobby-dialog{width:min(680px,100%);max-height:min(90vh,820px);overflow:auto;padding:clamp(16px,3vw,26px);border-radius:24px;background:#f8fcf9;border:1px solid #b8d6c8;box-shadow:0 28px 90px #041a1455}
+.pvp-lobby-dialog{width:min(680px,100%);max-height:min(90vh,820px);overflow:auto;padding:clamp(16px,3vw,26px);border-radius:24px;background:#f8f9ff;border:1px solid #d7d8f8;box-shadow:0 28px 90px #171b2e55}
 .pvp-lobby-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
 .pvp-lobby-heading h2{margin:4px 0;font-size:clamp(22px,3vw,29px)}
-.pvp-lobby-heading .sub{margin:0;color:#5f766c}
+.pvp-lobby-heading .sub{margin:0;color:#667085}
 .pvp-lobby-heading .btn{flex-shrink:0}
 .pvp-lobby-dialog .pvp-settings,.pvp-lobby-dialog .pvp-room-card{margin-bottom:12px;box-shadow:none}
 .pvp-lobby-dialog .pvp-settings{background:#fff}
-.pvp-lobby-dialog .pvp-room-card{background:#edf8f2}
+.pvp-lobby-dialog .pvp-room-card{background:#f4f5ff;border-color:#d7d8f8}
 .pvp-lobby-dialog .pvp-room-card .row{display:flex}
 .pvp-lobby-dialog .pvp-room-card .row>*{flex:1;min-width:0}
 .pvp-lobby-dialog .pvp-settings-body .grid{grid-template-columns:1fr}
@@ -508,11 +509,12 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
    <div class="terminal-heading"><div><div class="arena-label">BATTLE COMMAND</div><h2>배틀 준비 / 기술 선택</h2></div><span class="pill" id="pvpTurnPill">준비 중</span></div>
    <p class="sub">VS AI와 같은 방식으로 포켓몬과 기술 4개를 준비해. 방에 참가한 뒤 준비를 확정하면 대전이 시작돼.</p>
    <div class="field"><label for="pvpPokemon">내 포켓몬</label><select id="pvpPokemon"></select></div>
-   <div class="field"><label>기술 선택 · 7개 중 서로 다른 4개</label><div id="pvpMoveChoices" class="move-choice-grid"></div><p class="sub" id="pvpMoveSlotInfo">기술 0/4 선택</p></div>
+   <div class="field" id="pvpMoveSetupField"><label>기술 선택 · 7개 중 서로 다른 4개</label><div id="pvpMoveChoices" class="move-choice-grid"></div><p class="sub" id="pvpMoveSlotInfo">기술 0/4 선택</p></div>
    <div class="field player-move-select"><label for="pvpMove">이번 턴 사용할 기술</label><select id="pvpMove"></select></div>
-   <div class="row terminal-actions"><button type="button" class="btn secondary" id="pvpReady" disabled>포켓몬 / 기술 확정</button><button type="button" class="btn" id="pvpAttack" disabled>선택한 기술 사용 · 에네코로 굴리기</button></div>
+   <div class="row terminal-actions"><button type="button" class="btn secondary" id="pvpReady" disabled>포켓몬 / 기술 확정</button><button type="button" class="btn" id="pvpAttack" disabled>에네코로 굴리기 · 기술 선택</button></div>
    <div id="pvpBattleState" class="pvp-state-list"></div>
   </div>
+  <div id="pvpMovePickerModal" class="move-picker-backdrop" role="dialog" aria-modal="true" aria-labelledby="pvpMovePickerTitle"><div class="move-picker-dialog"><div class="move-picker-heading"><h2 id="pvpMovePickerTitle">이번 턴 사용할 기술 선택</h2><button type="button" id="pvpMovePickerClose" class="btn secondary">닫기</button></div><p id="pvpMovePickerHint" class="sub">선택한 기술 4개 중 하나를 클릭해 줘.</p><div id="pvpMovePickerChoices" class="move-choice-grid"></div></div></div>
   <div class="terminal-panel pvp-log-panel"><div class="terminal-heading"><div><div class="arena-label">BATTLE LOG</div><h2>대전 기록</h2></div><span class="terminal-live"><i></i> REALTIME</span></div><div id="pvpLog" class="log">대전 기록이 여기에 표시돼.</div></div>
  </div>
  </section>
