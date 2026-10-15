@@ -532,6 +532,15 @@ header:after{display:none!important;content:none!important}
 .terminal-hp-card .terminal-sprite-placeholder{font-size:10px;color:#bdc7e6;text-align:center}
 @media(max-width:480px){.terminal-hp-card{grid-template-columns:62px minmax(0,1fr);column-gap:8px;padding:9px}.terminal-hp-card .terminal-pokemon-stage{width:62px;height:62px}.terminal-hp-card .terminal-pokemon-stage img{width:62px;height:62px;max-width:62px}.terminal-hp-card .terminal-hp-top b{font-size:12px}.terminal-hp-card .terminal-hp-top strong{font-size:16px}}
 </style>
+<style>
+/* Move effect tooltip: cursor-following on desktop, tap-to-open on touch screens. */
+#moveEffectTooltip{position:fixed;z-index:3000;display:none;width:min(320px,calc(100vw - 24px));max-height:min(45vh,280px);overflow:auto;padding:11px 13px;border:1px solid #3b7c6a;border-radius:12px;background:#102d28;color:#effff8;box-shadow:0 12px 32px #071d1970;font-size:12px;line-height:1.5;pointer-events:none}
+#moveEffectTooltip.show{display:block}
+#moveEffectTooltip b{display:block;color:#8fe8c9;font-size:13px;margin-bottom:5px}
+#moveEffectTooltip .effect-line{padding-top:5px;margin-top:5px;border-top:1px solid #ffffff24}
+#moveEffectTooltip .effect-muted{color:#bfd4cc}
+@media(hover:none),(pointer:coarse){#moveEffectTooltip{width:min(340px,calc(100vw - 24px));max-height:35vh;font-size:12px;box-shadow:0 8px 26px #071d1980}}
+</style>
 </head>
 <body><button type="button" class="home-return" id="returnHome">⌂ 홈</button>
 <header><h1>프라코로 배틀 랩</h1></header>
@@ -803,6 +812,31 @@ document.getElementById('preContinue').onclick=()=>{const own=pokemon(document.g
 function pokemon(id){return db.pokemon.find(p=>p.id===id)}function selectedPokemon(n){return pokemon(document.getElementById('p'+n).value)}function moveById(p,id){return p?.moves.find(m=>m.id===id)}
 function renderPokemonSelects(){if(!Array.isArray(db.pokemon)||db.pokemon.length===0){db.pokemon=fresh().pokemon;showAppDiagnostic('저장 데이터에서 포켓몬 목록을 읽지 못해 기본 포켓몬 목록만 화면에 표시하고 있어. 기존 저장값은 자동 저장하거나 덮어쓰지 않았어. 「브라우저 원본 저장값 백업」으로 원본을 먼저 보존해 줘.');}['1','2'].forEach(n=>{const el=document.getElementById('p'+n),old=el.value;el.innerHTML=db.pokemon.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');if(old&&pokemon(old))el.value=old;});const d=document.getElementById('dataPokemon'),old=d.value;d.innerHTML=db.pokemon.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');if(old&&pokemon(old))d.value=old;}
 function renderSlots(n){const p=selectedPokemon(n);for(let i=0;i<4;i++){const el=document.getElementById(`p${n}s${i}`),old=el.value;el.innerHTML=(p?.moves||[]).map(m=>`<option value="${m.id}">${esc(m.name)} · ${costText(m.cost)}</option>`).join('');const saved=battle.slots[n][i];if(saved&&p?.moves.some(m=>m.id===saved))el.value=saved;else if(old&&p?.moves.some(m=>m.id===old))el.value=old;else if(p?.moves[i]&&!(n==='1'&&!(battle.slots[n]||[]).some(Boolean)))el.value=p.moves[i].id;else el.selectedIndex=-1;battle.slots[n][i]=el.value;el.disabled=!!battle.started;}renderTurnMove(n);updateSlotInfo(n);if(n==='1')renderMoveChoices()}
+
+// Additional-effect preview for move selection: hover on desktop, tap on mobile.
+(function(){
+ const tip=document.createElement('div');tip.id='moveEffectTooltip';tip.setAttribute('role','tooltip');document.body.appendChild(tip);
+ let pinned=false,active=null;
+ function getMove(btn){const id=btn&&btn.dataset&&btn.dataset.moveId;if(!id)return null;const p=selectedPokemon('1');return p&&(p.moves||[]).find(m=>String(m.id)===String(id))||null}
+ function show(btn,x,y,keep){
+  const m=getMove(btn);if(!m)return hide();
+  const effects=m.effects||[];tip.innerHTML='<b>'+esc(m.name)+' · 캐릭코로 추가 효과</b>'+(effects.length?effects.map(e=>'<div class="effect-line">'+esc(formatEffectLine(e))+'</div>').join(''):'<div class="effect-muted">추가 효과 없음</div>');
+  tip.classList.add('show');active=btn;pinned=!!keep;
+  const mobile=matchMedia('(hover: none), (pointer: coarse)').matches;
+  const r=btn.getBoundingClientRect();let left=mobile?Math.max(12,Math.min(innerWidth-tip.offsetWidth-12,r.left)):Math.max(12,Math.min(innerWidth-tip.offsetWidth-12,x+14));
+  let top=mobile?r.bottom+8:y+14;
+  if(top+tip.offsetHeight>innerHeight-8)top=mobile?Math.max(8,r.top-tip.offsetHeight-8):Math.max(8,y-tip.offsetHeight-10);
+  tip.style.left=left+'px';tip.style.top=Math.max(8,Math.min(innerHeight-tip.offsetHeight-8,top))+'px';
+ }
+ function hide(){tip.classList.remove('show');pinned=false;active=null}
+ document.addEventListener('pointerover',e=>{if(matchMedia('(hover: hover) and (pointer: fine)').matches){const b=e.target.closest('[data-move-id]');if(b)show(b,e.clientX,e.clientY,false)}});
+ document.addEventListener('pointermove',e=>{if(active&&!pinned&&matchMedia('(hover: hover) and (pointer: fine)').matches)show(active,e.clientX,e.clientY,false)});
+ document.addEventListener('pointerout',e=>{if(!matchMedia('(hover: hover) and (pointer: fine)').matches)return;const b=e.target.closest('[data-move-id]');if(b&&!b.contains(e.relatedTarget))hide()});
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-move-id]');if(!b){if(pinned)hide();return}if(matchMedia('(hover: none), (pointer: coarse)').matches){if(pinned&&active===b)hide();else show(b,0,0,true)}});
+ document.addEventListener('scroll',()=>{if(pinned&&active)show(active,0,0,true);else hide()},true);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')hide()});
+})();
+
 function renderMoveChoices(){const root=document.getElementById('moveChoices1');if(!root)return;const p=selectedPokemon('1');if(!p){root.innerHTML='';return}const selected=[0,1,2,3].map(i=>document.getElementById(`p1s${i}`)?.value).filter(Boolean);root.innerHTML=p.moves.map(m=>{const on=selected.includes(m.id),blocked=battle.effects['1']?.blocked===m.id;return `<button type="button" class="move-choice${on?' selected':''}${blocked?' blocked':''}" data-move-id="${m.id}" aria-pressed="${on}" ${battle.started?'disabled':''}><span class="pick-mark">${blocked?'봉쇄':on?'✓':''}</span><b>${esc(m.name)}</b><small>${blocked?'봉쇄됨 · ':''}기본 피해 ${m.damage} · ${costText(m.cost)}</small></button>`}).join('');root.querySelectorAll('[data-move-id]').forEach(btn=>btn.onclick=()=>{if(battle.started)return;const id=btn.dataset.moveId,now=[0,1,2,3].map(i=>document.getElementById(`p1s${i}`).value).filter(Boolean);if(now.includes(id)){const left=now.filter(x=>x!==id);syncPlayerMoves(left);return}if(now.length>=4){alert('기술은 7개 중 4개까지만 선택할 수 있어. 먼저 선택한 기술 하나를 해제해.');return}syncPlayerMoves([...now,id])})}
 function syncPlayerMoves(ids){const p=selectedPokemon('1');const valid=(ids||[]).filter((id,i,a)=>a.indexOf(id)===i&&p?.moves.some(m=>m.id===id)).slice(0,4);for(let i=0;i<4;i++){const el=document.getElementById(`p1s${i}`);if(!el)continue;el.value=valid[i]||p?.moves[0]?.id||'';if(!valid[i])el.selectedIndex=-1;battle.slots['1'][i]=valid[i]||''}renderTurnMove('1');updateSlotInfo('1');renderMoveChoices();refreshBattle()}
 function updateSlotInfo(n){const ids=[0,1,2,3].map(i=>document.getElementById(`p${n}s${i}`).value).filter(Boolean);const unique=ids.length===4&&new Set(ids).size===4;const el=document.getElementById(`slotInfo${n}`);if(el&&n==='1')el.textContent=`선택 ${new Set(ids).size}/4개${battle.started?' · 대전 중 변경 불가':' · 대전 시작 전까지 변경 가능'}`;}
