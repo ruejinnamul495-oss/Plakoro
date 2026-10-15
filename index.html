@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="pvp.js" defer></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="battle-core.js"></script><script src="pvp.js" defer></script>
 <title>프라코로 배틀 랩</title>
 <style>
 :root{--bg:#f4f6fb;--panel:#fff;--ink:#182033;--muted:#667085;--line:#dfe4ee;--accent:#5a53e8;--accent2:#e9e8ff;--red:#d94b58;--green:#16845b}
@@ -354,10 +354,10 @@ function rollFace(dieIndex,side='1'){const dice=getDiceFaces(side),faces=dice[di
 function rollThree(count=3){return Array.from({length:Math.max(0,count)},(_,i)=>rollFace(i%3))}
 function renderExtraDieChoices(){const root=document.getElementById('extraDieChoices');if(!root)return;const count=Math.max(0,battle.effects['1']?.nextDice||0);root.hidden=!(battle.started&&!battle.over&&battle.active==='1'&&count>0);if(root.hidden){root.innerHTML='';return}const old=[...root.querySelectorAll('select')].map(x=>x.value);root.innerHTML=`<p class="sub" style="grid-column:1/-1;margin:0">다음 턴 에네코로 +${count}: 추가로 굴릴 주사위를 선택해.</p>`+Array.from({length:count},(_,i)=>`<div class="field"><label for="extraDie${i}">추가 주사위 ${i+1}</label><select id="extraDie${i}">${[1,2,3].map(n=>`<option value="${n-1}">에네코로 ${n}</option>`).join('')}</select></div>`).join('');[...root.querySelectorAll('select')].forEach((el,i)=>{if(old[i]!==undefined&&['0','1','2'].includes(old[i]))el.value=old[i]})}
 function rollForTurn(n,isAI,modifier,baseCount=3){let indices=[];if(modifier<0){indices=Array.from({length:Math.max(0,baseCount+modifier)},(_,i)=>i)}else{indices=Array.from({length:baseCount},(_,i)=>i);for(let i=0;i<modifier;i++){let chosen;if(isAI){chosen=Math.floor(Math.random()*3)}else{const el=document.getElementById(`extraDie${i}`);chosen=el?Number(el.value):0}indices.push(chosen)}}return indices.map(dieIndex=>({dieIndex,face:rollFace(dieIndex,isAI?'2':'1')}))}
-function rollCounts(roll){const c={};roll.forEach(face=>face.forEach(t=>c[t]=(c[t]||0)+1));return c}
-function canPay(cost,counts){const available={...counts};let needColorless=cost['무색']||0;for(const [t,n] of Object.entries(cost)){if(t==='무색')continue;if((available[t]||0)<n)return false;available[t]-=n;}const leftover=Object.values(available).reduce((a,b)=>a+b,0);return leftover>=needColorless}
-function pose(){return ['정방향','왼쪽','오른쪽','뒤로','엎드림','물구나무','뒤집힘'][Math.floor(Math.random()*7)]}
-function attackType(m){return Object.keys(m.cost||{}).find(t=>t!=='무색')||null}
+function rollCounts(roll){return PlakoroBattleCore.rollCounts(roll)}
+function canPay(cost,counts){return PlakoroBattleCore.canPay(cost,counts)}
+function pose(){return PlakoroBattleCore.pose()}
+function attackType(m){return PlakoroBattleCore.attackType(m)}
 function showBattleResult(winner){const mine=selectedPokemon('1'),theirs=selectedPokemon('2'),won=winner==='1';document.getElementById('resultTitle').textContent=won?'🎉 승리!':'😢 패배';document.getElementById('resultMessage').innerHTML=(won?'<strong>승리!</strong>':'<strong>패배</strong>')+'<br>'+esc(won?mine?.name||'내 포켓몬':theirs?.name||'상대 포켓몬')+'의 승리!<br><span class="sub">내 HP '+Math.max(0,battle.hp1)+' · 상대 HP '+Math.max(0,battle.hp2)+'</span>';document.getElementById('resultModal').classList.add('open')}
 function resolveMove(n,m,roll,posture,isAI=false,forceFail=false){
 const opp=n==='1'?'2':'1',p=selectedPokemon(n),target=selectedPokemon(opp),counts=rollCounts(roll),own=battle.effects[n]||(battle.effects[n]={}),te=battle.effects[opp]||(battle.effects[opp]={});let damage=m.damage,damageParts=[m.damage],ignoreWeakness=m.name==='일렉러쉬',selfDamage=m.baseSelfDamage||0,heal=0,notes=[],failed=!!forceFail;
