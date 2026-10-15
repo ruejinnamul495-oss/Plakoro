@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="battle-core.js"></script><script src="pvp.js?v=20261015-hide-account-card-1" defer></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="battle-core.js"></script><script src="pvp.js?v=20261015-auth-nickname-no-guest-1" defer></script>
 <title>프라코로 배틀 랩</title>
 <style>
 :root{--bg:#f4f6fb;--panel:#fff;--ink:#182033;--muted:#667085;--line:#dfe4ee;--accent:#5a53e8;--accent2:#e9e8ff;--red:#d94b58;--green:#16845b}
@@ -530,7 +530,7 @@ header:after{display:none!important;content:none!important}
  <div class="field"><label for="gatePassword">비밀번호</label><input id="gatePassword" type="password" minlength="8" autocomplete="current-password" placeholder="비밀번호" /></div>
  <button type="button" class="btn" id="gateSignIn" style="width:100%;margin-top:8px">로그인</button>
  <button type="button" class="btn secondary" id="gateSignUp" style="width:100%;margin-top:8px">처음이신가요? 회원가입</button>
- <p id="gateMessage" class="account-gate-message" aria-live="polite">계정이 없다면 회원가입을 눌러 계정을 만들어 줘.</p><button type="button" class="btn secondary account-guest" id="gateGuest">비회원으로 이용하기</button>
+ <p id="gateMessage" class="account-gate-message" aria-live="polite">계정이 없다면 회원가입을 눌러 계정을 만들어 줘.</p>
  </div></div>
 <div id="firstTutorialPrompt" class="first-tutorial-prompt hidden" role="dialog" aria-modal="true" aria-labelledby="firstTutorialTitle"><div class="first-tutorial-card"><div class="account-gate-brand">FIRST STEPS</div><h2 id="firstTutorialTitle">회원가입을 완료했어!</h2><p>처음 만든 계정이야. 프라코로의 기본 규칙을 튜토리얼로 배워 볼까?</p><div class="first-tutorial-actions"><button type="button" class="btn" id="firstTutorialYes">예, 튜토리얼 진행</button><button type="button" class="btn secondary" id="firstTutorialNo">아니오, 나중에</button></div></div></div>
 <div id="appErrorNotice" class="notice" style="background:#fff0f1;border-color:#e9a1a8;color:#8b1e2b" hidden></div>
@@ -564,7 +564,7 @@ header:after{display:none!important;content:none!important}
   </div>
   <div id="pvpLobbyModal" class="pvp-lobby-modal" role="dialog" aria-modal="true" aria-labelledby="pvpLobbyTitle">
    <div class="pvp-lobby-dialog">
-    <div class="pvp-lobby-heading"><div><div class="arena-label">ROOM SETUP</div><h2 id="pvpLobbyTitle">방 생성 / 참가</h2><p class="sub">방을 만들거나 친구의 6자리 코드를 입력해. 연결되면 전투 화면으로 이동해.</p></div><button type="button" class="btn secondary" id="pvpLobbyClose">전투 화면</button></div>
+    <div class="pvp-lobby-heading"><div><div class="arena-label">ROOM SETUP</div><h2 id="pvpLobbyTitle">방 생성 / 참가</h2><p class="sub">로그인한 아이디로 방을 만들거나 친구의 6자리 코드를 입력해 대전할 수 있어.</p></div></div>
   <section class="pvp-room-card" id="pvpAccountCard" style="display:none" aria-hidden="true">
  <div class="pvp-card-heading"><div><div class="arena-label">ACCOUNT</div><h3>회원 계정 · 전적</h3></div><span class="pill" id="pvpAuthStatus">비로그인</span></div>
  <p class="sub">아이디와 비밀번호로 로그인하면 전적이 서버에 저장돼. 비회원도 기존 대전을 이용할 수 있어.</p>
@@ -576,7 +576,7 @@ header:after{display:none!important;content:none!important}
  <div id="pvpLeaderboard" class="pvp-leaderboard"><p class="sub">랭킹을 불러오려면 연결 설정을 확인해.</p></div>
  </section>
 <details class="pvp-settings" style="display:none" aria-hidden="true"><summary>연결 설정 <span id="pvpConnectionStatus" class="pill">미연결</span></summary><div class="pvp-settings-body"><p class="sub">Supabase Project URL과 공개용 publishable/anon key가 필요해. service_role/secret key는 절대 입력하지 마.</p><div class="grid"><div class="field"><label for="pvpSupabaseUrl">Supabase Project URL</label><input id="pvpSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div class="field"><label for="pvpSupabaseKey">Publishable / anon key</label><input id="pvpSupabaseKey" placeholder="sb_publishable_... 또는 anon key"></div></div><button type="button" class="btn secondary" id="pvpSaveConfig">연결 설정 저장</button></div></details>
-  <div class="pvp-room-card"><div class="pvp-card-heading"><div><div class="arena-label">ROOM</div><h3>방 만들기 / 참가하기</h3></div><span class="pill">2 PLAYERS</span></div><div class="row quick-match-row"><button type="button" class="btn primary" id="pvpQuickMatch" style="width:100%;min-height:48px;font-size:16px;font-weight:800">⚡ 빠른 대전</button></div><p class="sub">대기 중인 빠른 대전 방이 있으면 참가하고, 없으면 새 방을 만들어 상대를 기다려.</p><div class="grid"><div class="field"><label for="pvpName">닉네임</label><input id="pvpName" maxlength="20" placeholder="플레이어 이름"></div><div class="field"><label for="pvpRoomCode">방 코드 (6자리)</label><input id="pvpRoomCode" maxlength="6" placeholder="6자리 코드"></div></div><div class="row"><button type="button" class="btn" id="pvpCreateRoom">방 코드 생성</button><button type="button" class="btn secondary" id="pvpJoinRoom">코드로 참가</button></div><p class="sub" id="pvpRoomStatus" aria-live="polite">먼저 연결 설정을 저장해.</p><div class="pvp-player-tags" id="pvpPlayers"></div></div>
+  <div class="pvp-room-card"><div class="pvp-card-heading"><div><div class="arena-label">ROOM</div><h3>방 만들기 / 참가하기</h3></div><span class="pill">2 PLAYERS</span></div><div class="row quick-match-row"><button type="button" class="btn primary" id="pvpQuickMatch" style="width:100%;min-height:48px;font-size:16px;font-weight:800">⚡ 빠른 대전</button></div><p class="sub">대기 중인 빠른 대전 방이 있으면 참가하고, 없으면 새 방을 만들어 상대를 기다려.</p><div class="grid"><div class="field"><label for="pvpName">닉네임 (로그인 아이디)</label><input id="pvpName" maxlength="20" placeholder="로그인 후 자동 설정" readonly></div><div class="field"><label for="pvpRoomCode">방 코드 (6자리)</label><input id="pvpRoomCode" maxlength="6" placeholder="6자리 코드"></div></div><div class="row"><button type="button" class="btn" id="pvpCreateRoom">방 코드 생성</button><button type="button" class="btn secondary" id="pvpJoinRoom">코드로 참가</button></div><p class="sub" id="pvpRoomStatus" aria-live="polite">먼저 연결 설정을 저장해.</p><div class="pvp-player-tags" id="pvpPlayers"></div></div>
    </div>
   </div>
   <div class="terminal-panel pvp-action-panel">
