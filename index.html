@@ -521,6 +521,17 @@ header:after{display:none!important;content:none!important}
 .first-tutorial-actions{display:flex;gap:10px;margin-top:20px}.first-tutorial-actions>*{flex:1}
 @media(max-width:420px){.account-gate-card,.first-tutorial-card{border-radius:18px;padding:20px 16px}.account-gate-card .row{flex-direction:column}.account-gate-card .row .btn{width:100%}}
 </style>
+<style>
+/* Compact horizontal HP cards: sprite left, name and HP right. */
+.terminal-hp-card{display:grid;grid-template-columns:78px minmax(0,1fr);column-gap:10px;align-items:center}
+.terminal-hp-card .terminal-pokemon-stage{grid-column:1;grid-row:1 / span 4;height:78px;width:78px;margin:0;align-self:center}
+.terminal-hp-card .terminal-pokemon-stage img{width:78px;height:78px;max-width:78px;object-fit:contain;image-rendering:pixelated}
+.terminal-hp-card .terminal-hp-top,.terminal-hp-card .terminal-hp-track,.terminal-hp-card .terminal-hp-caption{grid-column:2;min-width:0}
+.terminal-hp-card .terminal-hp-top{gap:3px}.terminal-hp-card .terminal-hp-top b{font-size:13px}.terminal-hp-card .terminal-hp-top strong{font-size:18px}
+.terminal-hp-card .terminal-hp-track{margin-top:5px}.terminal-hp-card .terminal-hp-caption{margin-top:3px}
+.terminal-hp-card .terminal-sprite-placeholder{font-size:10px;color:#bdc7e6;text-align:center}
+@media(max-width:480px){.terminal-hp-card{grid-template-columns:62px minmax(0,1fr);column-gap:8px;padding:9px}.terminal-hp-card .terminal-pokemon-stage{width:62px;height:62px}.terminal-hp-card .terminal-pokemon-stage img{width:62px;height:62px;max-width:62px}.terminal-hp-card .terminal-hp-top b{font-size:12px}.terminal-hp-card .terminal-hp-top strong{font-size:16px}}
+</style>
 </head>
 <body><button type="button" class="home-return" id="returnHome">⌂ 홈</button>
 <header><h1>프라코로 배틀 랩</h1></header>
@@ -949,8 +960,3 @@ renderAll();
  body.addEventListener('click',function(e){if(e.target.closest('#tutorialPracticeRoll')){rollConfigured();return;}if(e.target.closest('#tutorialSaveFaces')){const selects=Array.from(body.querySelectorAll('#tutorialFaceEditor select'));const faces=selects.sort((a,b)=>Number(a.dataset.face)-Number(b.dataset.face)).map(x=>x.value);if(faces.slice(0,4).some(x=>x.includes('+'))||faces.slice(4,6).some(x=>!x.includes('+'))){$('tutorialFaceValidation').classList.remove('valid');$('tutorialFaceValidation').textContent='설정 오류: 1~4면은 단일 타입, 5~6면은 복수 타입으로 지정해야 해.';return;}const singleCounts={};faces.slice(0,4).forEach(x=>singleCounts[x]=(singleCounts[x]||0)+1);const tooMany=Object.entries(singleCounts).find(([type,count])=>count>3);if(tooMany){$('tutorialFaceValidation').classList.remove('valid');$('tutorialFaceValidation').textContent='설정 오류: '+tooMany[0]+' 단일 타입 면은 룰상 최대 3개까지만 지정할 수 있어. 네 번째 면은 다른 타입으로 바꿔 줘.';return;}configuredFaces=Array.from({length:3},()=>faces.slice());rollConfigured();return;}if(e.target.closest('#tutorialFaceEditor select')){const selects=Array.from(body.querySelectorAll('#tutorialFaceEditor select')).sort((a,b)=>Number(a.dataset.face)-Number(b.dataset.face));const faces=selects.map(x=>x.value);const validation=$('tutorialFaceValidation');if(validation){if(faces.slice(0,4).some(x=>x.includes('+'))||faces.slice(4,6).some(x=>!x.includes('+'))){validation.classList.remove('valid');validation.textContent='설정 오류: 1~4면은 단일 타입, 5~6면은 복수 타입으로 지정해야 해.';}else{const c={};faces.slice(0,4).forEach(x=>c[x]=(c[x]||0)+1);const bad=Object.entries(c).find(([t,n])=>n>3);if(bad){validation.classList.remove('valid');validation.textContent='설정 오류: '+bad[0]+' 단일 타입 면은 룰상 최대 3개야. 네 번째 면은 다른 타입으로 바꿔 줘.';}else{validation.classList.add('valid');validation.textContent='설정 가능해. 에네코로 1의 설정이 2·3에도 적용돼.';}}}return;}if(e.target.closest('#tutorialPracticeCost'))$('tutorialFaceEditor').hidden=true;});
 })();
 </script></body></html>
-<style>
-/* Show front-facing Pokémon sprites directly inside both battle HP cards. */
-.terminal-hp-card .terminal-pokemon-stage{height:92px;margin:0 0 8px;flex:0 0 auto}.terminal-hp-card .terminal-pokemon-stage img{width:100%;height:92px;max-width:112px;object-fit:contain;image-rendering:pixelated}.terminal-hp-card .terminal-sprite-placeholder{font-size:11px;color:#bdc7e6;text-align:center}
-@media(max-width:480px){.terminal-hp-card .terminal-pokemon-stage{height:76px}.terminal-hp-card .terminal-pokemon-stage img{height:76px}}
-</style>
