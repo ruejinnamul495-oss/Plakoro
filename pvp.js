@@ -1,12 +1,15 @@
 (function(){
 'use strict';
 var $=function(id){return document.getElementById(id)};
-var CFG='plakoro-pvp-supabase-config-v1',client=null,channel=null,quickChannel=null,quickTimer=null,quickAnimTimer=null,quickAnimFrame=0,quickActive=false,quickCreating=false,roomCode='',role='',playerId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random(),roomState=null,connected=false,pendingReveals={},revealSent=false,resultShown=false;
+var CFG='plakoro-pvp-supabase-config-v1',KEEP_LOGIN='plakoro-keep-login-v1',client=null,channel=null,quickChannel=null,quickTimer=null,quickAnimTimer=null,quickAnimFrame=0,quickActive=false,quickCreating=false,roomCode='',role='',playerId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random(),roomState=null,connected=false,pendingReveals={},revealSent=false,resultShown=false;
 function say(t){var roomStatus=$('pvpRoomStatus');if(roomStatus)roomStatus.textContent=t}
 function conf(){return {url:$('pvpSupabaseUrl').value.trim(),key:$('pvpSupabaseKey').value.trim()}}
 try{var saved=JSON.parse(localStorage.getItem(CFG)||'{}');saved.url=saved.url||'https://madsebygaqqnecmwwadb.supabase.co';saved.key=saved.key||'sb_publishable_OPaNvSWDGGx2GpE6K5TLpw_ZGNestGT';$('pvpSupabaseUrl').value=saved.url;$('pvpSupabaseKey').value=saved.key;localStorage.setItem(CFG,JSON.stringify(saved))}catch(e){$('pvpSupabaseUrl').value='https://madsebygaqqnecmwwadb.supabase.co';$('pvpSupabaseKey').value='sb_publishable_OPaNvSWDGGx2GpE6K5TLpw_ZGNestGT'}
 $('pvpName').value='';
-function initClient(){var c=conf();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)||!c.key){say('Supabase Project URL과 공개용 key를 입력해.');return false}if(!window.supabase||!window.supabase.createClient){say('Supabase 라이브러리를 불러오지 못했어. CDN 연결을 확인해.');return false}try{localStorage.setItem(CFG,JSON.stringify(c));client=window.supabase.createClient(c.url,c.key);$('pvpConnectionStatus').textContent='설정 저장됨';return true}catch(e){say('설정 오류: '+e.message);return false}}
+function keepLoginEnabled(){var el=$('keepLogin');return el?!!el.checked:localStorage.getItem(KEEP_LOGIN)==='1'}
+try{$('keepLogin').checked=localStorage.getItem(KEEP_LOGIN)==='1'}catch(e){}
+$('keepLogin').addEventListener('change',function(){try{localStorage.setItem(KEEP_LOGIN,this.checked?'1':'0')}catch(e){};});
+function initClient(){var c=conf();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)||!c.key){say('Supabase Project URL과 공개용 key를 입력해.');return false}if(!window.supabase||!window.supabase.createClient){say('Supabase 라이브러리를 불러오지 못했어. CDN 연결을 확인해.');return false}try{localStorage.setItem(CFG,JSON.stringify(c));client=window.supabase.createClient(c.url,c.key,{auth:{persistSession:keepLoginEnabled(),autoRefreshToken:true,detectSessionInUrl:false}});$('pvpConnectionStatus').textContent='설정 저장됨';return true}catch(e){say('설정 오류: '+e.message);return false}}
 $('pvpSaveConfig').onclick=function(){if(initClient())say('설정을 저장했어. 방을 만들거나 코드를 입력해.')};
 
 var authUser=null,authReady=false,recordedResults={};
@@ -15,7 +18,7 @@ function authMessage(t){var el=$('pvpAuthMessage');if(el)el.textContent=t}
 function safeUsername(){return String($('pvpAuthUsername').value||'').trim().toLowerCase()}
 function validUsername(u){return /^[a-z0-9_]{3,20}$/.test(u)}
 function setAuthUI(user,username){
- authUser=user||null;authReady=true;$('pvpAuthStatus').textContent=user?(username||safeUsername()||'로그인됨'):'비로그인';
+ authUser=user||null;authReady=true;var headerLogout=$('headerLogout');if(headerLogout)headerLogout.hidden=!user;$('pvpAuthStatus').textContent=user?(username||safeUsername()||'로그인됨'):'비로그인';
  $('pvpSignUp').disabled=!!user;$('pvpSignIn').disabled=!!user;$('pvpSignOut').disabled=!user;$('pvpAuthUsername').disabled=!!user;$('pvpAuthPassword').disabled=!!user;
  var nickname=$('pvpName');
  if(nickname){var loginId=user&&user.email?String(user.email).split('@')[0]:'';nickname.value=user?String(loginId||username||safeUsername()||'').slice(0,20):'';nickname.readOnly=true;}
@@ -100,7 +103,9 @@ async function signin(){
  setAuthUI(authUser,p.data&&p.data.username||u);authMessage('로그인했어. 내 전적을 불러왔어.');window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
 }
 window.plakoroSignUp=signup;window.plakoroSignIn=signin;$('pvpSignUp').onclick=signup;$('pvpSignIn').onclick=signin;
-$('pvpSignOut').onclick=async function(){if(client)await client.auth.signOut();authUser=null;setAuthUI(null,'');authMessage('로그아웃했어. 비회원 대전은 계속 이용할 수 있어.')};
+async function logoutCurrentUser(){if(client)await client.auth.signOut();authUser=null;setAuthUI(null,'');authMessage('로그아웃했어. 비회원 대전은 계속 이용할 수 있어.')}
+$('pvpSignOut').onclick=logoutCurrentUser;
+$('headerLogout').onclick=logoutCurrentUser;
 $('pvpRefreshLeaderboard').onclick=function(){if(!initClient())return;loadLeaderboard()};
 
 function roster(){return (db&&Array.isArray(db.pokemon)&&db.pokemon.length?db.pokemon:starterData)}
