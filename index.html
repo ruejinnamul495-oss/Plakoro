@@ -1088,6 +1088,8 @@ renderAll();
 (function(){
  document.addEventListener('click',function(e){
   var button=e.target.closest('#gateSignIn,#gateSignUp');if(!button)return;
+  /* The primary handler below owns authentication when pvp.js loaded. The capture fallback previously intercepted it and bypassed timeout/error handling. */
+  if(typeof window.plakoroSignIn==='function'&&typeof window.plakoroSignUp==='function')return;
   if(button.dataset.authHandled==='1')return;
   e.preventDefault();e.stopImmediatePropagation();
   var msg=document.getElementById('gateMessage'),user=document.getElementById('gateUsername'),pass=document.getElementById('gatePassword');
