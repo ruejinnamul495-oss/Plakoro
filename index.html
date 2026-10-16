@@ -585,7 +585,7 @@ header:after{display:none!important;content:none!important}
  .home-grid>.home-action{width:100%;min-width:0;box-sizing:border-box}
 }
 
-</style>
+\n/* Desktop: keep ranking tabs and both ranking panels on the same width. */\n@media(min-width:701px){#ranking .tabs{display:flex;width:100%;}#ranking .tabs .tab{flex:1 1 0;min-width:0;text-align:center;}#rankingPanelPvp,#rankingPanelTower,#homeLeaderboard,#towerLeaderboard{width:100%;min-width:0;box-sizing:border-box;}}\n</style>
 </head>
 <body><button type="button" class="home-return" id="returnHome">⌂ 홈</button><button type="button" class="home-logout" id="headerLogout" hidden>로그아웃</button>
 <header aria-hidden="true"></header>
@@ -903,7 +903,7 @@ function renderSlots(n){const p=selectedPokemon(n);for(let i=0;i<4;i++){const el
  document.addEventListener('pointermove',e=>{if(active&&!pinned&&matchMedia('(hover: hover) and (pointer: fine)').matches)show(active,e.clientX,e.clientY,false)});
  document.addEventListener('pointerout',e=>{if(!matchMedia('(hover: hover) and (pointer: fine)').matches||pinned)return;const b=e.target.closest(selector);if(b&&!b.contains(e.relatedTarget))hide()});
  // First click/tap previews the effect; the second click/tap on that same move executes it.
- document.addEventListener('click',e=>{const b=e.target.closest(selector);if(!b){if(pinned)hide();return}if(pinned&&active===b){hide();return}e.preventDefault();e.stopImmediatePropagation();show(b,e.clientX||0,e.clientY||0,true)},true);
+ document.addEventListener('click',e=>{const b=e.target.closest(selector);if(!b){if(pinned)hide();return}const desktop=matchMedia('(hover: hover) and (pointer: fine)').matches;if(desktop){hide();return}if(pinned&&active===b){hide();return}e.preventDefault();e.stopImmediatePropagation();show(b,e.clientX||0,e.clientY||0,true)},true);
  document.addEventListener('scroll',()=>{if(pinned&&active)show(active,0,0,true);else hide()},true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')hide()});
 })();
