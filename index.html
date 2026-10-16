@@ -572,6 +572,9 @@ header:after{display:none!important;content:none!important}
 /* Layout recovery: keep the landing view visible if a previous navigation left every view hidden. */
 @media(min-width:701px){
  .home-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch}
+ /* Keep EneKoro, AI battle and tower mode cards on a consistent desktop grid. */
+ .prebattle-options,.prebattle-mode-grid,.mode-grid,.ene-mode-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+ .prebattle-options>*,.prebattle-mode-grid>*,.mode-grid>*,.ene-mode-grid>*{flex:1 1 0!important;width:100%!important;min-width:0!important;max-width:none!important;}
  .home-grid>.home-action{width:100%!important;min-width:0!important;max-width:none!important;height:100%;min-height:92px}
  .home-grid>.home-action>*{min-width:0}
  .home-action strong,.home-action small{overflow-wrap:anywhere}
@@ -836,7 +839,7 @@ function refreshAiBattleSprites(){setAiBattleSprite('1',selectedPokemon('1'));se
 function setAiTerminalSprite(side,p){const img=document.getElementById('aiTerminalSprite'+side);if(!img)return;if(!p||!aiSpriteNameToId){img.hidden=true;if(p&&!aiSpriteNameToId)loadAiSpriteIndex();return}const normalized=normalizeAiSpriteName(p.name);let id=aiSpriteNameToId[normalized];if(!id){const base=normalized.replace(/^(알로라|가라르|히스이|팔데아)/,'');id=aiSpriteNameToId[base]||aiSpriteNameToId[base.replace(/[xy]$/,'')]}if(!id){img.hidden=true;return}const src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+id+'.png';if(img.dataset.spriteId===String(id)&&!img.hidden)return;img.dataset.spriteId=String(id);img.onerror=()=>{img.hidden=true};img.onload=()=>{img.hidden=false};img.src=src}
 function tab(n,updateHistory=true){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!==n));if(!document.querySelector('.view:not(.hidden)')&&!document.getElementById('accountGate')?.classList.contains('open')){const home=document.getElementById('home');if(home)home.classList.remove('hidden');}document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===n));if(updateHistory){history.pushState({plakoroView:n},'',location.pathname+location.search+location.hash)}}
 history.replaceState({plakoroView:'home'},'',location.pathname+location.search+location.hash);window.addEventListener('popstate',()=>{document.getElementById('preBattleModal').classList.add('hidden');pendingHomeMode=null;tab('home',false);history.pushState({plakoroView:'home'},'',location.pathname+location.search+location.hash)});
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
+document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 let pendingHomeMode=null;
 let towerRun=null;
 const TOWER_RECORD_KEY='plakoro-tower-record-v1';
