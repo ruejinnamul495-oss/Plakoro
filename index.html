@@ -899,10 +899,11 @@ function renderSlots(n){const p=selectedPokemon(n);for(let i=0;i<4;i++){const el
   tip.style.left=left+'px';tip.style.top=Math.max(8,Math.min(innerHeight-tip.offsetHeight-8,top))+'px';
  }
  function hide(){tip.classList.remove('show');pinned=false;active=null}
- document.addEventListener('pointerover',e=>{if(!matchMedia('(hover: hover) and (pointer: fine)').matches){const b=e.target.closest(selector);if(b)show(b,e.clientX,e.clientY,false)}});
- document.addEventListener('pointermove',e=>{if(active&&!pinned&&!matchMedia('(hover: hover) and (pointer: fine)').matches)show(active,e.clientX,e.clientY,false)});
+ // Desktop mouse hover shows the extra-effect tooltip without changing single-click activation.
+ document.addEventListener('pointerover',e=>{if(matchMedia('(hover: hover) and (pointer: fine)').matches){const b=e.target.closest(selector);if(b)show(b,e.clientX,e.clientY,false)}});
+ document.addEventListener('pointermove',e=>{if(active&&!pinned&&matchMedia('(hover: hover) and (pointer: fine)').matches)show(active,e.clientX,e.clientY,false)});
  document.addEventListener('pointerout',e=>{if(!matchMedia('(hover: hover) and (pointer: fine)').matches||pinned)return;const b=e.target.closest(selector);if(b&&!b.contains(e.relatedTarget))hide()});
- // Desktop: a single click should activate/select the move; tooltip is hover-only. Mobile: preserve tap-to-preview, tap-again-to-activate.
+ // Mobile keeps tap-to-preview and tap-again-to-activate; desktop clicks pass through to the move handler.
  document.addEventListener('click',e=>{const b=e.target.closest(selector);if(!b){if(pinned)hide();return}const desktop=matchMedia('(hover: hover) and (pointer: fine)').matches;if(desktop){hide();return}if(pinned&&active===b){hide();return}e.preventDefault();e.stopImmediatePropagation();show(b,e.clientX||0,e.clientY||0,true)},true);
  document.addEventListener('scroll',()=>{if(pinned&&active)show(active,0,0,true);else hide()},true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')hide()});
