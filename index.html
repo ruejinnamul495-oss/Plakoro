@@ -1082,4 +1082,27 @@ renderAll();
  function rollConfigured(){const roll=configuredFaces.map(faces=>faces[Math.floor(Math.random()*faces.length)].split('+'));const key='grass4',counts={};roll.flat().forEach(t=>counts[t]=(counts[t]||0)+1);const costs={grass4:{풀:4},fireColorless:{불꽃:1,무색:1},water1:{물:1},steel2:{강철:2}},labels={grass4:'풀 에너지 4개',fireColorless:'불꽃 1개 + 무색 1개',water1:'물 에너지 1개',steel2:'강철 에너지 2개'},cost=costs[key],remaining={...counts};let ok=true;Object.entries(cost).filter(([t])=>t!=='무색').forEach(([t,n])=>{if((remaining[t]||0)<n)ok=false;else remaining[t]-=n});if(ok&&(Object.values(remaining).reduce((a,b)=>a+b,0)<(cost.무색||0)))ok=false;$('tutorialPracticeDice').innerHTML=roll.map((face,i)=>'<div class="tutorial-modal-die"><small>에네코로 '+(i+1)+'</small>'+face.join(' + ')+'</div>').join('');const out=$('tutorialPracticeResult');out.className='tutorial-modal-result '+(ok?'good':'bad');out.innerHTML='<b>'+(ok?'✅ 기술 성공 조건 충족!':'❌ 기술 실패: 에너지가 부족해')+'</b><br>필요: '+labels[key]+'<br>결과: '+Object.entries(counts).map(([t,n])=>t+' '+n+'개').join(' · ')+'<br>'+(ok?'좋아! 이 주사위 결과라면 기술을 사용할 수 있어.':'주사위 면을 원하는 타입 위주로 바꾸면 성공 확률을 높일 수 있습니다. 아래에서 면을 설정한 뒤 다시 굴려 보세요.');if(!ok)faceEditor();else $('tutorialFaceEditor').hidden=true;}
  body.addEventListener('click',function(e){if(e.target.closest('#tutorialPracticeRoll')){rollConfigured();return;}if(e.target.closest('#tutorialSaveFaces')){const selects=Array.from(body.querySelectorAll('#tutorialFaceEditor select'));const faces=selects.sort((a,b)=>Number(a.dataset.face)-Number(b.dataset.face)).map(x=>x.value);if(faces.slice(0,4).some(x=>x.includes('+'))||faces.slice(4,6).some(x=>!x.includes('+'))){$('tutorialFaceValidation').classList.remove('valid');$('tutorialFaceValidation').textContent='설정 오류: 1~4면은 단일 타입, 5~6면은 복수 타입으로 지정해야 합니다.';return;}const singleCounts={};faces.slice(0,4).forEach(x=>singleCounts[x]=(singleCounts[x]||0)+1);const tooMany=Object.entries(singleCounts).find(([type,count])=>count>3);if(tooMany){$('tutorialFaceValidation').classList.remove('valid');$('tutorialFaceValidation').textContent='설정 오류: '+tooMany[0]+' 단일 타입 면은 규칙상 최대 3개까지만 지정할 수 있습니다. 네 번째 면은 다른 타입으로 바꿔 주세요.';return;}configuredFaces=Array.from({length:3},()=>faces.slice());rollConfigured();return;}if(e.target.closest('#tutorialFaceEditor select')){const selects=Array.from(body.querySelectorAll('#tutorialFaceEditor select')).sort((a,b)=>Number(a.dataset.face)-Number(b.dataset.face));const faces=selects.map(x=>x.value);const validation=$('tutorialFaceValidation');if(validation){if(faces.slice(0,4).some(x=>x.includes('+'))||faces.slice(4,6).some(x=>!x.includes('+'))){validation.classList.remove('valid');validation.textContent='설정 오류: 1~4면은 단일 타입, 5~6면은 복수 타입으로 지정해야 합니다.';}else{const c={};faces.slice(0,4).forEach(x=>c[x]=(c[x]||0)+1);const bad=Object.entries(c).find(([t,n])=>n>3);if(bad){validation.classList.remove('valid');validation.textContent='설정 오류: '+bad[0]+' 단일 타입 면은 규칙상 최대 3개입니다. 네 번째 면은 다른 타입으로 바꿔 주세요.';}else{validation.classList.add('valid');validation.textContent='설정할 수 있습니다. 에네코로 1의 설정이 2·3에도 적용됩니다.';}}}return;}if(e.target.closest('#tutorialPracticeCost'))$('tutorialFaceEditor').hidden=true;});
 })();
-</script></body></html>
+</script>
+<script>
+/* Keep login controls responsive even if an unrelated page initializer fails. */
+(function(){
+ document.addEventListener('click',function(e){
+  var button=e.target.closest('#gateSignIn,#gateSignUp');if(!button)return;
+  if(button.dataset.authHandled==='1')return;
+  e.preventDefault();e.stopImmediatePropagation();
+  var msg=document.getElementById('gateMessage'),user=document.getElementById('gateUsername'),pass=document.getElementById('gatePassword');
+  if(!msg||!user||!pass)return;
+  var signup=button.id==='gateSignUp'&&document.getElementById('accountGateTitle').textContent==='회원가입';
+  if(button.id==='gateSignUp'&&!signup){document.getElementById('accountGateTitle').textContent='회원가입';document.getElementById('gateIntro').textContent='새 계정을 만들어 프라코로를 시작하세요.';document.getElementById('gateSignIn').textContent='계정 만들기';button.textContent='이미 계정이 있어요? 로그인';document.getElementById('gatePassword').autocomplete='new-password';msg.textContent='아이디는 영문 소문자·숫자·밑줄 3~20자, 비밀번호는 8자 이상으로 설정해 주세요.';return;}
+  if(button.id==='gateSignUp'&&signup){document.getElementById('accountGateTitle').textContent='로그인';document.getElementById('gateIntro').textContent='아이디와 비밀번호를 입력해 프라코로를 시작하세요.';document.getElementById('gateSignIn').textContent='로그인';button.textContent='처음이신가요? 회원가입';document.getElementById('gatePassword').autocomplete='current-password';msg.textContent='계정이 있다면 로그인해 주세요.';return;}
+  var targetUser=document.getElementById('pvpAuthUsername'),targetPass=document.getElementById('pvpAuthPassword');
+  if(!targetUser||!targetPass){msg.textContent='로그인 모듈 입력란이 없습니다. 페이지를 새로고침해 주세요.';return;}
+  targetUser.value=user.value.trim();targetPass.value=pass.value;
+  var action=signup?window.plakoroSignUp:window.plakoroSignIn;
+  if(typeof action!=='function'){msg.textContent='로그인 모듈이 초기화되지 않았습니다. 새로고침 후 다시 시도해 주세요.';return;}
+  msg.textContent=signup?'회원가입 요청 중…':'로그인 요청 중…';button.disabled=true;
+  Promise.resolve().then(action).catch(function(err){msg.textContent=(signup?'회원가입 오류: ':'로그인 오류: ')+(err&&err.message||'알 수 없는 오류');}).finally(function(){button.disabled=false;});
+ },true);
+})();
+</script>
+</body></html>
