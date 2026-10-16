@@ -488,11 +488,11 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
 #pvp .pvp-lobby-modal #pvpAccountCard{display:none!important}
 .keep-login-option{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:14px;font-weight:650;color:var(--ink)}
 .keep-login-option input{width:18px;height:18px;margin:0;flex:0 0 auto}
-.home-logout{position:fixed;top:12px;right:88px;z-index:901;height:36px;min-height:36px;border:1px solid #ffffff40;border-radius:999px;padding:0 12px;background:#272b43;color:#fff;font-size:14px;line-height:34px;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002;white-space:nowrap}
+.home-logout{position:fixed;top:12px;right:104px;z-index:1001;width:82px;height:36px;min-height:36px;border:1px solid #ffffff40;border-radius:999px;padding:0 8px;background:#272b43;color:#fff;font-size:13px;line-height:34px;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002;white-space:nowrap}
 .home-logout[hidden]{display:none!important}
-@media(max-width:420px){.home-return{top:12px!important;right:12px!important;width:auto!important;height:36px!important;min-height:36px!important;padding:0 12px!important;line-height:34px!important}.home-logout{top:12px;right:82px;height:36px;min-height:36px;padding:0 10px;font-size:13px;line-height:34px}}
+@media(max-width:420px){.home-return{top:12px!important;right:12px!important;width:76px!important;height:36px!important;min-height:36px!important;padding:0 8px!important;line-height:34px!important}.home-logout{top:12px;right:96px;width:82px;height:36px;min-height:36px;padding:0 7px;font-size:12px;line-height:34px}}
 </style><style>
-.home-return{position:fixed;top:12px;right:12px;z-index:900;width:auto!important;height:36px!important;min-height:36px!important;padding:0 12px!important;line-height:34px!important;border:1px solid #ffffff40;border-radius:999px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002;white-space:nowrap}
+.home-return{position:fixed;top:12px;right:12px;z-index:1000;width:76px!important;height:36px!important;min-height:36px!important;padding:0 8px!important;line-height:34px!important;border:1px solid #ffffff40;border-radius:999px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002;white-space:nowrap}
 </style>
 <style>
 /* Remove decorative VS divider and the tagline under the header. */
@@ -838,6 +838,7 @@ document.getElementById('gateSignIn').onclick=()=>{if(gateMode==='signup'){forwa
 
 document.getElementById('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')forwardGateAuth(gateMode==='signup'?'pvpSignUp':'pvpSignIn')});
 window.addEventListener('plakoro:auth-success',()=>{closeAccountGate();document.getElementById('gateMessage').textContent='로그인 완료.'});
+window.addEventListener('plakoro:auth-logout',()=>{accountGate.classList.remove('hidden');document.getElementById('gateMessage').textContent='로그아웃되었습니다. 다시 로그인할 수 있습니다.';document.getElementById('gatePassword').value='';});
 window.addEventListener('plakoro:first-signup',()=>{closeAccountGate();firstTutorialPrompt.classList.remove('hidden')});
 document.getElementById('firstTutorialYes').onclick=()=>{firstTutorialPrompt.classList.add('hidden');tab('tutorial');openTutorial()};
 document.getElementById('firstTutorialNo').onclick=()=>{firstTutorialPrompt.classList.add('hidden');tab('home')};
