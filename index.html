@@ -1103,8 +1103,13 @@ renderAll();
   targetUser.value=user.value.trim();targetPass.value=pass.value;
   var action=(button.id==='gateSignIn'&&signup)|| (button.id==='gateSignUp'&&signup) ? window.plakoroSignUp : window.plakoroSignIn;
   if(typeof action!=='function'){msg.textContent='로그인 모듈이 초기화되지 않았습니다. 새로고침 후 다시 시도해 주세요.';return;}
-  msg.textContent=signup?'회원가입 요청 중…':'로그인 요청 중…';button.disabled=true;
-  Promise.resolve().then(action).catch(function(err){msg.textContent=(signup?'회원가입 오류: ':'로그인 오류: ')+(err&&err.message||'알 수 없는 오류');}).finally(function(){button.disabled=false;});
+  var authPanelMessage=document.getElementById('pvpAuthMessage');
+  function showAuthMessage(text){msg.textContent=text;if(authPanelMessage)authPanelMessage.textContent=text;}
+  showAuthMessage(signup?'회원가입 요청 중…':'로그인 요청 중…');button.disabled=true;
+  Promise.resolve().then(function(){return action();}).then(function(){
+   if(authPanelMessage&&authPanelMessage.textContent)msg.textContent=authPanelMessage.textContent;
+  }).catch(function(err){showAuthMessage((signup?'회원가입 오류: ':'로그인 오류: ')+(err&&err.message||'알 수 없는 오류'));})
+  .finally(function(){button.disabled=false;});
  },true);
 })();
 </script>
