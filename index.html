@@ -860,6 +860,7 @@ document.querySelectorAll('[data-ranking-tab]').forEach(b=>b.addEventListener('c
 document.getElementById('towerRankingRefresh').addEventListener('click',()=>{if(window.plakoroLoadTowerLeaderboard)window.plakoroLoadTowerLeaderboard();else document.getElementById('towerLeaderboard').innerHTML='<p class="sub">용나선탑 기록 기능을 연결하는 중입니다.</p>'});
 const accountGate=document.getElementById('accountGate'),firstTutorialPrompt=document.getElementById('firstTutorialPrompt');
 function closeAccountGate(){accountGate.classList.add('hidden')}
+window.addEventListener('plakoro:auth-success',()=>{closeAccountGate();const gatePassword=document.getElementById('gatePassword');if(gatePassword)gatePassword.value='';});
 window.addEventListener('plakoro:auth-logout',()=>{accountGate.classList.remove('hidden');document.getElementById('gateMessage').textContent='로그아웃되었습니다. 다시 로그인할 수 있습니다.';document.getElementById('gatePassword').value='';});
 window.addEventListener('plakoro:first-signup',()=>{closeAccountGate();firstTutorialPrompt.classList.remove('hidden')});
 document.getElementById('firstTutorialYes').onclick=()=>{firstTutorialPrompt.classList.add('hidden');tab('tutorial');openTutorial()};
