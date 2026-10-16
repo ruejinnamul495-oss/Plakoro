@@ -9,7 +9,7 @@ $('pvpName').value='';
 function keepLoginEnabled(){try{return localStorage.getItem(KEEP_LOGIN)==='1'}catch(e){var el=$('keepLogin');return !!(el&&el.checked)}}
 try{$('keepLogin').checked=localStorage.getItem(KEEP_LOGIN)==='1'}catch(e){}
 $('keepLogin').addEventListener('change',function(){try{localStorage.setItem(KEEP_LOGIN,this.checked?'1':'0');if(!this.checked&&client){client.auth.signOut({scope:'local'}).catch(function(){});}}catch(e){};});
-function initClient(){var c=conf();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)||!c.key){say('Supabase Project URL과 공개용 key를 입력해.');return false}if(!window.supabase||!window.supabase.createClient){say('Supabase 라이브러리를 불러오지 못했어. CDN 연결을 확인해.');return false}try{localStorage.setItem(CFG,JSON.stringify(c));client=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});$('pvpConnectionStatus').textContent='설정 저장됨';return true}catch(e){say('설정 오류: '+e.message);return false}}
+function initClient(){var c=conf();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)||!c.key){say('Supabase Project URL과 공개용 key를 입력해.');return false}if(!window.supabase||!window.supabase.createClient){say('Supabase 라이브러리를 불러오지 못했어. CDN 연결을 확인해.');return false}try{if(client)return true;localStorage.setItem(CFG,JSON.stringify(c));client=window.supabase.createClient(c.url,c.key,{auth:{persistSession:keepLoginEnabled(),autoRefreshToken:true,detectSessionInUrl:false}});$('pvpConnectionStatus').textContent='설정 저장됨';return true}catch(e){say('설정 오류: '+e.message);return false}}
 $('pvpSaveConfig').onclick=function(){if(initClient())say('설정을 저장했어. 방을 만들거나 코드를 입력해.')};
 
 var authUser=null,authReady=false,recordedResults={};
@@ -76,12 +76,13 @@ async function saveFinishedMatch(winnerId,players){
  if(res.error){delete recordedResults[roomCode];authMessage('대전은 끝났지만 전적 저장에 실패했어: '+res.error.message);return}
  authMessage('대전 전적을 서버에 저장했어.');loadMyRecord();loadLeaderboard();
 }
-async function refreshAuth(){
+async async function refreshAuth(){
  if(!client)return;
  var s=await client.auth.getSession();if(s.error){authMessage('로그인 상태를 확인하지 못했어: '+s.error.message);return}
  var user=s.data.session&&s.data.session.user,username='';
  if(user){var p=await client.from('plakoro_profiles').select('username').eq('user_id',user.id).maybeSingle();if(p.data)username=p.data.username||''}
  setAuthUI(user,username);
+ if(user&&keepLoginEnabled())window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
 }
 async function signup(){
  if(!initClient())return;var u=safeUsername(),pw=$('pvpAuthPassword').value;
@@ -103,7 +104,7 @@ async function signin(){
  setAuthUI(authUser,p.data&&p.data.username||u);authMessage('로그인했어. 내 전적을 불러왔어.');window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
 }
 window.plakoroSignUp=signup;window.plakoroSignIn=signin;$('pvpSignUp').onclick=signup;$('pvpSignIn').onclick=signin;
-async function logoutCurrentUser(){if(client)await client.auth.signOut();authUser=null;setAuthUI(null,'');authMessage('로그아웃했어. 비회원 대전은 계속 이용할 수 있어.')}
+async function logoutCurrentUser(){try{if(client){var result=await client.auth.signOut({scope:'local'});if(result&&result.error)throw result.error;}authUser=null;setAuthUI(null,'');authMessage('로그아웃했어.');window.dispatchEvent(new CustomEvent('plakoro:auth-logout'));}catch(e){authMessage('로그아웃 실패: '+(e&&e.message||'인증 상태를 정리하지 못했어.'));}}
 $('pvpSignOut').onclick=logoutCurrentUser;
 $('headerLogout').onclick=logoutCurrentUser;
 $('pvpRefreshLeaderboard').onclick=function(){if(!initClient())return;loadLeaderboard()};
