@@ -22,15 +22,16 @@ function setAuthUI(user,username){
  var credentials=$('pvpAuthUsername').closest('.grid'),signUp=$('pvpSignUp'),signIn=$('pvpSignIn');
  if(credentials)credentials.classList.toggle('hidden',!!user);
  signUp.classList.toggle('hidden',!!user);signIn.classList.toggle('hidden',!!user);
- $('pvpMyRecord').textContent=user?'전적 불러오는 중…':'로그인하면 내 전적을 볼 수 있어.';
- if(user){loadMyRecord();loadLeaderboard()}else{$('pvpMyRecord').textContent='로그인하면 내 전적을 볼 수 있어.';loadLeaderboard()}
+ setMyRecordText(user?'전적 불러오는 중…':'로그인하면 내 전적을 볼 수 있어.');
+ if(user){loadMyRecord();loadLeaderboard()}else{setMyRecordText('로그인하면 내 전적을 확인할 수 있습니다.');loadLeaderboard()}
 }
+function setMyRecordText(text){['pvpMyRecord','rankingMyRecord'].forEach(function(id){var el=$(id);if(el)el.textContent=text})}
 async function loadMyRecord(){
  if(!client||!authUser)return;
  var q=await client.from('plakoro_match_records').select('result').eq('user_id',authUser.id);
- if(q.error){$('pvpMyRecord').textContent='전적 테이블 설정 필요: '+q.error.message;return}
+ if(q.error){setMyRecordText('전적을 불러오지 못했습니다. 연결 설정을 확인해 주세요.');return}
  var wins=q.data.filter(function(x){return x.result==='win'}).length,losses=q.data.filter(function(x){return x.result==='loss'}).length,total=wins+losses;
- $('pvpMyRecord').textContent='내 전적 '+wins+'승 '+losses+'패 · 승률 '+(total?(100*wins/total).toFixed(1):'0.0')+'% · 총 '+total+'전';
+ setMyRecordText('내 전적 '+wins+'승 '+losses+'패 · 승률 '+(total?(100*wins/total).toFixed(1):'0.0')+'% · 총 '+total+'전');
 }
 async function loadLeaderboard(){
  var targets=[$('pvpLeaderboard'),$('homeLeaderboard')].filter(Boolean);
