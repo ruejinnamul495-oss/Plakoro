@@ -483,8 +483,14 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
 @media(max-width:520px){.status .status-alert{padding:9px;font-size:12px}.status-alert b{font-size:11px}.status-alert strong{font-size:13px}}
 
 
-/* PVP 화면에서는 회원가입/계정 박스를 숨김 */
-#pvpAccountCard{display:none!important}
+/* PVP 화면에서는 회원가입/계정 박스와 진입 버튼을 완전히 숨김 */
+#pvpAccountCard,#pvpAccountOpen{display:none!important}
+#pvp .pvp-lobby-modal #pvpAccountCard{display:none!important}
+.keep-login-option{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:14px;font-weight:650;color:var(--ink)}
+.keep-login-option input{width:18px;height:18px;margin:0;flex:0 0 auto}
+.home-logout{position:fixed;top:12px;right:88px;z-index:901;border:1px solid #ffffff40;border-radius:999px;padding:9px 14px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002}
+.home-logout[hidden]{display:none!important}
+@media(max-width:420px){.home-return{right:10px}.home-logout{right:78px;padding:9px 10px}}
 </style><style>
 .home-return{position:fixed;top:12px;right:14px;z-index:900;border:1px solid #ffffff40;border-radius:999px;padding:9px 14px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002}
 </style>
@@ -564,7 +570,7 @@ header:after{display:none!important;content:none!important}
 @media(hover:none),(pointer:coarse){#moveEffectTooltip{width:min(340px,calc(100vw - 24px));max-height:35vh;font-size:12px;box-shadow:0 8px 26px #071d1980}}
 </style>
 </head>
-<body><button type="button" class="home-return" id="returnHome">⌂ 홈</button>
+<body><button type="button" class="home-return" id="returnHome">⌂ 홈</button><button type="button" class="home-logout" id="headerLogout" hidden>로그아웃</button>
 <header><h1>프라코로 배틀 랩</h1></header>
 <main>
 
@@ -572,6 +578,7 @@ header:after{display:none!important;content:none!important}
  <div class="account-gate-card"><div class="account-gate-brand">PLAKORO BATTLE LAB</div><h2 id="accountGateTitle">로그인</h2><p id="gateIntro">아이디와 비밀번호를 입력해 프라코로를 시작하세요.</p>
  <div class="field"><label for="gateUsername">아이디</label><input id="gateUsername" maxlength="20" autocomplete="username" placeholder="아이디"></div>
  <div class="field"><label for="gatePassword">비밀번호</label><input id="gatePassword" type="password" minlength="8" autocomplete="current-password" placeholder="비밀번호" /></div>
+ <label class="keep-login-option"><input type="checkbox" id="keepLogin"> 로그인 유지</label>
  <button type="button" class="btn" id="gateSignIn" style="width:100%;margin-top:8px">로그인</button>
  <button type="button" class="btn secondary" id="gateSignUp" style="width:100%;margin-top:8px">처음이신가요? 회원가입</button>
  <p id="gateMessage" class="account-gate-message" aria-live="polite">계정이 없다면 회원가입을 눌러 계정을 만들어 주세요.</p>
