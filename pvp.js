@@ -33,12 +33,35 @@ async function loadMyRecord(){
  $('pvpMyRecord').textContent='내 전적 '+wins+'승 '+losses+'패 · 승률 '+(total?(100*wins/total).toFixed(1):'0.0')+'% · 총 '+total+'전';
 }
 async function loadLeaderboard(){
- if(!client){$('pvpLeaderboard').textContent='Supabase 연결 설정을 확인해.';return}
- var q=await client.from('plakoro_leaderboard').select('username,wins,losses,total_matches,win_rate').gt('total_matches',0).order('wins',{ascending:false}).order('win_rate',{ascending:false}).limit(20);
- if(q.error){$('pvpLeaderboard').textContent='랭킹 테이블 설정 필요: '+q.error.message;return}
- if(!q.data.length){$('pvpLeaderboard').innerHTML='<p class="sub">아직 등록된 전적이 없어. 첫 대전을 해 봐!</p>';return}
- $('pvpLeaderboard').innerHTML='<div class="pvp-ranking-head"><span>순위 · 아이디</span><span>전적 · 승률</span></div>'+q.data.map(function(x,i){return '<div class="pvp-ranking-row"><b>'+(i+1)+'. '+esc(x.username)+'</b><span>'+Number(x.wins||0)+'승 '+Number(x.losses||0)+'패 · '+Number(x.win_rate||0).toFixed(1)+'%</span></div>'}).join('');
+ var targets=[$('pvpLeaderboard'),$('homeLeaderboard')].filter(Boolean);
+ function renderEmpty(message){targets.forEach(function(el){el.innerHTML='<p class="sub">'+esc(message)+'</p>'})}
+ if(!client){renderEmpty('온라인 랭킹 연결을 확인해 주세요.');return}
+ targets.forEach(function(el){el.innerHTML='<p class="sub">랭킹을 불러오는 중입니다.</p>'});
+ var q=await client.from('plakoro_leaderboard').select('username,wins,losses,total_matches,win_rate').gt('total_matches',0).order('wins',{ascending:false}).order('win_rate',{ascending:false}).limit(50);
+ if(q.error){renderEmpty('랭킹을 불러오지 못했습니다. 연결 설정을 확인해 주세요.');return}
+ if(!q.data.length){renderEmpty('아직 등록된 PVP 전적이 없습니다. 첫 대전을 진행해 보세요!');return}
+ var pokemonByUser={};
+ try{
+  var profiles=await client.from('plakoro_profiles').select('user_id,username');
+  if(!profiles.error&&profiles.data&&profiles.data.length){
+   var idsByName={};profiles.data.forEach(function(p){idsByName[String(p.username||'').toLowerCase()]=p.user_id});
+   var records=await client.from('plakoro_match_records').select('user_id,pokemon');
+   if(!records.error&&records.data)records.data.forEach(function(row){var key=row.user_id;var mon=String(row.pokemon||'').trim();if(!key||!mon)return;if(!pokemonByUser[key])pokemonByUser[key]={};pokemonByUser[key][mon]=(pokemonByUser[key][mon]||0)+1});
+   q.data.forEach(function(row){row._userId=idsByName[String(row.username||'').toLowerCase()]||null});
+  }
+ }catch(e){}
+ var rows=q.data.slice().sort(function(a,b){return Number(b.wins||0)-Number(a.wins||0)||Number(b.win_rate||0)-Number(a.win_rate||0)||Number(b.total_matches||0)-Number(a.total_matches||0)});
+ var html='<div class="pvp-ranking-head"><span>순위 · 아이디</span><span>승 · 패 · 승률</span></div>'+rows.map(function(x,i){
+  var stats=Number(x.wins||0)+'승 '+Number(x.losses||0)+'패',rate=Number(x.win_rate||0).toFixed(1)+'%',mon='기록 없음';
+  if(x._userId&&pokemonByUser[x._userId]){
+   var popular=Object.keys(pokemonByUser[x._userId]).sort(function(a,b){return pokemonByUser[x._userId][b]-pokemonByUser[x._userId][a]||a.localeCompare(b)})[0];
+   if(popular)mon=popular+' ('+pokemonByUser[x._userId][popular]+'회)';
+  }
+  return '<div class="pvp-ranking-row"><b>'+(i+1)+'. '+esc(x.username)+'</b><span class="ranking-stats"><span>'+stats+'</span><span>승률 '+rate+'</span></span><span class="ranking-pokemon">자주 사용: '+esc(mon)+'</span></div>'
+ }).join('');
+ targets.forEach(function(el){el.innerHTML=html});
 }
+window.plakoroLoadLeaderboard=loadLeaderboard;
 async function saveFinishedMatch(winnerId,players){
  if(!client||!authUser||!winnerId||!players||!players[playerId]||recordedResults[roomCode])return;
  var me=players[playerId],otherId=Object.keys(players).find(function(id){return id!==playerId}),other=otherId&&players[otherId];
