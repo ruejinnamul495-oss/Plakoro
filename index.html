@@ -834,10 +834,10 @@ function renderSlots(n){const p=selectedPokemon(n);for(let i=0;i<4;i++){const el
 (function(){
  const tip=document.createElement('div');tip.id='moveEffectTooltip';tip.setAttribute('role','tooltip');document.body.appendChild(tip);
  let pinned=false,active=null;
- const selector='[data-move-id], [data-turn-id]';
+ const selector='[data-move-id], [data-turn-id], [data-setup-move]';
  function getMove(btn){
   if(!btn||!btn.dataset)return null;
-  const id=btn.dataset.moveId||btn.dataset.turnId;if(!id)return null;
+  const id=btn.dataset.moveId||btn.dataset.turnId||btn.dataset.setupMove;if(!id)return null;
   const p=selectedPokemon('1');return p&&moveById(p,id)||null;
  }
  function show(btn,x,y,keep){
