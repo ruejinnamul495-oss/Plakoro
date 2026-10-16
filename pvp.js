@@ -82,7 +82,7 @@ async function refreshAuth(){
  var user=s.data.session&&s.data.session.user,username='';
  if(user){var p=await client.from('plakoro_profiles').select('username').eq('user_id',user.id).maybeSingle();if(p.data)username=p.data.username||''}
  setAuthUI(user,username);
- if(user&&keepLoginEnabled())window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
+ if(user)window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
 }
 async function signup(){
  if(!initClient())return;var u=safeUsername(),pw=$('pvpAuthPassword').value;
@@ -200,7 +200,7 @@ function joinFromCode(){var code=$('pvpRoomCode').value.toUpperCase().replace(/[
 $('pvpJoinRoom').onclick=function(){joinFromCode()};
 $('pvpRoomCode').addEventListener('input',function(){clearTimeout(autoJoinTimer);var code=$('pvpRoomCode').value.replace(/[^a-z0-9]/gi,'');if(code.length===6)autoJoinTimer=setTimeout(joinFromCode,350)});
 $('pvpRoomCode').addEventListener('keydown',function(e){if(e.key==='Enter'){clearTimeout(autoJoinTimer);joinFromCode()}});
-setTimeout(function(){if(initClient()){refreshAuth();loadLeaderboard();client.auth.onAuthStateChange(function(event,session){if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED'){var user=session&&session.user;if(user){client.from('plakoro_profiles').select('username').eq('user_id',user.id).maybeSingle().then(function(p){setAuthUI(user,p.data&&p.data.username||'')})}else setAuthUI(null,'')}})}},0);
+setTimeout(function(){if(initClient()){refreshAuth().catch(function(e){authMessage('로그인 상태 확인 실패: '+(e&&e.message||e))});loadLeaderboard();client.auth.onAuthStateChange(function(event,session){if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED'){var user=session&&session.user;if(user){client.from('plakoro_profiles').select('username').eq('user_id',user.id).maybeSingle().then(function(p){setAuthUI(user,p.data&&p.data.username||'');window.dispatchEvent(new CustomEvent('plakoro:auth-success'))}).catch(function(e){authMessage('로그인 정보 확인 실패: '+(e&&e.message||e))})}else{setAuthUI(null,'');if(event==='SIGNED_OUT')window.dispatchEvent(new CustomEvent('plakoro:auth-logout'))}}})}},0);
 $('pvpLeave').onclick=leave;$('pvpSetupOpen').onclick=function(){if(connected&&roomState&&roomState.players[playerId]&&!roomState.players[playerId].ready)$('pvpSetupModal').classList.remove('hidden')};$('pvpSetupClose').onclick=function(){$('pvpSetupModal').classList.add('hidden')};$('pvpSetupCancel').onclick=function(){$('pvpSetupModal').classList.add('hidden')};$('pvpSetupModal').addEventListener('click',function(e){if(e.target===$('pvpSetupModal'))$('pvpSetupModal').classList.add('hidden')});$('pvpResultClose').onclick=function(){$('pvpResultModal').classList.add('hidden')};$('pvpResultLeave').onclick=function(){$('pvpResultModal').classList.add('hidden');leave()};
 $('pvpReady').onclick=function(){if(!channel||!roomState||!roomState.players[playerId])return;if(chosenMoves.length!==4){say('기술 7개 중 서로 다른 4개를 선택해.');return}$('pvpSetupModal').classList.add('hidden');var a={kind:'ready',by:playerId};if(role==='host')hostAction(a);else channel.send({type:'broadcast',event:'room_action',payload:a});};
 function closePvpMovePicker(){$('pvpMovePickerModal').classList.remove('open')}
