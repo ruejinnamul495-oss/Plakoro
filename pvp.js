@@ -98,15 +98,25 @@ async function signup(){
  setAuthUI(authUser,u);authMessage('회원가입 및 로그인 완료! 이후 대전 전적이 서버에 저장돼.');window.dispatchEvent(new CustomEvent('plakoro:auth-success'));window.dispatchEvent(new CustomEvent('plakoro:first-signup'));
 }
 async function signin(){
- if(!initClient())return;var u=safeUsername(),pw=$('pvpAuthPassword').value;
- if(!validUsername(u)||!pw){authMessage('아이디와 비밀번호를 확인해.');return}
- var res=await client.auth.signInWithPassword({email:authEmail(u),password:pw});
- if(res.error){authMessage('로그인 실패: 아이디 또는 비밀번호를 확인해.');return}
- authUser=res.data.user;
- // 인증 성공을 먼저 UI에 반영해 프로필/전적 조회 지연 때문에 로그인 화면이 막히지 않게 한다.
- setAuthUI(authUser,u);authMessage('로그인 성공! 계정 정보를 불러오는 중…');window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
- try{var p=await client.from('plakoro_profiles').select('username').eq('user_id',authUser.id).maybeSingle();if(!p.error&&p.data&&p.data.username){setAuthUI(authUser,p.data.username)}authMessage('로그인 완료.');}
- catch(e){console.warn('프로필 조회 실패:',e);authMessage('로그인은 완료됐지만 프로필 조회에 실패했어.');}
+ try{
+  authMessage('로그인 처리 중…');
+  if(!initClient())return;
+  var u=safeUsername(),pw=$('pvpAuthPassword').value;
+  if(!validUsername(u)||!pw){authMessage('아이디와 비밀번호를 확인해.');return}
+  var res=await client.auth.signInWithPassword({email:authEmail(u),password:pw});
+  if(res.error){authMessage('로그인 실패: '+(res.error.message||'아이디 또는 비밀번호를 확인해.'));return}
+  if(!res.data||!res.data.user){authMessage('인증 응답에 사용자 정보가 없어. 잠시 후 다시 시도해 줘.');return}
+  authUser=res.data.user;
+  // 인증 성공을 먼저 반영하고, 프로필 조회가 실패해도 로그인 화면을 막지 않는다.
+  setAuthUI(authUser,u);
+  authMessage('로그인 성공! 계정 정보를 불러오는 중…');
+  window.dispatchEvent(new CustomEvent('plakoro:auth-success'));
+  try{
+   var p=await client.from('plakoro_profiles').select('username').eq('user_id',authUser.id).maybeSingle();
+   if(!p.error&&p.data&&p.data.username)setAuthUI(authUser,p.data.username);
+   authMessage(p.error?'로그인은 완료됐지만 프로필 조회에 실패했어.':'로그인 완료.');
+  }catch(e){console.warn('프로필 조회 실패:',e);authMessage('로그인은 완료됐지만 프로필 조회에 실패했어.');}
+ }catch(e){console.error('로그인 요청 실패:',e);authMessage('로그인 처리 중 오류: '+(e&&e.message||'네트워크 또는 인증 설정을 확인해 줘.'));}
 }
 window.plakoroSignUp=signup;window.plakoroSignIn=signin;$('pvpSignUp').onclick=signup;$('pvpSignIn').onclick=signin;
 async function logoutCurrentUser(){try{if(client){var result=await client.auth.signOut({scope:'local'});if(result&&result.error)throw result.error;}authUser=null;setAuthUI(null,'');authMessage('로그아웃했어.');window.dispatchEvent(new CustomEvent('plakoro:auth-logout'));}catch(e){authMessage('로그아웃 실패: '+(e&&e.message||'인증 상태를 정리하지 못했어.'));}}
