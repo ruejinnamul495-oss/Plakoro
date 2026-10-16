@@ -6,10 +6,10 @@ function say(t){var roomStatus=$('pvpRoomStatus');if(roomStatus)roomStatus.textC
 function conf(){return {url:$('pvpSupabaseUrl').value.trim(),key:$('pvpSupabaseKey').value.trim()}}
 try{var saved=JSON.parse(localStorage.getItem(CFG)||'{}');saved.url=saved.url||'https://madsebygaqqnecmwwadb.supabase.co';saved.key=saved.key||'sb_publishable_OPaNvSWDGGx2GpE6K5TLpw_ZGNestGT';$('pvpSupabaseUrl').value=saved.url;$('pvpSupabaseKey').value=saved.key;localStorage.setItem(CFG,JSON.stringify(saved))}catch(e){$('pvpSupabaseUrl').value='https://madsebygaqqnecmwwadb.supabase.co';$('pvpSupabaseKey').value='sb_publishable_OPaNvSWDGGx2GpE6K5TLpw_ZGNestGT'}
 $('pvpName').value='';
-function keepLoginEnabled(){var el=$('keepLogin');return el?!!el.checked:localStorage.getItem(KEEP_LOGIN)==='1'}
+function keepLoginEnabled(){try{return localStorage.getItem(KEEP_LOGIN)==='1'}catch(e){var el=$('keepLogin');return !!(el&&el.checked)}}
 try{$('keepLogin').checked=localStorage.getItem(KEEP_LOGIN)==='1'}catch(e){}
-$('keepLogin').addEventListener('change',function(){try{localStorage.setItem(KEEP_LOGIN,this.checked?'1':'0')}catch(e){};});
-function initClient(){var c=conf();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)||!c.key){say('Supabase Project URL과 공개용 key를 입력해.');return false}if(!window.supabase||!window.supabase.createClient){say('Supabase 라이브러리를 불러오지 못했어. CDN 연결을 확인해.');return false}try{localStorage.setItem(CFG,JSON.stringify(c));client=window.supabase.createClient(c.url,c.key,{auth:{persistSession:keepLoginEnabled(),autoRefreshToken:true,detectSessionInUrl:false}});$('pvpConnectionStatus').textContent='설정 저장됨';return true}catch(e){say('설정 오류: '+e.message);return false}}
+$('keepLogin').addEventListener('change',function(){try{localStorage.setItem(KEEP_LOGIN,this.checked?'1':'0');if(!this.checked&&client){client.auth.signOut({scope:'local'}).catch(function(){});}}catch(e){};});
+function initClient(){var c=conf();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)||!c.key){say('Supabase Project URL과 공개용 key를 입력해.');return false}if(!window.supabase||!window.supabase.createClient){say('Supabase 라이브러리를 불러오지 못했어. CDN 연결을 확인해.');return false}try{localStorage.setItem(CFG,JSON.stringify(c));client=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});$('pvpConnectionStatus').textContent='설정 저장됨';return true}catch(e){say('설정 오류: '+e.message);return false}}
 $('pvpSaveConfig').onclick=function(){if(initClient())say('설정을 저장했어. 방을 만들거나 코드를 입력해.')};
 
 var authUser=null,authReady=false,recordedResults={};
