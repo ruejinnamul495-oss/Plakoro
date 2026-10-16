@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="battle-core.js"></script><script src="pvp.js?v=20261016-tower-4" defer></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="battle-core.js"></script><script src="pvp.js?v=20261016-whitefix-1" defer></script>
 <title>프라코로 배틀 랩</title>
 <style>
 :root{--bg:#f4f6fb;--panel:#fff;--ink:#182033;--muted:#667085;--line:#dfe4ee;--accent:#5a53e8;--accent2:#e9e8ff;--red:#d94b58;--green:#16845b}
@@ -568,6 +568,20 @@ header:after{display:none!important;content:none!important}
 #moveEffectTooltip .effect-line{padding-top:5px;margin-top:5px;border-top:1px solid #ffffff24}
 #moveEffectTooltip .effect-muted{color:#bfd4cc}
 @media(hover:none),(pointer:coarse){#moveEffectTooltip{width:min(340px,calc(100vw - 24px));max-height:35vh;font-size:12px;box-shadow:0 8px 26px #071d1980}}
+
+/* Layout recovery: keep the landing view visible if a previous navigation left every view hidden. */
+@media(min-width:701px){
+ .home-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch}
+ .home-grid>.home-action{width:100%!important;min-width:0!important;max-width:none!important;height:100%;min-height:92px}
+ .home-grid>.home-action>*{min-width:0}
+ .home-action strong,.home-action small{overflow-wrap:anywhere}
+ .prebattle-options,.prebattle-mode-grid,.mode-grid,.ene-mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+ .prebattle-options>* ,.prebattle-mode-grid>*,.mode-grid>*,.ene-mode-grid>*{width:100%!important;min-width:0!important;max-width:none!important;box-sizing:border-box}
+}
+@media(max-width:700px){
+ .home-grid>.home-action{width:100%;min-width:0;box-sizing:border-box}
+}
+
 </style>
 </head>
 <body><button type="button" class="home-return" id="returnHome">⌂ 홈</button><button type="button" class="home-logout" id="headerLogout" hidden>로그아웃</button>
@@ -820,7 +834,7 @@ function loadAiSpriteIndex(){if(aiSpriteIndexPromise)return aiSpriteIndexPromise
 function setAiBattleSprite(side,p){const img=document.getElementById('aiSprite'+side),stage=document.getElementById('aiSpriteStage'+side);if(!img||!stage)return;if(!p){img.hidden=true;img.removeAttribute('src');stage.classList.remove('has-sprite');return}if(!aiSpriteNameToId){img.hidden=true;stage.classList.remove('has-sprite');loadAiSpriteIndex();return}const normalized=normalizeAiSpriteName(p.name);let id=aiSpriteNameToId[normalized];if(!id){const base=normalized.replace(/^(알로라|가라르|히스이|팔데아)/,'');id=aiSpriteNameToId[base]||aiSpriteNameToId[base.replace(/[xy]$/,'')]}if(!id){img.hidden=true;stage.classList.remove('has-sprite');return}const src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+id+'.png';if(img.dataset.spriteId===String(id)&&img.src===src&&!img.hidden)return;img.dataset.spriteId=String(id);img.onerror=()=>{img.hidden=true;stage.classList.remove('has-sprite')};img.onload=()=>{img.hidden=false;stage.classList.add('has-sprite')};img.src=src}
 function refreshAiBattleSprites(){setAiBattleSprite('1',selectedPokemon('1'));setAiBattleSprite('2',selectedPokemon('2'));setAiTerminalSprite('1',selectedPokemon('1'));setAiTerminalSprite('2',selectedPokemon('2'))}
 function setAiTerminalSprite(side,p){const img=document.getElementById('aiTerminalSprite'+side);if(!img)return;if(!p||!aiSpriteNameToId){img.hidden=true;if(p&&!aiSpriteNameToId)loadAiSpriteIndex();return}const normalized=normalizeAiSpriteName(p.name);let id=aiSpriteNameToId[normalized];if(!id){const base=normalized.replace(/^(알로라|가라르|히스이|팔데아)/,'');id=aiSpriteNameToId[base]||aiSpriteNameToId[base.replace(/[xy]$/,'')]}if(!id){img.hidden=true;return}const src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+id+'.png';if(img.dataset.spriteId===String(id)&&!img.hidden)return;img.dataset.spriteId=String(id);img.onerror=()=>{img.hidden=true};img.onload=()=>{img.hidden=false};img.src=src}
-function tab(n,updateHistory=true){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!==n));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===n));if(updateHistory){history.pushState({plakoroView:n},'',location.pathname+location.search+location.hash)}}
+function tab(n,updateHistory=true){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!==n));if(!document.querySelector('.view:not(.hidden)')&&!document.getElementById('accountGate')?.classList.contains('open')){const home=document.getElementById('home');if(home)home.classList.remove('hidden');}document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===n));if(updateHistory){history.pushState({plakoroView:n},'',location.pathname+location.search+location.hash)}}
 history.replaceState({plakoroView:'home'},'',location.pathname+location.search+location.hash);window.addEventListener('popstate',()=>{document.getElementById('preBattleModal').classList.add('hidden');pendingHomeMode=null;tab('home',false);history.pushState({plakoroView:'home'},'',location.pathname+location.search+location.hash)});
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 let pendingHomeMode=null;
