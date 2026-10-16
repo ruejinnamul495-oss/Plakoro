@@ -52,6 +52,8 @@
  }
  function applyMoveEffects(ctx){
   var move=ctx.move,own=ctx.own,targetEffects=ctx.targetEffects,notes=ctx.notes,damage=Number(ctx.damage)||0,damageParts=ctx.damageParts,heal=Number(ctx.heal)||0,selfDamage=Number(ctx.selfDamage)||0,failed=!!ctx.failed,roll=ctx.roll||[],counts=ctx.counts||rollCounts(roll),posture=ctx.posture;
+  // 에너지 조건 미충족으로 기술이 발동하지 않으면 부가 효과와 상태 변경을 처리하지 않는다.
+  if(failed)return {damage:0,damageParts:[],heal:0,selfDamage:0,failed:true,roll:roll,counts:counts,notes:[]};
   if(move.baseReduceNext){own.reduce=(own.reduce||0)+move.baseReduceNext;notes.push('다음 상대 턴 받는 피해 -'+move.baseReduceNext)}
   (move.effects||[]).forEach(function(e){
    if(e.type!=='reflectDouble'&&e.poses&&e.poses.length&&!e.poses.includes(posture))return;
