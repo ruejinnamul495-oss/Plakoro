@@ -76,7 +76,7 @@ async function saveFinishedMatch(winnerId,players){
  if(res.error){delete recordedResults[roomCode];authMessage('대전은 끝났지만 전적 저장에 실패했어: '+res.error.message);return}
  authMessage('대전 전적을 서버에 저장했어.');loadMyRecord();loadLeaderboard();
 }
-async async async function refreshAuth(){
+async function refreshAuth(){
  if(!client)return;
  var s=await client.auth.getSession();if(s.error){authMessage('로그인 상태를 확인하지 못했어: '+s.error.message);return}
  var user=s.data.session&&s.data.session.user,username='';
