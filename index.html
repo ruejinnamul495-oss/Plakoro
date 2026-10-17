@@ -1131,4 +1131,155 @@ if(!restoreTowerProgress())renderAll();
  if(signUp)signUp.addEventListener('click',function(e){e.preventDefault();var signup=el('accountGateTitle').textContent!=='회원가입';mode(signup)});
  var form=el('gatePassword');if(form)form.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();submit()}});
 })();</script>
+
+<script>
+/* Guided, in-battle tutorial: the original explainer remains the first part. */
+(function(){
+ const $=id=>document.getElementById(id);
+ let guided=false, stage=0, allowedMoves=[], twoEnergyMove=null, coachTarget=null;
+ const style=document.createElement('style');
+ style.textContent=`
+ #tutorialCoachSpotlight{position:fixed;z-index:100000;pointer-events:none;border-radius:16px;box-shadow:0 0 0 9999px rgba(5,10,22,.76);outline:3px solid #fff;outline-offset:2px;transition:all .18s ease}
+ #tutorialCoachBubble{position:fixed;z-index:100002;max-width:min(360px,calc(100vw - 28px));width:max-content;background:#fff;color:#172033;border:2px solid #d7e2f6;border-radius:18px;padding:15px 16px 13px;box-shadow:0 12px 40px #0005;font-size:15px;line-height:1.55}
+ #tutorialCoachBubble:before{content:"";position:absolute;width:16px;height:16px;background:#fff;transform:rotate(45deg);border-left:2px solid #d7e2f6;border-top:2px solid #d7e2f6}
+ #tutorialCoachBubble[data-tail="down"]:before{bottom:-9px;left:28px;transform:rotate(225deg)}
+ #tutorialCoachBubble[data-tail="up"]:before{top:-9px;left:28px;transform:rotate(45deg)}
+ #tutorialCoachBubble h3{font-size:16px;line-height:1.3;margin:0 0 7px;color:#173d86}
+ #tutorialCoachBubble p{margin:0 0 12px}
+ #tutorialCoachBubble .coach-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+ #tutorialCoachBubble button{border:0;border-radius:11px;padding:10px 13px;font-weight:800;cursor:pointer;background:#244c9a;color:white}
+ #tutorialCoachBubble button.coach-secondary{background:#edf1f7;color:#24334d}
+ #setupMoveChoices .tutorial-move-locked{opacity:.38;filter:grayscale(.7);cursor:not-allowed}
+ #setupMoveChoices .tutorial-move-allowed{outline:2px solid #6c91ed;outline-offset:1px}
+ #movePickerChoices .tutorial-move-locked{opacity:.38;filter:grayscale(.7);cursor:not-allowed}
+ @media(max-width:520px){#tutorialCoachBubble{font-size:14px;padding:13px 14px}#tutorialCoachBubble button{padding:9px 11px}}
+ `;
+ document.head.appendChild(style);
+ const spotlight=document.createElement('div');spotlight.id='tutorialCoachSpotlight';spotlight.hidden=true;document.body.appendChild(spotlight);
+ const bubble=document.createElement('div');bubble.id='tutorialCoachBubble';bubble.hidden=true;bubble.innerHTML='<h3></h3><p></p><div class="coach-actions"></div>';document.body.appendChild(bubble);
+ function clearCoach(){spotlight.hidden=true;bubble.hidden=true;coachTarget=null}
+ function showCoach(selector,title,message,actionLabel,onAction,secondaryLabel,onSecondary){
+  const target=typeof selector==='string'?document.querySelector(selector):selector;
+  if(!target){console.warn('Tutorial spotlight target missing:',selector);return}
+  coachTarget=target;target.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});
+  const place=()=>{
+   if(!guided||!coachTarget||!coachTarget.isConnected)return;
+   const r=coachTarget.getBoundingClientRect(),pad=5;
+   spotlight.style.left=Math.max(4,r.left-pad)+'px';spotlight.style.top=Math.max(4,r.top-pad)+'px';
+   spotlight.style.width=Math.max(8,r.width+pad*2)+'px';spotlight.style.height=Math.max(8,r.height+pad*2)+'px';spotlight.hidden=false;
+   bubble.querySelector('h3').textContent=title;bubble.querySelector('p').textContent=message;
+   const actions=bubble.querySelector('.coach-actions');actions.innerHTML='';
+   if(secondaryLabel){const b=document.createElement('button');b.className='coach-secondary';b.textContent=secondaryLabel;b.onclick=onSecondary||clearCoach;actions.appendChild(b)}
+   if(actionLabel){const b=document.createElement('button');b.textContent=actionLabel;b.onclick=onAction||clearCoach;actions.appendChild(b)}
+   bubble.hidden=false;bubble.dataset.tail='down';
+   const br=bubble.getBoundingClientRect();let left=Math.max(14,Math.min(innerWidth-br.width-14,r.left+(r.width-br.width)/2));
+   let top=r.top-br.height-18;
+   if(top<10){top=Math.min(innerHeight-br.height-10,r.bottom+18);bubble.dataset.tail='up'}
+   bubble.style.left=left+'px';bubble.style.top=Math.max(10,top)+'px';
+  };
+  requestAnimationFrame(place);
+ }
+ window.addEventListener('resize',()=>{if(guided&&coachTarget){const t=coachTarget,h=bubble.querySelector('h3').textContent,p=bubble.querySelector('p').textContent;const buttons=[...bubble.querySelectorAll('button')].map(b=>({label:b.textContent,secondary:b.classList.contains('coach-secondary'),fn:b.onclick}));showCoach(t,h,p,buttons.find(b=>!b.secondary)?.label,buttons.find(b=>!b.secondary)?.fn,buttons.find(b=>b.secondary)?.label,buttons.find(b=>b.secondary)?.fn)}});
+ function findBulbasaur(){return db.pokemon.find(p=>p.name==='이상해씨')||db.pokemon[0]}
+ function totalCost(m){return Object.values(m?.cost||{}).reduce((s,n)=>s+(Number(n)||0),0)}
+ function chooseTutorialMoves(p){
+  const moves=p?.moves||[],used=[];
+  const find=(name,cost)=>moves.find(m=>m.name===name&&!used.includes(String(m.id)))||moves.find(m=>totalCost(m)===cost&&!used.includes(String(m.id))&&(!m.cost?.풀||m.cost.풀>0));
+  const m2=find('잎날가르기',2);if(m2)used.push(String(m2.id));
+  const m3a=find('풀묶기',3);if(m3a)used.push(String(m3a.id));
+  const m3b=find('돌격',3);if(m3b)used.push(String(m3b.id));
+  const m4=find('기가드레인',4);if(m4)used.push(String(m4.id));
+  const chosen=[m2,m3a,m3b,m4].filter(Boolean);
+  if(chosen.length===4&&chosen.map(totalCost).sort((a,b)=>a-b).join(',')==='2,3,3,4')return chosen;
+  const fallback=[];for(const cost of [2,3,3,4]){const m=moves.find(x=>totalCost(x)===cost&&!fallback.includes(x));if(m)fallback.push(m)}
+  return fallback;
+ }
+ function beginGuidedTutorial(){
+  guided=true;stage=1;clearCoach();
+  const p=findBulbasaur();if(!p){guided=false;tab('battle');return}
+  battle={started:false,over:false,turn:1,active:'1',firstActor:'1',firstMovePending:false,hp1:p.hp,hp2:120,lastMove:{'1':null,'2':null},slots:{'1':[],'2':[]},effects:{'1':{},'2':{}},lastRoll:[],lastRollBySide:{'1':[],'2':[]},lastFailed:{'1':false,'2':false},poisoned:{'1':false,'2':false}};
+  $('p1').value=String(p.id);renderSlots('1');chooseRandomOpponent(p.id);renderSlots('2');renderInfo();renderMoveChoices();refreshBattle();tab('battle');
+  setTimeout(()=>showCoach('.arena-player .arena-identity','이상해씨가 내 포켓몬이에요','아래쪽에 표시된 이상해씨가 이번 튜토리얼에서 내가 조종할 포켓몬이에요. 여기서 포켓몬과 HP를 확인할 수 있어요.','다음: 에네코로 설정',()=>openTutorialEnergySetup()),120);
+ }
+ function openTutorialEnergySetup(){
+  stage=2;clearCoach();tab('ene');$('enePrimaryType').value='풀';$('eneSecondaryType').value='불꽃';$('enePrimaryType').disabled=true;
+  showCoach('#enePrimaryType','주 타입은 풀','이상해씨는 풀 타입 포켓몬이에요. 에네코로에 풀 에너지가 잘 나오도록 주 타입을 풀로 설정해요. 일괄 적용은 에네코로 1·2·3을 한 번에 바꾸는 기능이에요.','풀 선택 완료',()=>{
+   $('enePrimaryType').value='풀';
+   showCoach('#applyEneBatch','에네코로 3개에 일괄 적용','이 버튼을 누르면 풀 단일 면 3개와 풀 더블 면 2개가 각 에네코로에 적용돼요. 보조 타입은 나머지 단일 면에 들어갑니다.','적용 버튼 누르기',()=>$('applyEneBatch').click());
+  });
+ }
+ function openTutorialMoveSetup(){
+  stage=3;clearCoach();tab('battle');
+  const p=findBulbasaur();$('p1').value=String(p.id);
+  const opp=selectedPokemon('2');if(!opp||String(opp.id)===String(p.id))chooseRandomOpponent(p.id);
+  renderSlots('1');renderSlots('2');renderInfo();renderMoveChoices();
+  const setupP1=$('setupP1');setupP1.innerHTML=$('p1').innerHTML;setupP1.value=String(p.id);setupP1.disabled=true;
+  allowedMoves=chooseTutorialMoves(p);twoEnergyMove=allowedMoves.find(m=>totalCost(m)===2)||null;
+  renderSetupMoves();$('setupTitle').textContent='이상해씨의 기술 선택';$('confirmSetup').textContent='기술 4개 선택 완료';
+  $('setupModal').classList.add('open');$('setupModal').style.display='flex';applySetupMoveLocks();
+  showCoach('#setupMoveChoices','기술 7개 중 4개를 골라요','추천 선택은 에너지 비용이 2, 3, 3, 4인 네 가지예요. 다른 기술은 이번 실습에서 선택할 수 없게 해뒀어요. 기술 카드에 커서를 올리거나 한 번 터치하면 추가 효과를 볼 수 있어요.','확인했어요',()=>showCoach('#setupMoveChoices','추천 기술을 4개 선택해요','파란 테두리가 있는 기술 중 4개를 선택하세요. 비용은 2·3·3·4예요. 네 개를 모두 선택하면 아래의 완료 버튼을 누를 수 있어요.','기술 선택하기',()=>{const first=$('setupMoveChoices').querySelector('[data-setup-move="'+twoEnergyMove?.id+'"]');if(first)first.scrollIntoView({behavior:'smooth',block:'center'})}));
+ }
+ function applySetupMoveLocks(){
+  if(!guided||stage!==3)return;
+  const allowed=new Set(allowedMoves.map(m=>String(m.id)));
+  document.querySelectorAll('#setupMoveChoices [data-setup-move]').forEach(btn=>{
+   const id=String(btn.dataset.setupMove),ok=allowed.has(id);
+   btn.classList.toggle('tutorial-move-allowed',ok);btn.classList.toggle('tutorial-move-locked',!ok);btn.setAttribute('aria-disabled',String(!ok));
+   if(!btn.dataset.tutorialGuard){
+    const old=btn.onclick;btn.dataset.tutorialGuard='1';
+    btn.onclick=function(e){if(guided&&stage===3&&!allowed.has(String(this.dataset.setupMove))){e.preventDefault();e.stopImmediatePropagation();$('setupSlotInfo').textContent='이번 튜토리얼에서는 비용이 2·3·3·4인 추천 기술만 선택할 수 있어요.';return}if(typeof old==='function')return old.call(this,e)};
+   }
+  });
+ }
+ const originalRenderSetupMoves=renderSetupMoves;
+ renderSetupMoves=function(){originalRenderSetupMoves();applySetupMoveLocks()};
+ function afterEneApplied(){if(!guided||stage!==2)return;$('enePrimaryType').disabled=false;openTutorialMoveSetup()}
+ const applyButton=$('applyEneBatch'),originalApply=applyButton.onclick;
+ applyButton.onclick=function(e){if(typeof originalApply==='function')originalApply.call(this,e);if(guided&&stage===2){if($('enePrimaryType').value!=='풀'){$('enePrimaryType').value='풀';if(originalApply)originalApply.call(this,e)}afterEneApplied()}};
+ const confirmButton=$('confirmSetup'),originalConfirm=confirmButton.onclick;
+ confirmButton.onclick=function(e){
+  if(guided&&stage===3){
+   const picked=[...document.querySelectorAll('#setupMoveChoices [data-setup-move][aria-pressed="true"]')].map(b=>String(b.dataset.setupMove));
+   if(picked.length!==4||allowedMoves.some(m=>!picked.includes(String(m.id)))){$('setupSlotInfo').textContent='추천 기술 중 비용 2·3·3·4인 네 개를 선택해 주세요.';return}
+   stage=4;const random=Math.random;Math.random=()=>0.1;
+   try{if(typeof originalConfirm==='function')originalConfirm.call(this,e)}finally{Math.random=random}
+   if(battle.started)showCoach('#firstTurnModal .move-picker-dialog','선공과 후공','이번 실습은 선공으로 고정했어요. 선공의 첫 행동은 에네코로 2개만 굴려요. 에네코로는 기술을 발동할 에너지를 모으는 주사위이고, 기술은 그 에너지로 사용하는 행동이에요.','확인하고 계속',()=>$('firstTurnConfirm').click());
+   return;
+  }
+  if(typeof originalConfirm==='function')return originalConfirm.call(this,e)
+ };
+ const firstTurn=$('firstTurnConfirm'),originalFirstTurn=firstTurn.onclick;
+ firstTurn.onclick=async function(e){
+  if(guided&&stage===4){if(typeof originalFirstTurn==='function')await originalFirstTurn.call(this,e);if(guided){stage=5;showCoach('#rollAttack','이번 턴에 쓸 기술을 골라요','첫 행동은 에네코로 2개예요. 그래서 이번에는 에너지 비용이 2개인 잎날가르기를 선택해 볼게요. 에네코로 결과가 기술 비용을 채우면 기술이 발동해요.','기술 선택 열기',()=>$('rollAttack').click())}return}
+  if(typeof originalFirstTurn==='function')return originalFirstTurn.call(this,e)
+ };
+ const originalOpenMovePicker=openMovePicker;
+ openMovePicker=function(mode='turn'){
+  originalOpenMovePicker(mode);if(!guided||stage!==5||mode!=='turn')return;
+  const root=$('movePickerChoices'),target=twoEnergyMove;
+  root.querySelectorAll('[data-turn-id]').forEach(btn=>{const ok=target&&String(btn.dataset.turnId)===String(target.id);btn.classList.toggle('tutorial-move-allowed',!!ok);btn.classList.toggle('tutorial-move-locked',!ok);if(!ok){btn.disabled=true;btn.title='이번 실습에서는 에너지 비용 2개인 기술을 선택해 주세요.'}});
+  if(target){const btn=root.querySelector('[data-turn-id="'+target.id+'"]');if(btn)showCoach(btn,'에너지 비용 2개인 기술','잎날가르기는 풀 에너지 2개가 필요해요. 이번에는 선공의 에네코로 2개로 반드시 발동하도록 풀 에너지 2개가 나오게 할게요.','이 기술 선택하기',()=>btn.click())}
+ };
+ const originalRollForTurn=rollForTurn;
+ rollForTurn=function(n,isAI,modifier,baseCount=3){if(guided&&stage===5&&n==='1')return [{dieIndex:0,face:['풀']},{dieIndex:1,face:['풀']}];return originalRollForTurn(n,isAI,modifier,baseCount)};
+ const originalDoAttack=doAttack;
+ doAttack=function(n,isAI=false){
+  if(guided&&stage===5&&n==='1'){
+   battle.effects['1'].forcedPose='정방향';const result=originalDoAttack(n,isAI);stage=6;
+   setTimeout(()=>{if(guided&&stage===6)showCoach('#charikoro-1','캐릭코로 자세가 추가 효과를 결정해요','에네코로는 풀 2개가 나와서 기술이 발동했어요. 캐릭코로는 정방향으로 고정했고, 잎날가르기의 추가 피해 +20도 적용됐어요. 기술마다 효과가 발동하는 자세가 다르니 결과를 함께 확인해요.','이제 VS AI 대전 계속하기',finishGuidedTutorial)},260);
+   return result;
+  }
+  return originalDoAttack(n,isAI)
+ };
+ const originalAiTurn=aiTurn;
+ aiTurn=function(){if(guided&&stage===6)return;return originalAiTurn()};
+ function finishGuidedTutorial(){clearCoach();guided=false;stage=0;if(battle.started&&!battle.over&&battle.active==='2')setTimeout(()=>originalAiTurn(),250);else if(battle.started&&!battle.over&&battle.active==='1')$('rollAttack').disabled=false}
+ const originalRenderTutorialStep=renderTutorialStep;
+ renderTutorialStep=function(){originalRenderTutorialStep();if(tutorialState.step===tutorialSteps.length-1)$('tutorialNext').textContent='전투 실습 시작'};
+ function launchTutorialFlow(){if(tutorialState.step<tutorialSteps.length-1){tutorialState.step++;renderTutorialStep();return}closeTutorial();beginGuidedTutorial()}
+ advanceTutorial=launchTutorialFlow;$('tutorialNext').onclick=launchTutorialFlow;
+ $('tutorialExit').onclick=function(){closeTutorial();if(guided){clearCoach();guided=false;stage=0;$('enePrimaryType').disabled=false}};
+ $('startTutorial').onclick=function(){tutorialState.step=0;tutorialState.energyRoll=null;tutorialState.pose=null;renderTutorialStep();$('tutorialModal').classList.add('open')};
+})();
+</script>
 </body></html>
