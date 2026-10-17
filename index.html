@@ -1236,7 +1236,7 @@ if(!restoreTowerProgress())renderAll();
   allowedMoves=chooseTutorialMoves(p);twoEnergyMove=allowedMoves.find(m=>totalCost(m)===2)||null;
   renderSetupMoves();$('setupTitle').textContent='이상해씨의 기술 선택';$('confirmSetup').textContent='기술 4개 선택 완료';
   $('setupModal').classList.add('open');$('setupModal').style.display='flex';applySetupMoveLocks();
-  showCoach('#setupMoveChoices','기술 7개 중 4개를 골라요','추천 선택은 에너지 비용이 2, 3, 3, 4인 네 가지예요. 다른 기술은 이번 실습에서 선택할 수 없게 해뒀어요. 기술 카드에 커서를 올리거나 한 번 터치하면 추가 효과를 볼 수 있어요.','확인했어요',()=>showCoach('#setupMoveChoices','추천 기술을 4개 선택해요','파란 테두리가 있는 기술 중 4개를 선택하세요. 비용은 2·3·3·4예요. 네 개를 모두 선택하면 아래의 완료 버튼을 누를 수 있어요.','기술 선택하기',()=>{const first=$('setupMoveChoices').querySelector('[data-setup-move="'+twoEnergyMove?.id+'"]');if(first)first.scrollIntoView({behavior:'smooth',block:'center'})}));
+  showCoach('#setupMoveChoices','기술 7개 중 4개를 골라요','추천 선택은 에너지 비용이 2, 3, 3, 4인 네 가지예요. 다른 기술은 이번 실습에서 선택할 수 없게 해뒀어요. 기술 카드에 커서를 올리거나 한 번 터치하면 추가 효과를 볼 수 있어요.','확인했어요',()=>showCoach('#setupMoveChoices','추천 기술을 4개 선택해요','이번 실습에서는 비용이 2·3·3·4인 추천 기술 4개를 선택할게요. 아래 보라색 버튼을 누르면 기술 선택을 자동으로 완료하고 다음 단계로 넘어가요.','기술 선택하기',()=>{allowedMoves.forEach(m=>{const card=$('setupMoveChoices').querySelector('[data-setup-move="'+m.id+'"]');if(card&&card.getAttribute('aria-pressed')!=='true')card.click()});$('confirmSetup').click()}));
  }
  function applySetupMoveLocks(){
   if(!guided||stage!==3)return;
