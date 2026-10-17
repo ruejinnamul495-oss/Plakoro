@@ -492,6 +492,18 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
 .home-logout[hidden]{display:none!important}
 @media(max-width:420px){.home-return{top:12px!important;left:12px!important;right:auto!important;width:228px!important;max-width:calc(100vw - 132px)!important;height:36px!important;min-height:36px!important;padding:0 12px!important;line-height:1!important}.home-logout{top:12px!important;right:12px!important;width:96px;height:36px;min-height:36px;padding:0 8px;font-size:12px;line-height:1}}
 .arena-mon-icon.attack-flinch{animation:plakoro-flinch .34s ease-in-out}@keyframes plakoro-flinch{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}55%{transform:translateX(4px)}80%{transform:translateX(-2px)}}
+
+/* Mobile-safe modal and tutorial coach positioning */
+@media(max-width:700px){
+ .move-picker-backdrop{padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));align-items:flex-start;overflow-y:auto;overscroll-behavior:contain}
+ .move-picker-dialog{width:100%;max-width:620px;max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));max-height:calc(100vh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));margin:auto 0;padding:16px;border-radius:16px;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+ .move-picker-heading{position:sticky;top:-16px;z-index:2;background:#fff;padding:4px 0 8px}
+ #setupModal .move-picker-dialog{max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+ #setupMoveChoices{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #setupMoveChoices .move-choice{min-width:0;min-height:76px;padding:12px;font-size:14px}
+ #setupMoveChoices .move-choice small{white-space:normal;overflow-wrap:anywhere}
+ #tutorialCoachBubble{width:min(340px,calc(100vw - 24px));max-height:42dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+}
 </style><style>
 .home-return{position:fixed;top:12px;left:12px!important;right:auto!important;z-index:1000;width:228px!important;height:36px!important;min-height:36px!important;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:0 12px!important;line-height:1!important;border:1px solid #ffffff40;border-radius:999px;background:#272b43;color:#fff;font-weight:750;cursor:pointer;box-shadow:0 5px 20px #0002;white-space:nowrap}
 </style>
@@ -1172,10 +1184,10 @@ if(!restoreTowerProgress())renderAll();
    if(secondaryLabel){const b=document.createElement('button');b.className='coach-secondary';b.textContent=secondaryLabel;b.onclick=onSecondary||clearCoach;actions.appendChild(b)}
    if(actionLabel){const b=document.createElement('button');b.textContent=actionLabel;b.onclick=onAction||clearCoach;actions.appendChild(b)}
    bubble.hidden=false;bubble.dataset.tail='down';
-   const br=bubble.getBoundingClientRect();let left=Math.max(14,Math.min(innerWidth-br.width-14,r.left+(r.width-br.width)/2));
+   const vv=window.visualViewport,viewW=vv?vv.width:innerWidth,viewH=vv?vv.height:innerHeight,offL=vv?vv.offsetLeft:0,offT=vv?vv.offsetTop:0;const br=bubble.getBoundingClientRect();let left=Math.max(offL+12,Math.min(offL+viewW-br.width-12,r.left+(r.width-br.width)/2));
    let top=r.top-br.height-18;
-   if(top<10){top=Math.min(innerHeight-br.height-10,r.bottom+18);bubble.dataset.tail='up'}
-   bubble.style.left=left+'px';bubble.style.top=Math.max(10,top)+'px';
+   if(top<offT+8){top=Math.min(offT+viewH-br.height-8,r.bottom+18);bubble.dataset.tail='up'}else bubble.dataset.tail='down';
+   bubble.style.left=Math.max(offL+8,Math.min(offL+viewW-br.width-8,left))+'px';bubble.style.top=Math.max(offT+8,Math.min(offT+viewH-br.height-8,top))+'px';
   };
   requestAnimationFrame(place);
  }
@@ -1195,6 +1207,8 @@ if(!restoreTowerProgress())renderAll();
   return fallback;
  }
  function beginGuidedTutorial(){
+  // Tutorial always starts a clean VS AI practice; never resume a tower run here.
+  towerRun=null;clearTowerProgress();$('resultModal').classList.remove('open');$('setupModal').classList.remove('open');$('setupModal').style.display='none';$('preBattleModal').classList.add('hidden');pendingHomeMode=null;
   guided=true;stage=1;clearCoach();
   const p=findBulbasaur();if(!p){guided=false;tab('battle');return}
   battle={started:false,over:false,turn:1,active:'1',firstActor:'1',firstMovePending:false,hp1:p.hp,hp2:120,lastMove:{'1':null,'2':null},slots:{'1':[],'2':[]},effects:{'1':{},'2':{}},lastRoll:[],lastRollBySide:{'1':[],'2':[]},lastFailed:{'1':false,'2':false},poisoned:{'1':false,'2':false}};
