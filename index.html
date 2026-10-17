@@ -498,7 +498,12 @@ input:focus,select:focus,textarea:focus,button:focus-visible{border-color:#07846
  .move-picker-backdrop{padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));align-items:flex-start;overflow-y:auto;overscroll-behavior:contain}
  .move-picker-dialog{width:100%;max-width:620px;max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));max-height:calc(100vh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));margin:auto 0;padding:16px;border-radius:16px;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
  .move-picker-heading{position:sticky;top:-16px;z-index:2;background:#fff;padding:4px 0 8px}
- #setupModal .move-picker-dialog{max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:0;overscroll-behavior:contain}#setupModal #confirmSetup{position:sticky;bottom:0;z-index:5;margin-top:14px;padding:14px;background:#244c9a;box-shadow:0 -8px 16px #ffffffd9;touch-action:manipulation}#setupModal .move-picker-dialog{padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+ #setupModal{align-items:flex-start;padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch}
+ #setupModal .move-picker-dialog{width:100%;max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:0;overscroll-behavior:contain;display:flex;flex-direction:column;position:relative;padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+ #setupModal .move-picker-dialog>.field{min-height:0}
+ #setupModal #setupMoveChoices{flex:0 0 auto}
+ #setupModal #confirmSetup{position:sticky;bottom:0;flex-shrink:0;z-index:20;margin-top:14px;padding:15px;background:#244c9a;color:#fff;box-shadow:0 -8px 16px #ffffffed;border:2px solid #fff;touch-action:manipulation;min-height:52px}
+ #setupModal .move-picker-dialog{scroll-padding-bottom:90px}
  #setupMoveChoices{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
  #setupMoveChoices .move-choice{min-width:0;min-height:76px;padding:12px;font-size:14px}
  #setupMoveChoices .move-choice small{white-space:normal;overflow-wrap:anywhere}
