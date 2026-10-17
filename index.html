@@ -1258,7 +1258,7 @@ if(!restoreTowerProgress())renderAll();
   originalOpenMovePicker(mode);if(!guided||stage!==5||mode!=='turn')return;
   const root=$('movePickerChoices'),target=twoEnergyMove;
   root.querySelectorAll('[data-turn-id]').forEach(btn=>{const ok=target&&String(btn.dataset.turnId)===String(target.id);btn.classList.toggle('tutorial-move-allowed',!!ok);btn.classList.toggle('tutorial-move-locked',!ok);if(!ok){btn.disabled=true;btn.title='이번 실습에서는 에너지 비용 2개인 기술을 선택해 주세요.'}});
-  if(target){const btn=root.querySelector('[data-turn-id="'+target.id+'"]');if(btn)showCoach(btn,'에너지 비용 2개인 기술','잎날가르기는 풀 에너지 2개가 필요해요. 이번에는 선공의 에네코로 2개로 반드시 발동하도록 풀 에너지 2개가 나오게 할게요.','이 기술 선택하기',()=>btn.click())}
+  if(target){const btn=root.querySelector('[data-turn-id="'+target.id+'"]');if(btn)showCoach(btn,'에너지 비용 2개인 기술','잎날가르기는 풀 에너지 2개가 필요해요. 이번에는 선공의 에네코로 2개로 반드시 발동하도록 풀 에너지 2개가 나오게 할게요. 모바일에서는 기술을 한 번 터치하면 추가 효과가 보이고, 한 번 더 터치하면 선택돼요.','기술 카드 직접 선택',()=>clearCoach())}
  };
  const originalRollForTurn=rollForTurn;
  rollForTurn=function(n,isAI,modifier,baseCount=3){if(guided&&stage===5&&n==='1')return [{dieIndex:0,face:['풀']},{dieIndex:1,face:['풀']}];return originalRollForTurn(n,isAI,modifier,baseCount)};
