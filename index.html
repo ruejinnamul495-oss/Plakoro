@@ -1062,7 +1062,7 @@ function closeTutorial(){document.getElementById('tutorialModal').classList.remo
 document.getElementById('startTutorial').onclick=openTutorial;
 document.getElementById('tutorialExit').onclick=closeTutorial;
 document.getElementById('tutorialBack').onclick=()=>{if(tutorialState.step>0){tutorialState.step--;renderTutorialStep()}};
-function advanceTutorial(){if(tutorialState.step<tutorialSteps.length-1){tutorialState.step++;renderTutorialStep()}else{closeTutorial();tab('battle')}}
+function advanceTutorial(){if(tutorialState.step<tutorialSteps.length-1){tutorialState.step++;renderTutorialStep()}else{closeTutorial();tab('home');openPreBattle('ai')}}
 document.getElementById('tutorialNext').onclick=advanceTutorial;
 document.getElementById('tutorialModal').addEventListener('click',e=>{if(e.target.id==='tutorialModal')closeTutorial()});
 document.getElementById('confirmSetup').onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}confirmSetup()};
@@ -1077,22 +1077,10 @@ if(!restoreTowerProgress())renderAll();
 </script>
 <script>
 (function(){
- const $=id=>document.getElementById(id), modal=$('tutorialModal'), body=$('tutorialModalBody'), title=$('tutorialModalTitle'), label=$('tutorialStepLabel'), back=$('tutorialBack'), next=$('tutorialNext');
- if(!modal||!body||!title||!label||!back||!next)return;
- let step=0;
- const pages=[
- ['프라코로는 어떤 게임일까?','<p>내 포켓몬과 상대 포켓몬이 기술을 주고받는 게임입니다.</p><div class="tutorial-callout"><b class="tutorial-big">기술 선택 → 에네코로 굴리기 → 조건 확인</b></div><p>상대 HP를 먼저 0으로 만들면 승리합니다.</p>'],
- ['기술에는 에너지 조건이 있어','<p>기술마다 필요한 타입과 에너지 개수가 정해져 있습니다.</p><div class="tutorial-callout"><b>풀 4개</b>는 풀 에너지가 4개 필요합니다.<br><b>불꽃 1개 + 무색 1개</b>는 불꽃 1개와 남은 에너지 중 아무 타입 1개가 필요합니다.</div><p>지정된 타입 비용은 해당 타입으로 채워야 합니다. 무색은 남은 에너지 중 아무 타입이나 사용할 수 있습니다. 한 면에 타입이 두 개면 에너지 2개로 계산합니다.</p>'],
- ['직접 주사위를 굴려 보자','<p>기술 조건을 고르고 주사위를 굴려 보세요.</p><div class="tutorial-practice-controls"><label for="tutorialPracticeCost">시도할 기술</label><select id="tutorialPracticeCost"><option value="grass4">풀 에너지 4개</option><option value="fireColorless">불꽃 1개 + 무색 1개</option><option value="water1">물 에너지 1개</option><option value="steel2">강철 에너지 2개</option></select><button type="button" class="btn" id="tutorialPracticeRoll">🎲 에네코로 3개 굴리기</button></div><div id="tutorialPracticeDice" class="tutorial-modal-dice"><div class="tutorial-modal-die">?</div><div class="tutorial-modal-die">?</div><div class="tutorial-modal-die">?</div></div><div id="tutorialPracticeResult" class="tutorial-modal-result">버튼을 눌러 주사위를 굴려 보세요.</div><div id="tutorialFaceEditor" class="tutorial-face-editor" hidden></div><p class="sub">연습은 실제 대전이나 저장된 에네코로 설정에 영향을 주지 않습니다.</p>'],
- ['발동 여부와 캐릭코로 확인','<p>필요한 에너지가 충분하면 기술이 발동합니다. 부족하면 공격이 실패하고 턴이 끝납니다.</p><div class="tutorial-callout"><b>캐릭코로도 중요해!</b><br>기술에 자세 조건이나 추가 효과가 있으면 캐릭코로 방향도 확인하세요. 추가 효과가 실제 적용되면 테두리가 초록색으로 표시됩니다.</div>'],
- ['준비 끝! 실전으로 가자','<p>기억할 것은 세 가지입니다.</p><ol><li>사용할 기술을 고른다.</li><li>에네코로를 굴린다.</li><li>에너지와 캐릭코로 조건을 확인한다.</li></ol><p>첫 행동은 에네코로 2개, 이후 기본적으로 3개를 굴립니다. 이제 실제 대전을 시작해 보세요.</p>']
- ];
- function render(){label.textContent='STEP '+(step+1)+' / '+pages.length;title.textContent=pages[step][0];body.innerHTML=pages[step][1];back.disabled=step===0;next.textContent=step===pages.length-1?'전투로 이동':'다음';}
- $('startTutorial').onclick=function(){step=0;render();modal.classList.add('open')};
- back.onclick=function(){if(step>0){step--;render()}};
- next.onclick=function(){if(step<pages.length-1){step++;render()}else{modal.classList.remove('open');document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!=='battle'));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab==='battle'))}};
- $('tutorialExit').onclick=function(){modal.classList.remove('open')};
- modal.addEventListener('click',function(e){if(e.target===modal)modal.classList.remove('open')});
+ const $=id=>document.getElementById(id), modal=$('tutorialModal'), body=$('tutorialModalBody');
+ if(!modal||!body)return;
+ // The seven-step interactive tutorial above owns rendering and navigation.
+ // Keep legacy practice helpers below without replacing the current tutorial handlers.
  const typeOptions=['풀','불꽃','물','번개','격투','강철','에스퍼','악','비행'];
  const singleDefaults=['풀','불꽃','물','번개'];
  const doubleDefaults=[['강철','강철'],['강철','격투']];
